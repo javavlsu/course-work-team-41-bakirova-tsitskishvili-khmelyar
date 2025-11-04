@@ -1,0 +1,413 @@
+/* Основной контент */
+.main-content {
+    margin-left: 250px;
+    /* Сдвигаем контент вправо на ширину панели */
+    padding: 56px;
+    width: calc(100% - 250px);
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+}
+
+.content-block {
+    background-color: var(--light-blue);
+    border-radius: 8px 28px 28px 28px;
+    box-shadow: 0px 0px 8px #00000040;
+}
+
+.content-header {
+    background-color: var(--primary-blue);
+    border-radius: 8px 28px 0px 0px;
+    color: var(--white);
+    padding: 3px 6px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.content-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    flex-grow: 1;
+    /* Занимает все доступное пространство, центрируя заголовок */
+}
+
+.header-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+/* Стили для кнопок в шапке блоков (Объявления, Мероприятия) */
+.header-btn {
+    /* 1. Убираем стандартные стили кнопки */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    /* 2. Создаем белый квадратик 24x24 с скруглением */
+    width: 24px;
+    height: 24px;
+    background-color: var(--white);
+    border-radius: 2px;
+
+    /* 3. Центрируем SVG иконку внутри квадратика */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 4. Плавный переход для эффекта при наведении */
+    transition: background-color 0.2s;
+}
+
+/* Стили для самих SVG-иконок внутри кнопок */
+.header-btn svg path {
+    /* Задаем цвет обводки для иконок */
+    stroke: var(--gray);
+}
+
+/* Эффект при наведении курсора на кнопку */
+.header-btn:hover {
+    background-color: var(--white-hover);
+}
+
+.content-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Карточки с информацией */
+.card {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.card-header time {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+.card p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.1;
+}
+
+/* Стили для мероприятий */
+.events {
+    background-color: var(--light-blue);
+}
+
+.event-time {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+.event-time strong {
+    font-weight: 600;
+}
+
+.event-details {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.event-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.event-image {
+    width: 267px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.pdf-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 4px #00000040;
+    text-decoration: none;
+    color: var(--gray);
+    font-size: 8px;
+}
+
+.pdf-icon path {
+    fill: var(--gray);
+}
+
+/* Блок с предложениями */
+.proposals,
+.modal-content {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0px 0px 8px #00000040;
+    padding: 4px;
+    text-align: center;
+    width: 486px;
+    align-self: center;
+}
+
+.proposals p,
+.modal-content h2 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 16px 0;
+    /* Добавляем вертикальные отступы вместо margin */
+    margin: 0;
+}
+
+/* Контейнер для кнопок в .proposals */
+.proposals-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Общий стиль для кнопок в .proposals и .modal-content */
+.proposals-buttons button,
+.modal-content button {
+    border: none;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    flex: 1;
+    /* Только для кнопок в .proposals, чтобы делили место */
+}
+
+.button-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    transition: background-color 0.2s;
+}
+
+.button-primary:hover {
+    background-color: var(--blue-hover);
+}
+
+.button-secondary {
+    background-color: transparent;
+    color: var(--gray);
+    transition: background-color 0.2s;
+}
+
+.button-secondary:hover {
+    background-color: var(--white-hover);
+}
+
+
+
+
+/*
+ * =================================
+ * Стили для модальных окон (Overlay)
+ * =================================
+ */
+
+/* 1. Фон (Overlay) */
+.modal-overlay {
+    /* Скрываем по умолчанию */
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+
+    /* Позиционирование на весь экран */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* Затемнение */
+    background-color: rgba(0, 0, 0, 0.6);
+    /* Черный с 60% прозрачности */
+
+    /* Центрирование контента */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Поверх всего */
+    z-index: 1000;
+
+    /* Анимация появления */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* 2. Класс для показа окна */
+.modal-overlay.active {
+    display: flex;
+    /* Переключаем display, чтобы flex-центрирование сработало */
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 3. Контентная часть (белое окно) */
+
+
+/* Стиль для подзаголовка (обычного текста) в модальном окне */
+.modal-content p {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* При появлении окна оно немного увеличивается */
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    font-size: 22px;
+    font-weight: 700;
+    /* Отступ снизу */
+}
+
+.modal-content p {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    margin: 0 0 24px 0;
+    /* Отступ снизу */
+}
+
+/* 
+ * Стиль для кнопки в модальном окне.
+ * Убираем flex: 1, так как кнопка одна.
+ */
+.modal-content button {
+    width: 100%;
+    font-weight: 600;
+}
+
+
+
+/*
+ * =================================
+ * Стили для формы предложения
+ * =================================
+ */
+
+/* Дополнительный класс для кастомизации отступов в модальном окне с формой */
+.modal-content.proposal-form {
+    padding: 4px;
+    /* Увеличим отступы, чтобы было больше воздуха */
+    width: 600px;
+    /* Сделаем окно чуть шире для формы */
+}
+
+/* Стили для самой формы внутри модального окна */
+.proposal-form form {
+    display: flex;
+    flex-direction: column;
+    /* Элементы формы будут идти друг под другом */
+    gap: 16px;
+    /* Отступ между элементами формы */
+}
+
+/* Общие стили для полей ввода */
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f0f2f5;
+    /* Светло-серый фон */
+    font-family: var(--font-family-montserrat);
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.form-input:hover,
+.form-textarea:hover {
+    outline: 2px solid var(--primary-blue);
+    /* Подсветка при фокусе */
+}
+
+/* Стили для плейсхолдера (текста-подсказки) */
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: #90949c;
+    font-weight: 500;
+}
+
+/* Специфичные стили для многострочного поля */
+.form-textarea {
+    height: 150px;
+    resize: none;
+    /* Запрещаем пользователю менять размер */
+}
+
+/* 
+ * Контейнер для кнопок в модальном окне.
+ * РЕШАЕТ ПРОБЛЕМУ ВЕРТИКАЛЬНОГО ВЫРАВНИВАНИЯ.
+ */
+/* 1. Контейнер для кнопок в форме */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    /* Выравнивает группу кнопок по правому краю */
+    gap: 12px;
+    margin-top: 16px;
+}
+
+
+/* 2. Стили для кнопок ВНУТРИ .modal-actions */
+.modal-actions button {
+    border-radius: 4px;
+    padding: 14px 32px;
+    font-size: 20px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    /* Убрали width: 100% и flex: 1. Ширина теперь автоматическая. ЭТО ИСПРАВЛЕНИЕ. */
+}
+
+/* 
+ * 3. Стиль для ОДИНОЧНОЙ кнопки, которая является прямым потомком .modal-content
+ * (Как в окне "Доступ запрещен").
+ * Селектор `>` означает "прямой потомок", что делает правило очень точным.
+ */
+.modal-content>.button-primary,
+.modal-content>.button-secondary {
+    width: 100%;
+    padding: 10px;
+    font-size: 22px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
