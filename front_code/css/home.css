@@ -3,6 +3,8 @@
     margin-left: 250px;
     /* Сдвигаем контент вправо на ширину панели */
     padding: 56px;
+    padding-left: 153px;
+    padding-right: 153px;
     width: calc(100% - 250px);
     display: flex;
     flex-direction: column;
@@ -275,32 +277,30 @@
 }
 
 /* 3. Контентная часть (белое окно) */
-
-
 /* Стиль для подзаголовка (обычного текста) в модальном окне */
 .modal-content p {
     font-size: 18px;
     font-weight: 600;
     line-height: 1;
+    margin: 0 50px 24px 50px;
+}
+
+/* Изначально окно чуть меньше стандартного значения */
+.modal-content {
+    transform: scale(0.7);
+    transition: transform 0.3s ease;
 }
 
 /* При появлении окна оно немного увеличивается */
 .modal-overlay.active .modal-content {
     transform: scale(1);
+    transition: transform 0.3s ease;
 }
 
 .modal-content h2 {
     font-size: 22px;
     font-weight: 700;
-    /* Отступ снизу */
-}
-
-.modal-content p {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1;
-    margin: 0 0 24px 0;
-    /* Отступ снизу */
+    margin: 0 50px 0 50px;
 }
 
 /* 
@@ -313,7 +313,6 @@
 }
 
 
-
 /*
  * =================================
  * Стили для формы предложения
@@ -323,9 +322,13 @@
 /* Дополнительный класс для кастомизации отступов в модальном окне с формой */
 .modal-content.proposal-form {
     padding: 4px;
-    /* Увеличим отступы, чтобы было больше воздуха */
     width: 600px;
-    /* Сделаем окно чуть шире для формы */
+}
+
+/* Блоки с темой и текстом письма имеют отступы */
+.form-group {
+    padding-left: 18px;
+    padding-right: 18px;
 }
 
 /* Стили для самой формы внутри модального окна */
