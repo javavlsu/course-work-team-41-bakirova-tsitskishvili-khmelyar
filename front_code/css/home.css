@@ -146,6 +146,11 @@
     height: 200px;
     object-fit: cover;
     border-radius: 4px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 .pdf-button {
@@ -193,6 +198,12 @@
     display: flex;
     gap: 8px;
     justify-content: center;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+
 }
 
 /* Общий стиль для кнопок в .proposals и .modal-content */
@@ -200,7 +211,7 @@
 .modal-content button {
     border: none;
     border-radius: 4px;
-    padding: 6px;
+    padding: 10px;
     font-size: 22px;
     font-weight: 600;
     line-height: 1;
@@ -213,6 +224,11 @@
     background-color: var(--primary-blue);
     color: var(--white);
     transition: background-color 0.2s;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 .button-primary:hover {
@@ -345,19 +361,34 @@
 .form-textarea {
     width: 100%;
     padding: 16px;
-    border: none;
+    border: 1px solid var(--field-border-color);
     border-radius: 12px;
-    background-color: #f0f2f5;
+    background-color: var(--field-color);
     /* Светло-серый фон */
     font-family: var(--font-family-montserrat);
     font-size: 18px;
     font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
+/* Подсветка полей ввода при наведении */
 .form-input:hover,
 .form-textarea:hover {
-    outline: 2px solid var(--primary-blue);
-    /* Подсветка при фокусе */
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(67, 168, 228, 0.2);
+}
+
+/* Подсветка активного поля ввода */
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
 }
 
 /* Стили для плейсхолдера (текста-подсказки) */
@@ -396,7 +427,11 @@
     font-weight: 600;
     border: none;
     cursor: pointer;
-    /* Убрали width: 100% и flex: 1. Ширина теперь автоматическая. ЭТО ИСПРАВЛЕНИЕ. */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 /* 

@@ -1,3 +1,21 @@
+// --- Загрузка боковой панели ---
+document.addEventListener("DOMContentLoaded", function () {
+  // Убираем класс "загрузки", чтобы показать страницу
+  document.body.classList.remove("js-loading");
+
+  // --- НАЧАЛО НОВОГО КОДА ---
+  // Загружаем боковую панель
+  fetch("left-panel.html")
+    .then((response) => response.text()) // Получаем HTML как текст
+    .then((data) => {
+      // Вставляем полученный HTML в наш контейнер
+      document.getElementById("left-panel-placeholder").innerHTML = data;
+    });
+  // --- КОНЕЦ НОВОГО КОДА ---
+
+  // ... здесь ваш остальной JS-код для модальных окон и т.д.
+});
+
 // --- Логика для управления модальными окнами ---
 
 // Находим все элементы для управления окнами
