@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+
+<!-- This code was generated using AnimaApp.com. 
+This code is a high-fidelity prototype.
+Get developer-friendly React or HTML/CSS code for this project at: https://projects.animaapp.com?utm_source=hosted-code 
+17/11/2025 18:21:28 -->
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1918, maximum-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="https://animaproject.s3.amazonaws.com/home/favicon.png"
+    />
+    <meta name="og:type" content="website" />
+    <meta name="twitter:card" content="photo" />
+    <script id="anima-load-script" src="load.js"></script>
+    <script id="anima-hotspots-script" src="hotspots.js"></script>
+    <script id="anima-overrides-script" src="overrides.js"></script>
+    <script src="https://animaapp.s3.amazonaws.com/js/timeline.js"></script>
+    <style>
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+      @import url("https://fonts.googleapis.com/css?family=Montserrat:700,600");
+
+      /* The following line is used to measure usage of this code. You can remove it if you want. */
+      @import url("https://px.animaapp.com/677d1ab5f73ac86ffcf1e2fa.677d1ab6f73ac86ffcf1e2fd.3JImHu2.hch.png");
+
+      .screen textarea:focus,
+      .screen input:focus {
+        outline: none;
+      }
+
+      .screen * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+      }
+
+      .screen div {
+        -webkit-text-size-adjust: none;
+      }
+
+      .component-wrapper a {
+        display: contents;
+        pointer-events: auto;
+        text-decoration: none;
+      }
+
+      .component-wrapper * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+        pointer-events: none;
+      }
+
+      .component-wrapper a *,
+      .component-wrapper input,
+      .component-wrapper video,
+      .component-wrapper iframe {
+        pointer-events: auto;
+      }
+
+      .component-wrapper.not-ready,
+      .component-wrapper.not-ready * {
+        visibility: hidden !important;
+      }
+
+      .screen a {
+        display: contents;
+        text-decoration: none;
+      }
+
+      .full-width-a {
+        width: 100%;
+      }
+
+      .full-height-a {
+        height: 100%;
+      }
+
+      .container-center-vertical {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .container-center-vertical > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .container-center-horizontal {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        pointer-events: none;
+        width: 100%;
+      }
+
+      .container-center-horizontal > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .auto-animated div {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated input {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated .container-center-vertical,
+      .auto-animated .container-center-horizontal {
+        opacity: 1;
+      }
+
+      .overlay-base {
+        display: none;
+        height: 100%;
+        opacity: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+
+      .overlay-base.animate-appear {
+        align-items: center;
+        animation: reveal 0.3s ease-in-out 1 normal forwards;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .overlay-base.animate-disappear {
+        animation: reveal 0.3s ease-in-out 1 reverse forwards;
+        display: block;
+        opacity: 1;
+        pointer-events: none;
+      }
+
+      .overlay-base.animate-disappear * {
+        pointer-events: none;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-nodelay {
+        animation-delay: 0s;
+      }
+
+      .align-self-flex-start {
+        align-self: flex-start;
+      }
+
+      .align-self-flex-end {
+        align-self: flex-end;
+      }
+
+      .align-self-flex-center {
+        align-self: flex-center;
+      }
+
+      .valign-text-middle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .valign-text-bottom {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      input:focus {
+        outline: none;
+      }
+
+      .listeners-active,
+      .listeners-active * {
+        pointer-events: auto;
+      }
+
+      .hidden,
+      .hidden * {
+        pointer-events: none;
+        visibility: hidden;
+      }
+
+      .smart-layers-pointers,
+      .smart-layers-pointers * {
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      .listeners-active-click,
+      .listeners-active-click * {
+        cursor: pointer;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        --black: #000000;
+        --gray: #7f7f7f;
+        --white: #ffffff;
+        --x--1: #43a8e4;
+
+        --font-size-m: 18px;
+        --font-size-s: 16px;
+        --font-size-xs: 14px;
+
+        --font-family-montserrat: "Montserrat", Helvetica;
+      }
+      .montserrat-semi-bold-gray-16px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      .montserrat-semi-bold-gray-18px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      .montserrat-semi-bold-gray-14px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-xs);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      :root {
+      }
+
+      /* screen - home-director */
+
+      .home-director {
+        align-items: flex-start;
+        background-color: #e6ecf2;
+        display: flex;
+        left: 0px;
+        min-height: 100vh;
+        overflow: hidden;
+        overflow-x: hidden;
+        position: relative;
+        top: 0px;
+      }
+
+      .home-director .left-panel-scroll-7YdYz1 {
+        align-self: stretch;
+        background-color: var(--white);
+        box-shadow: 0px 0px 8px #00000040;
+        overflow: hidden;
+        position: relative;
+        width: 250px;
+      }
+
+      .home-director .left-panel-frame-qdTeW7 {
+        background-color: transparent;
+        height: 1024px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        width: 263px;
+      }
+
+      .home-director .left-panel-elements-rV38tp {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        left: 0px;
+        position: relative;
+        top: 0px;
+        width: 250px;
+      }
+
+      .home-director .logo-qOXZnl {
+        background-color: transparent;
+        height: 79px;
+        position: relative;
+        width: 250px;
+      }
+
+      .home-director .logo-background-6d7AON {
+        background-color: var(--x--1);
+        height: 79px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        transform: rotate(180deg);
+        width: 250px;
+      }
+
+      .home-director .logo-text-6d7AON {
+        background-color: transparent;
+        height: 79px;
+        left: 29px;
+        position: absolute;
+        top: 0px;
+        width: 192px;
+      }
+
+      .home-director .left-panel-buttons-qOXZnl {
+        align-items: flex-start;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .home-button-director-8ZTMkZ {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .home-icon-aqX6Be {
+        background-color: transparent;
+        height: 18.3427734375px;
+        position: relative;
+        width: 18px;
+      }
+
+      .home-director .text_label-QYhfba {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .journal-button-director-8ZTMkZ {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .journal-icon-SRm8Jw {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 20px;
+      }
+
+      .home-director .text_label-cWq7cj {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .messages-button-director-8ZTMkZ {
+        align-items: center;
+        background-color: var(--x--1);
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .messages-icon-Ijdavu {
+        background-color: transparent;
+        height: 18.91943359375px;
+        position: relative;
+        width: 20px;
+      }
+
+      .home-director .text_label-1qy35J {
+        align-self: stretch;
+        color: var(--white);
+        flex: 1;
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .schedule-button-director-8ZTMkZ {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .schedule-icon-aeyBqj {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 18px;
+      }
+
+      .home-director .text_label-Vqxxht {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .vector-W0qjpv {
+        height: 18.0001220703125px;
+        width: 20px;
+      }
+
+      .home-director .text_label-4qxY0W {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .vector-wxnSBC {
+        height: 20px;
+        width: 16px;
+      }
+
+      .home-director .text_label-ixTP3C {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .profile-button-qdTeW7 {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 976px;
+        width: 200px;
+      }
+
+      .home-director .vector-axJYzx {
+        height: 20px;
+        width: 20px;
+      }
+
+      .home-director .text_label-s7cdIO {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .log-out-button-qdTeW7 {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 1021px;
+        width: 200px;
+      }
+
+      .home-director .log-out-icon-45vSZ8 {
+        background-color: transparent;
+        height: 18px;
+        position: relative;
+        width: 18px;
+      }
+
+      .home-director .text_label-Kfo0pm {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .home-elements-7YdYz1 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 24px;
+        justify-content: center;
+        padding: 56px 153px;
+        position: relative;
+      }
+
+      .home-director .frame-23-gzWYfg {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        gap: 24px;
+        position: relative;
+        width: 100%;
+      }
+
+      .home-director .announcement-add-button-frame-director-2AgRiD {
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        gap: 6px;
+        height: 39px;
+        padding: 0px 7px;
+      }
+
+      .home-director .vector-6JSzkl {
+        height: 18.91943359375px;
+        width: 20px;
+      }
+
+      .home-director .text_label-YNdSc8 {
+        line-height: 18px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .home-director .announcements-gzWYfg {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 12px;
+        padding: 8px 18px 20px;
+        position: relative;
+        width: 100%;
+      }
+
+      .home-director .frame-25-I5PeHc {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: center;
+        padding: 10px 0px;
+        position: relative;
+        width: 100%;
+      }
+
+      .home-director .frame-31-MEMNen {
+        align-items: center;
+        background-color: var(--x--1);
+        border-radius: 4px;
+        display: flex;
+        flex: 1;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        padding: 8px 0px;
+        position: relative;
+      }
+
+      .home-director .text_label-EVezKf {
+        align-self: stretch;
+        color: var(--white);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: center;
+        white-space: nowrap;
+        width: 653px;
+      }
+
+      .home-director .text_label-MEMNen {
+        flex: 1;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .home-director .frame-27-I5PeHc {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: space-between;
+        padding: 10px;
+        position: relative;
+        width: 100%;
+      }
+
+      .home-director .text_label-z61G6f {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+        width: 400px;
+      }
+
+      .home-director .text_label-oKSgsE {
+        color: var(--gray);
+        flex: 1;
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .home-director .frame-29-I5PeHc {
+        align-items: center;
+        background-color: #e6e6e6;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        padding: 10px;
+        width: 100%;
+      }
+
+      .home-director .frame-30-xwdMN8 {
+        align-items: flex-start;
+        background-color: transparent;
+        justify-content: space-between;
+      }
+
+      .home-director .text_label-CxrJ4v {
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+        width: 400px;
+      }
+
+      .home-director .frame-29-CxrJ4v {
+        align-items: flex-end;
+        background-color: transparent;
+        display: inline-flex;
+        gap: 4px;
+        justify-content: flex-end;
+      }
+
+      .home-director .announcement-add-button-frame-director-7tjOxz {
+        border-radius: 2px;
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .home-director .vector-pousry {
+        height: 18px;
+        width: 20px;
+      }
+
+      .home-director .text_label-JGSuKo {
+        line-height: 14px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .home-director .announcement-add-button-frame-director-bzRYJk {
+        border-radius: 2px;
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .home-director .text_label-rrn1TK {
+        line-height: 14px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .home-director .frame-30-I5PeHc {
+        align-items: center;
+        background-color: #e6e6e6;
+        border-radius: 4px;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .home-director .frame-30-gcli8x {
+        align-items: flex-start;
+        background-color: transparent;
+        justify-content: space-between;
+      }
+
+      .home-director .text_label-2KJLbt {
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+        width: 400px;
+      }
+
+      .home-director .frame-29-2KJLbt {
+        align-items: flex-end;
+        background-color: transparent;
+        display: inline-flex;
+        gap: 4px;
+        justify-content: flex-end;
+      }
+
+      .home-director .announcement-add-button-frame-director-ieSUXI {
+        border-radius: 2px;
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .home-director .vector-VVkfPn {
+        height: 18px;
+        width: 20px;
+      }
+
+      .home-director .text_label-pGTFom {
+        line-height: 14px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .home-director .announcement-add-button-frame-director-38Kdon {
+        border-radius: 2px;
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .home-director .text_label-y1wM7Y {
+        line-height: 14px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .home-director .announcement-add-button-frame-director {
+        align-items: center;
+        background-color: var(--white);
+        display: inline-flex;
+        flex: 0 0 auto;
+        justify-content: center;
+        position: relative;
+      }
+
+      .home-director .delete-button {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 18px;
+      }
+
+      .home-director .frame-24 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 24px;
+        justify-content: center;
+        position: relative;
+        width: 24px;
+      }
+
+      .home-director .frame-29 {
+        align-self: stretch;
+        flex: 0 0 auto;
+        position: relative;
+      }
+
+      .home-director .frame-30 {
+        align-self: stretch;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .home-director .home-icon-frame {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 20px;
+        justify-content: center;
+        position: relative;
+        width: 20px;
+      }
+
+      .home-director .text_label {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+      }
+
+      .home-director .vector {
+        background-color: transparent;
+        position: relative;
+      }
+
+      .home-director .view {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .home-director .x {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        margin-top: -1px;
+        position: relative;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body style="margin: 0; background: #e6ecf2">
+    <input type="hidden" id="anPageName" name="page" value="home-director" />
+    <div class="home-director screen" data-id="261:226">
+      <div class="left-panel-scroll-7YdYz1" data-id="261:227">
+        <div class="left-panel-frame-qdTeW7" data-id="261:228">
+          <div class="left-panel-elements-rV38tp" data-id="261:229">
+            <div class="logo-qOXZnl" data-id="261:230">
+              <div class="logo-background-6d7AON" data-id="261:231"></div>
+              <img
+                class="logo-text-6d7AON"
+                data-id="261:232"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/logo-text-1.svg"
+                alt="Logo text"
+              />
+            </div>
+            <div class="left-panel-buttons-qOXZnl" data-id="261:233">
+              <div class="home-button-director-8ZTMkZ" data-id="261:234">
+                <div class="home-icon-frame" data-id="I261:234;104:118">
+                  <img
+                    class="home-icon-aqX6Be"
+                    data-id="I261:234;104:119"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/home-icon.svg"
+                    alt="Home icon"
+                  />
+                </div>
+                <div
+                  class="text_label-QYhfba text_label montserrat-semi-bold-gray-16px"
+                  data-id="I261:234;104:120"
+                >
+                  Главная
+                </div>
+              </div>
+              <div class="journal-button-director-8ZTMkZ" data-id="261:235">
+                <div class="home-icon-frame" data-id="I261:235;104:239">
+                  <img
+                    class="journal-icon-SRm8Jw"
+                    data-id="I261:235;65:15"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/journal-icon-1.svg"
+                    alt="Journal icon"
+                  />
+                </div>
+                <div
+                  class="text_label-cWq7cj text_label montserrat-semi-bold-gray-16px"
+                  data-id="I261:235;104:241"
+                >
+                  Ведение журнала
+                </div>
+              </div>
+              <div class="messages-button-director-8ZTMkZ" data-id="261:236">
+                <div class="home-icon-frame" data-id="I261:236;104:279">
+                  <img
+                    class="messages-icon-Ijdavu"
+                    data-id="I261:236;104:302"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/messages-icon.svg"
+                    alt="Messages icon"
+                  />
+                </div>
+                <div
+                  class="text_label-1qy35J text_label"
+                  data-id="I261:236;104:281"
+                >
+                  Сообщения
+                </div>
+              </div>
+              <div class="schedule-button-director-8ZTMkZ" data-id="261:237">
+                <div class="home-icon-frame" data-id="I261:237;104:284">
+                  <img
+                    class="schedule-icon-aeyBqj"
+                    data-id="I261:237;74:14"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/schedule-icon-1.svg"
+                    alt="Schedule icon"
+                  />
+                </div>
+                <div
+                  class="text_label-Vqxxht text_label montserrat-semi-bold-gray-16px"
+                  data-id="I261:237;104:286"
+                >
+                  Расписание
+                </div>
+              </div>
+              <div class="view" data-id="271:308">
+                <div class="home-icon-frame" data-id="I271:308;271:262">
+                  <img
+                    class="vector-W0qjpv vector"
+                    data-id="I271:308;270:266"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-4qxY0W text_label montserrat-semi-bold-gray-16px"
+                  data-id="I271:308;271:264"
+                >
+                  Успеваемость
+                </div>
+              </div>
+              <div class="view" data-id="271:309">
+                <div class="home-icon-frame" data-id="I271:309;271:279">
+                  <img
+                    class="vector-wxnSBC vector"
+                    data-id="I271:309;270:271"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-1.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-ixTP3C text_label montserrat-semi-bold-gray-16px"
+                  data-id="I271:309;271:281"
+                >
+                  Домашние задания
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-button-qdTeW7" data-id="261:238">
+          <div class="home-icon-frame" data-id="I261:238;221:241">
+            <img
+              class="vector-axJYzx vector"
+              data-id="I261:238;221:254"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/vector-1.svg"
+              alt="Vector"
+            />
+          </div>
+          <div
+            class="text_label-s7cdIO text_label montserrat-semi-bold-gray-16px"
+            data-id="I261:238;221:243"
+          >
+            Профиль
+          </div>
+        </div>
+        <div class="log-out-button-qdTeW7" data-id="261:239">
+          <div class="home-icon-frame" data-id="I261:239;209:171">
+            <img
+              class="log-out-icon-45vSZ8"
+              data-id="I261:239;209:164"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/log-out-icon-1.svg"
+              alt="Log out icon"
+            />
+          </div>
+          <div
+            class="text_label-Kfo0pm text_label montserrat-semi-bold-gray-16px"
+            data-id="I261:239;209:173"
+          >
+            Выйти
+          </div>
+        </div>
+      </div>
+      <div class="home-elements-7YdYz1" data-id="261:240">
+        <div class="frame-23-gzWYfg" data-id="261:330">
+          <div
+            class="announcement-add-button-frame-director-2AgRiD announcement-add-button-frame-director"
+            data-id="261:331"
+          >
+            <div class="frame-24" data-id="261:332">
+              <img
+                class="vector-6JSzkl vector"
+                data-id="267:344"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/vector-3.png"
+                alt="Vector"
+              />
+            </div>
+            <div
+              class="text_label-YNdSc8 text_label montserrat-semi-bold-gray-18px"
+              data-id="261:334"
+            >
+              Новое сообщение
+            </div>
+          </div>
+        </div>
+        <div class="announcements-gzWYfg" data-id="267:346">
+          <div class="frame-25-I5PeHc" data-id="267:349">
+            <div class="frame-31-MEMNen" data-id="267:542">
+              <div class="text_label-EVezKf text_label" data-id="267:350">
+                Входящие
+              </div>
+            </div>
+            <div
+              class="text_label-MEMNen text_label montserrat-semi-bold-gray-18px"
+              data-id="267:348"
+            >
+              Отправленные
+            </div>
+          </div>
+          <div class="frame-27-I5PeHc" data-id="267:359">
+            <div class="text_label-z61G6f text_label" data-id="267:362">
+              ФИО
+            </div>
+            <div class="text_label-oKSgsE text_label" data-id="267:361">
+              Сообщение
+            </div>
+          </div>
+          <div class="frame-29-I5PeHc frame-29" data-id="267:505">
+            <div class="frame-30-xwdMN8 frame-30" data-id="267:506">
+              <div
+                class="text_label-CxrJ4v text_label montserrat-semi-bold-gray-18px"
+                data-id="267:507"
+              >
+                Иванов Иван Иванович
+              </div>
+              <p class="x montserrat-semi-bold-gray-18px" data-id="267:508">
+                Здравствуйте!<br />Проводится тест отображения входящих
+                сообщений в профиле Школьного Электронного Дневника.
+              </p>
+              <div class="frame-29-CxrJ4v frame-29" data-id="267:509">
+                <div
+                  class="announcement-add-button-frame-director-7tjOxz announcement-add-button-frame-director"
+                  data-id="267:510"
+                >
+                  <div class="frame-24" data-id="267:511">
+                    <img
+                      class="vector-pousry vector"
+                      data-id="267:512"
+                      src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                      anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/vector-4.png"
+                      alt="Vector"
+                    />
+                  </div>
+                  <div
+                    class="text_label-JGSuKo text_label montserrat-semi-bold-gray-14px"
+                    data-id="267:513"
+                  >
+                    Ответить
+                  </div>
+                </div>
+                <div
+                  class="announcement-add-button-frame-director-bzRYJk announcement-add-button-frame-director"
+                  data-id="267:514"
+                >
+                  <div class="frame-24" data-id="267:515">
+                    <img
+                      class="delete-button"
+                      data-id="267:516"
+                      src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                      anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/delete-button.svg"
+                      alt="Delete button"
+                    />
+                  </div>
+                  <div
+                    class="text_label-rrn1TK text_label montserrat-semi-bold-gray-14px"
+                    data-id="267:517"
+                  >
+                    Удалить
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-30-I5PeHc frame-30" data-id="277:702">
+            <div class="frame-30-gcli8x frame-30" data-id="277:703">
+              <div
+                class="text_label-2KJLbt text_label montserrat-semi-bold-gray-18px"
+                data-id="277:704"
+              >
+                Иванов Иван Иванович
+              </div>
+              <p class="x montserrat-semi-bold-gray-18px" data-id="277:705">
+                Здравствуйте!<br />Проводится тест отображения входящих
+                сообщений в профиле Школьного Электронного Дневника.
+              </p>
+              <div class="frame-29-2KJLbt frame-29" data-id="277:706">
+                <div
+                  class="announcement-add-button-frame-director-ieSUXI announcement-add-button-frame-director"
+                  data-id="277:707"
+                >
+                  <div class="frame-24" data-id="277:708">
+                    <img
+                      class="vector-VVkfPn vector"
+                      data-id="277:709"
+                      src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                      anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/vector-4.png"
+                      alt="Vector"
+                    />
+                  </div>
+                  <div
+                    class="text_label-pGTFom text_label montserrat-semi-bold-gray-14px"
+                    data-id="277:710"
+                  >
+                    Ответить
+                  </div>
+                </div>
+                <div
+                  class="announcement-add-button-frame-director-38Kdon announcement-add-button-frame-director"
+                  data-id="277:711"
+                >
+                  <div class="frame-24" data-id="277:712">
+                    <img
+                      class="delete-button"
+                      data-id="277:713"
+                      src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                      anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b67a5294438ac70f09291/img/delete-button.svg"
+                      alt="Delete button"
+                    />
+                  </div>
+                  <div
+                    class="text_label-y1wM7Y text_label montserrat-semi-bold-gray-14px"
+                    data-id="277:714"
+                  >
+                    Удалить
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="launchpad-js/launchpad-banner.js" async></script>
+    <script
+      defer
+      src="https://animaapp.s3.amazonaws.com/static/restart-btn.min.js"
+    ></script>
+  </body>
+</html>
