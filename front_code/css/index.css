@@ -1,0 +1,101 @@
+/* css/login.css */
+
+/* Ключевые стили для центрирования всего блока по вертикали и горизонтали */
+.login-page-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    /* Используем переменную из global.css */
+}
+
+/* Контейнер, который объединяет лого и форму */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+/* Стилизация логотипа */
+.login-logo {
+    background-color: var(--primary-blue);
+    /* Рассчитываем отступы: 7.5px по вертикали, 24px по горизонтали */
+    padding: 0px 24px;
+    border-radius: 4px;
+
+    /* Добавим flex для идеального центрирования SVG на случай любых погрешностей */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Белая плашка с формой */
+.login-form {
+    width: 440px;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+    padding: 32px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.login-form h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0e5681;
+    /* Темно-синий, как в макете */
+    margin: 0;
+}
+
+/* Стили для полей ввода */
+.input-group {
+    width: 100%;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    /* Чуть темнее белого для контраста */
+    font-family: var(--font-family-montserrat);
+    font-size: 18px;
+    font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input::placeholder {
+    color: #b3b3b3;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(67, 168, 228, 0.2);
+}
+
+/* Стили для кнопки "Войти" */
+.login-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    font-family: var(--font-family-montserrat);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.login-button:hover {
+    background-color: var(--blue-hover);
+    /* Используем переменную из global.css */
+}
