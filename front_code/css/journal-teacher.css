@@ -1,0 +1,264 @@
+/* Основной контент */
+.journal-teacher {
+    display: flex;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 56px;
+    padding-left: 153px;
+    padding-right: 153px;
+    width: calc(100% - 250px);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Панель фильтров */
+.filter-panel {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0px 0px 8px #00000040;
+    padding: 12px 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.filter-label {
+    font-family: var(--font-family-montserrat);
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+/* Стили для выпадающих списков */
+.filter-select {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.select-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background-color: var(--white);
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 28px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.select-display:hover {
+    border-color: var(--primary-blue);
+    background-color: #f8f8f8;
+}
+
+/* Фиксированные ширины для каждого фильтра */
+.filter-group:nth-child(1) .select-display {
+    width: 80px;  /* Класс */
+}
+
+.filter-group:nth-child(2) .select-display {
+    width: 180px; /* Предмет */
+}
+
+.filter-group:nth-child(3) .select-display {
+    width: 100px;  /* Период */
+}
+
+.select-display span {
+    font-family: var(--font-family-montserrat);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-arrow {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    margin-left: 6px;
+    transition: transform 0.2s ease;
+}
+
+.filter-select.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--white);
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    margin-top: 2px;
+    min-width: 100%;
+    overflow: hidden;
+}
+
+.filter-select.active .dropdown-content {
+    display: block;
+}
+
+.dropdown-option {
+    padding: 6px 8px;
+    cursor: pointer;
+    font-family: var(--font-family-montserrat);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--black);
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-option:active {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+/* Таблица журнала */
+.journal-table-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0px 0px 8px #00000040;
+    overflow: hidden;
+}
+
+.journal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family-montserrat);
+}
+
+.journal-table th {
+    background-color: var(--dark-blue);
+    color: var(--white);
+    font-weight: 800;
+    font-size: 20px;
+    padding: 12px 8px;
+    text-align: center;
+    border: none;
+}
+
+.journal-table td {
+    padding: 12px 8px;
+    text-align: center;
+    border: none;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+/* Основные стили строк */
+.journal-table tbody tr:nth-child(odd) {
+    background-color: var(--white);
+}
+
+.journal-table tbody tr:nth-child(even) {
+    background-color: var(--field-color);
+}
+
+/* ВАЖНО: Стили для ВСЕХ ячеек с датами (начиная с 3-го столбца) */
+.journal-table tbody tr:nth-child(odd) td.date-cell {
+    background-color: var(--light-blue) !important;
+}
+
+.journal-table tbody tr:nth-child(even) td.date-cell {
+    background-color: #b7d4e5 !important;
+}
+
+/* Специфичные стили для столбцов */
+.number-col {
+    width: 50px;
+    background-color: var(--dark-blue) !important;
+}
+
+.name-col {
+    width: 300px;
+    text-align: left;
+    background-color: var(--dark-blue) !important;
+}
+
+.date-col {
+    width: 80px;
+    background-color: var(--primary-blue) !important;
+}
+
+.journal-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.journal-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 1400px) {
+    .main-content {
+        padding: 32px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .filter-panel {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .filter-group {
+        justify-content: space-between;
+    }
+
+    .journal-table-container {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-panel {
+        padding: 12px 16px;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .filter-group:nth-child(1) .select-display,
+    .filter-group:nth-child(2) .select-display,
+    .filter-group:nth-child(3) .select-display {
+        width: 100%;
+    }
+}

@@ -135,3 +135,72 @@ body {
     flex-direction: column;
     gap: 10px;
 }
+
+/* Стили для состояния загрузки */
+body.js-loading {
+    opacity: 0;
+}
+
+body.loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Улучшенные стили для навигации */
+.nav-button {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    transform: translateX(5px);
+}
+
+.nav-button.active {
+    transform: translateX(5px);
+    box-shadow: 2px 0 0 var(--primary-blue) inset;
+}
+
+/* Анимация для модальных окон */
+.modal-overlay {
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Стили для fallback панели */
+.logo-text {
+    color: white;
+    font-weight: 700;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
