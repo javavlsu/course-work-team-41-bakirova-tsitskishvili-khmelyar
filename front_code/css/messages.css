@@ -1,19 +1,21 @@
 :root {
     /* Цвета */
-    --black: #000000;
-    --gray: #7f7f7f;
-    --white: #ffffff;
     --blue: #43a8e4;
     --light-blue-bg: #e6ecf2;
     --light-gray-item: #e6e6e6;
-    --shadow: 0px 0px 8px rgba(0, 0, 0, 0.25); /* Сделаем тень немного светлее */
+    --shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+    /* Сделаем тень немного светлее */
 
     /* Шрифты */
     --font-family-montserrat: 'Montserrat', Helvetica, sans-serif;
-    --font-size-xl: 24px; /* Для логотипа */
-    --font-size-l: 18px;  /* Для заголовков / тела сообщения / основных кнопок */
-    --font-size-m: 16px;  /* Для кнопок навигации */
-    --font-size-s: 14px;  /* Для мелких подписей */
+    --font-size-xl: 24px;
+    /* Для логотипа */
+    --font-size-l: 18px;
+    /* Для заголовков / тела сообщения / основных кнопок */
+    --font-size-m: 16px;
+    /* Для кнопок навигации */
+    --font-size-s: 14px;
+    /* Для мелких подписей */
 }
 
 body {
@@ -29,20 +31,7 @@ body {
 /* 2. ОСНОВНОЕ СОДЕРЖАНИЕ (КОНТЕНТ) — ИСПРАВЛЕНИЕ НАЛОЖЕНИЯ */
 /* ---------------------------------------------------- */
 
-.home-elements {
-    /* ФИКС НАЛОЖЕНИЯ: Смещаем контент вправо на ширину меню */
-    margin-left: 250px; 
-    
-    flex-grow: 1;
-    padding: 56px 153px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    
-    /* Убедимся, что ширина контента не вызовет горизонтальный скролл */
-    width: calc(100% - 250px); 
-    box-sizing: border-box; 
-}
+
 
 /* Кнопка "Новое сообщение" */
 .top-bar {
@@ -91,6 +80,12 @@ body {
     gap: 12px;
 }
 
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 /* Вкладки */
 .messages-tabs {
     display: flex;
@@ -101,11 +96,12 @@ body {
 
 .tab-button {
     flex: 1;
-    max-width: 350px; /* Умеренная ширина для кнопок-вкладок */
+    max-width: 350px;
+    /* Умеренная ширина для кнопок-вкладок */
     padding: 8px 0;
     border: none;
-    background-color: var(--light-gray-item); 
-    font-size: var(--font-size-l); 
+    background-color: var(--light-gray-item);
+    font-size: var(--font-size-l);
     font-weight: 700;
     color: var(--gray);
     cursor: pointer;
@@ -123,20 +119,21 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid var(--light-gray-item); 
+    border-bottom: 1px solid var(--light-gray-item);
 }
 
 .header-fio {
-    font-size: var(--font-size-l); 
+    font-size: var(--font-size-l);
     font-weight: 700;
     color: var(--gray);
-    width: 250px; /* Ширина столбца ФИО */
+    width: 250px;
+    /* Ширина столбца ФИО */
     flex-shrink: 0;
     margin-right: 20px;
 }
 
 .header-message {
-    font-size: var(--font-size-l); 
+    font-size: var(--font-size-l);
     font-weight: 700;
     color: var(--gray);
     flex-grow: 1;
@@ -146,9 +143,10 @@ body {
 .message-item {
     background-color: var(--light-gray-item);
     border-radius: 4px;
-    padding: 15px 10px; 
+    padding: 15px 10px;
     display: flex;
-    flex-direction: column; /* Изменен на column, чтобы действия были снизу */
+    flex-direction: column;
+    /* Изменен на column, чтобы действия были снизу */
     gap: 10px;
 }
 
@@ -158,16 +156,16 @@ body {
 }
 
 .sender-name {
-    font-size: var(--font-size-l); 
+    font-size: var(--font-size-l);
     font-weight: 600;
     color: var(--black);
-    width: 250px; 
+    width: 250px;
     flex-shrink: 0;
     margin-right: 20px;
 }
 
 .message-body {
-    font-size: var(--font-size-l); 
+    font-size: var(--font-size-l);
     font-weight: 600;
     color: var(--black);
     flex-grow: 1;
@@ -205,14 +203,23 @@ body {
 }
 
 .action-button .text_label {
-    font-size: var(--font-size-s); 
+    font-size: var(--font-size-s);
     font-weight: 600;
     color: var(--gray);
     white-space: nowrap;
 }
 
 .action-button .icon {
-    font-size: var(--font-size-m); 
+    font-size: var(--font-size-m);
     line-height: 1;
     color: var(--gray);
+}
+
+/* Адаптивность */
+@media (max-width: 1400px) {
+    .main-content {
+        padding: 32px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
 }

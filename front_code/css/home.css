@@ -1,16 +1,3 @@
-/* Основной контент */
-.main-content {
-    margin-left: 250px;
-    /* Сдвигаем контент вправо на ширину панели */
-    padding: 56px;
-    padding-left: 153px;
-    padding-right: 153px;
-    width: calc(100% - 250px);
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
-}
-
 .content-block {
     background-color: var(--light-blue);
     border-radius: 8px 28px 28px 28px;
@@ -220,112 +207,13 @@
     /* Только для кнопок в .proposals, чтобы делили место */
 }
 
-.button-primary {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    transition: background-color 0.2s;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-}
-
-.button-primary:hover {
-    background-color: var(--blue-hover);
-}
-
-.button-secondary {
-    background-color: transparent;
-    color: var(--gray);
-    transition: background-color 0.2s;
-}
-
-.button-secondary:hover {
-    background-color: var(--white-hover);
-}
-
-
-
-
-/*
- * =================================
- * Стили для модальных окон (Overlay)
- * =================================
- */
-
-/* 1. Фон (Overlay) */
-.modal-overlay {
-    /* Скрываем по умолчанию */
-    display: none;
-    opacity: 0;
-    visibility: hidden;
-
-    /* Позиционирование на весь экран */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
-    /* Затемнение */
-    background-color: rgba(0, 0, 0, 0.6);
-    /* Черный с 60% прозрачности */
-
-    /* Центрирование контента */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    /* Поверх всего */
-    z-index: 1000;
-
-    /* Анимация появления */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* 2. Класс для показа окна */
-.modal-overlay.active {
-    display: flex;
-    /* Переключаем display, чтобы flex-центрирование сработало */
-    opacity: 1;
-    visibility: visible;
-}
-
-/* 3. Контентная часть (белое окно) */
-/* Стиль для подзаголовка (обычного текста) в модальном окне */
-.modal-content p {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1;
-    margin: 0 50px 24px 50px;
-}
-
-/* Изначально окно чуть меньше стандартного значения */
-.modal-content {
-    transform: scale(0.7);
-    transition: transform 0.3s ease;
-}
-
-/* При появлении окна оно немного увеличивается */
-.modal-overlay.active .modal-content {
-    transform: scale(1);
-    transition: transform 0.3s ease;
-}
-
-.modal-content h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 50px 0 50px;
-}
-
-/* 
- * Стиль для кнопки в модальном окне.
- * Убираем flex: 1, так как кнопка одна.
- */
-.modal-content button {
-    width: 100%;
-    font-weight: 600;
+/* Адаптивность */
+@media (max-width: 1400px) {
+    .main-content {
+        padding: 32px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
 }
 
 
@@ -407,7 +295,6 @@
 
 /* 
  * Контейнер для кнопок в модальном окне.
- * РЕШАЕТ ПРОБЛЕМУ ВЕРТИКАЛЬНОГО ВЫРАВНИВАНИЯ.
  */
 /* 1. Контейнер для кнопок в форме */
 .modal-actions {
@@ -432,20 +319,4 @@
     -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
-}
-
-/* 
- * 3. Стиль для ОДИНОЧНОЙ кнопки, которая является прямым потомком .modal-content
- * (Как в окне "Доступ запрещен").
- * Селектор `>` означает "прямой потомок", что делает правило очень точным.
- */
-.modal-content>.button-primary,
-.modal-content>.button-secondary {
-    width: 100%;
-    padding: 10px;
-    font-size: 22px;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
