@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Сообщения - ШкЭД</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/messages.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+</head>
+<body>
+    <div class="home-director">
+        <!-- Плейсхолдер для боковой панели -->
+    <div id="left-panel-placeholder"></div>
+                    
+
+        <div class="home-elements">
+            <div class="top-bar">
+                <button class="new-message-button" id="new-message-btn">
+                    <span class="icon">+</span>
+                    <span class="text_label">Новое сообщение</span>
+                </button>
+            </div>
+
+            <div class="messages-container">
+    <div class="messages-tabs">
+        <button class="tab-button active" id="inbox-tab">Входящие</button>
+        <button class="tab-button" id="sent-tab">Отправленные</button>
+    </div>
+
+    <div class="messages-header">
+        <div class="text_label header-fio">ФИО</div>
+        <div class="text_label header-message">Сообщение</div>
+    </div>
+
+    <!-- Новый контейнер только для списка сообщений -->
+    <div class="messages-list">
+        <div class="message-item" data-message-id="1">
+            <div class="message-content">
+                <div class="sender-name">Иванов Иван Иванович</div>
+                <p class="message-body">Здравствуйте!<br>Проводится тест отображения входящих сообщений в профиле Школьного Электронного Дневника.</p>
+            </div>
+            <div class="message-actions">
+                <button class="action-button reply-btn">
+                    <span class="icon">↩️</span>
+                    <span class="text_label">Ответить</span>
+                </button>
+                <button class="action-button delete-btn">
+                    <span class="icon">🗑️</span>
+                    <span class="text_label">Удалить</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="message-item" data-message-id="2">
+            <div class="message-content">
+                <div class="sender-name">Иванов Иван Иванович</div>
+                <p class="message-body">Здравствуйте!<br>Проводится тест отображения входящих сообщений в профиле Школьного Электронного Дневника.</p>
+            </div>
+            <div class="message-actions">
+                <button class="action-button reply-btn">
+                    <span class="icon">↩️</span>
+                    <span class="text_label">Ответить</span>
+                </button>
+                <button class="action-button delete-btn">
+                    <span class="icon">🗑️</span>
+                    <span class="text_label">Удалить</span>
+                </button>
+            </div>
+        </div>
+ 
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="messages.js"></script>
+</body>
+</html>
