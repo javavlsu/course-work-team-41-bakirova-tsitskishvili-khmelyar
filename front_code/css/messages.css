@@ -1,0 +1,224 @@
+:root {
+    /* Цвета */
+    --blue: #43a8e4;
+    --light-blue-bg: #e6ecf2;
+    --shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+    /* Сделаем тень немного светлее */
+
+    /* Шрифты */
+    --font-family-montserrat: 'Montserrat', Helvetica, sans-serif;
+    --font-size-xl: 24px;
+    /* Для логотипа */
+    --font-size-l: 18px;
+    /* Для заголовков / тела сообщения / основных кнопок */
+    --font-size-m: 16px;
+    /* Для кнопок навигации */
+    --font-size-s: 14px;
+    /* Для мелких подписей */
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family-montserrat);
+    background-color: var(--light-blue-bg);
+    min-height: 100vh;
+}
+
+
+
+/* ---------------------------------------------------- */
+/* 2. ОСНОВНОЕ СОДЕРЖАНИЕ (КОНТЕНТ) — ИСПРАВЛЕНИЕ НАЛОЖЕНИЯ */
+/* ---------------------------------------------------- */
+
+
+
+/* Кнопка "Новое сообщение" */
+.top-bar {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.new-message-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.new-message-button .icon {
+    font-size: var(--font-size-l);
+    font-weight: 700;
+    color: var(--gray);
+}
+
+.new-message-button .text_label {
+    font-size: var(--font-size-l);
+    font-weight: 600;
+    color: var(--gray);
+    white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------- */
+/* 3. КОНТЕЙНЕРЫ СООБЩЕНИЙ */
+/* ---------------------------------------------------- */
+
+.messages-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 8px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Вкладки */
+.messages-tabs {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+.tab-button {
+    flex: 1;
+    max-width: 350px;
+    /* Умеренная ширина для кнопок-вкладок */
+    padding: 8px 0;
+    border: none;
+    background-color: var(--light-gray-item);
+    font-size: var(--font-size-l);
+    font-weight: 700;
+    color: var(--gray);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.tab-button.active {
+    background-color: var(--blue);
+    color: var(--white);
+}
+
+/* Заголовки таблицы */
+.messages-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--light-gray-item);
+}
+
+.header-fio {
+    font-size: var(--font-size-l);
+    font-weight: 700;
+    color: var(--gray);
+    width: 250px;
+    /* Ширина столбца ФИО */
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+
+.header-message {
+    font-size: var(--font-size-l);
+    font-weight: 700;
+    color: var(--gray);
+    flex-grow: 1;
+}
+
+/* Элемент сообщения */
+.message-item {
+    background-color: var(--light-gray-item);
+    border-radius: 4px;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    /* Изменен на column, чтобы действия были снизу */
+    gap: 10px;
+}
+
+.message-content {
+    display: flex;
+    width: 100%;
+}
+
+.sender-name {
+    font-size: var(--font-size-l);
+    font-weight: 600;
+    color: var(--black);
+    width: 250px;
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+
+.message-body {
+    font-size: var(--font-size-l);
+    font-weight: 600;
+    color: var(--black);
+    flex-grow: 1;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.message-actions {
+    align-self: flex-end;
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--light-gray-item);
+    background-color: var(--white);
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.action-button:hover {
+    background-color: var(--blue);
+    border-color: var(--blue);
+}
+
+.action-button:hover .text_label,
+.action-button:hover .icon {
+    color: var(--white);
+}
+
+.action-button .text_label {
+    font-size: var(--font-size-s);
+    font-weight: 600;
+    color: var(--gray);
+    white-space: nowrap;
+}
+
+.action-button .icon {
+    font-size: var(--font-size-m);
+    line-height: 1;
+    color: var(--gray);
+}
+
+/* Адаптивность */
+@media (max-width: 1400px) {
+    .main-content {
+        padding: 32px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+}

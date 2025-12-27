@@ -1,0 +1,570 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"co",
+				"console"
+			],
+			[
+				"f",
+				"function"
+			],
+			[
+				"o",
+				"output"
+			],
+			[
+				"fo",
+				"font-size"
+			],
+			[
+				"sp",
+				"span"
+			],
+			[
+				"роша",
+				"Ромашковая"
+			],
+			[
+				"a",
+				"alt"
+			],
+			[
+				"s",
+				"style"
+			],
+			[
+				"back",
+				"background"
+			],
+			[
+				"max",
+				"max-width"
+			],
+			[
+				"sl",
+				"slider"
+			],
+			[
+				"sw",
+				"switch4"
+			],
+			[
+				"in",
+				"input"
+			],
+			[
+				"h",
+				"header"
+			],
+			[
+				"bor",
+				"border-radius"
+			],
+			[
+				"m",
+				"margin-bottom"
+			],
+			[
+				"gr",
+				"green"
+			],
+			[
+				"list-",
+				"list-style-type"
+			],
+			[
+				"margin-",
+				"margin-bottom"
+			],
+			[
+				"na",
+				"nav"
+			],
+			[
+				"Hea",
+				"header"
+			],
+			[
+				"he",
+				"header"
+			],
+			[
+				"re",
+				"red"
+			],
+			[
+				"bl",
+				"black"
+			],
+			[
+				"gre",
+				"green"
+			],
+			[
+				"v",
+				"violet"
+			],
+			[
+				"b",
+				"blue"
+			],
+			[
+				"t",
+				"type"
+			],
+			[
+				"Су",
+				"Суперкомпьютер"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "home.html",
+			"redo_stack":
+			[
+				[
+					36,
+					1,
+					"paste",
+					null,
+					"AgAAAO4qAAAAAAAACCsAAAAAAAAAAAAA5CoAAAAAAADkKgAAAAAAAAoAAABpbmRleC5odG1s",
+					"AQAAAAAAAAABAAAA7ioAAAAAAADuKgAAAAAAAAAAAAAAAPC/"
+				]
+			],
+			"settings":
+			{
+				"buffer_size": 26515,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					7,
+					1,
+					"left_delete",
+					null,
+					"AQAAABhOAAAAAAAAGE4AAAAAAAC1CgAAIDxwYXRoCiAgICAgICAgICAgICAgICAgICAgICBkPSJNMS4xNDEzMWUtMDYgMzAuODUwNlY3LjY1MDM5QzEuMTQxMzFlLTA2IDYuNTUwOSAtMC4wMDEwMjExMSA1LjY1MDggMC4wNTg1OTQ5IDQuOTIwOUMwLjExOTM5OSA0LjE3NjU1IDAuMjQ5NTM1IDMuNDk5NjQgMC41NzIyNjcgMi44NjYyMUMxLjA3NTU5IDEuODc4MzYgMS44NzgzNyAxLjA3NTYgMi44NjYyMSAwLjU3MjI2N0MzLjQ5OTY0IDAuMjQ5NTM0IDQuMTc2NTUgMC4xMTkzOTcgNC45MjA5IDAuMDU4NTk0OUM1LjY1MDggLTAuMDAxMDIyMjQgNi41NTA5MiAxLjEyNzQ1ZS0wNiA3LjY1MDM5IDEuMTI3NDVlLTA2SDE2LjU5OTZDMTYuODQyOCAxLjExNjZlLTA2IDE3LjA2MzEgMC4wMDAxNTgyNDMgMTcuMjYwNyAwLjAwMTk1NDI1QzE3LjgzOTYgMC4wMDcyMjMyNiAxOC4zMjUxIDAuMDI2ODUyIDE4LjgxOTMgMC4xNDU1MDlDMTkuMzU1OSAwLjI3NDM1MiAxOS44NjgxIDAuNDg3MTEyIDIwLjMzNjkgMC43NzQ0MTVDMjAuODk1NyAxLjExNjk4IDIxLjM1OTggMS41OTIxNyAyMi4wMDg4IDIuMjQxMjFMMjguMjU5OCA4LjQ5MjE5QzI4LjkxMDYgOS4xNDMwMyAyOS4zODIyIDkuNjA0NCAyOS43MjQ2IDEwLjE2MzFDMzAuMDExOCAxMC42MzE4IDMwLjIyNDYgMTEuMTQzOSAzMC4zNTM1IDExLjY4MDdDMzAuNDY5MiAxMi4xNjI0IDMwLjQ5MSAxMi42MzU3IDMwLjQ5NzEgMTMuMTk3M0MzMC40OTc4IDEzLjIxNDggMzAuNSAxMy4yMzIzIDMwLjUgMTMuMjVDMzAuNSAxMy4yNjExIDMwLjQ5ODMgMTMuMjcyMiAzMC40OTggMTMuMjgzMkMzMC40OTk1IDEzLjQ2OTcgMzAuNSAxMy42NzU3IDMwLjUgMTMuOTAxNFYzMC44NTc0QzMwLjUgMzEuOTU0NSAzMC41MDEgMzIuODUyNiAzMC40NDE0IDMzLjU4MTFDMzAuMzgwNiAzNC4zMjQyIDMwLjI1MDEgMzUgMjkuOTI3NyAzNS42MzI4QzI5LjQyNDEgMzYuNjIxMyAyOC42MTkgMzcuNDI0NyAyNy42MzE4IDM3LjkyNzdDMjYuOTk5IDM4LjI1MDIgMjYuMzIzMyAzOC4zODA2IDI1LjU4MDEgMzguNDQxNEMyNC44NTE1IDM4LjUwMSAyMy45NTI3IDM4LjUgMjIuODU1NSAzOC41SDcuNjQzNTZDNi41NDYzNiAzOC41IDUuNjQ3ODQgMzguNTAxIDQuOTE4OTUgMzguNDQxNEM0LjE3NTQ5IDM4LjM4MDYgMy40OTkyMSAzOC4yNTAzIDIuODY2MjEgMzcuOTI3N0MxLjg3NzcgMzcuNDI0IDEuMDc1MjIgMzYuNjE5OSAwLjU3MjI2NyAzNS42MzI4QzAuMjQ5NjgxIDM0Ljk5OTUgMC4xMTk0MDMgMzQuMzIzMiAwLjA1ODU5NDkgMzMuNTc5MUMtMC4wMDEwMjMwNyAzMi44NDk2IDEuMDIxMzdlLTA2IDMxLjk1IDEuMTQxMzFlLTA2IDMwLjg1MDZaTTIuNSAzMC44NTA2QzIuNSAzMS45OTA5IDIuNTAxNDUgMzIuNzcxIDIuNTUwNzggMzMuMzc1QzIuNTk4OTQgMzMuOTY0NCAyLjY4NjU4IDM0LjI3NTggMi43OTk4MSAzNC40OThDMy4wNjM4MSAzNS4wMTYyIDMuNDg0MjUgMzUuNDM3OSA0LjAwMDk4IDM1LjcwMTJDNC4yMjI3NiAzNS44MTQyIDQuNTM0MTggMzUuOTAyMSA1LjEyMzA1IDM1Ljk1MDJDNS43MjY0NSAzNS45OTk1IDYuNTA1NDUgMzYgNy42NDM1NiAzNkgyMi44NTU1QzIzLjk5MzkgMzYgMjQuNzczIDM1Ljk5OTUgMjUuMzc2IDM1Ljk1MDJDMjUuOTY0MyAzNS45MDIxIDI2LjI3NTEgMzUuODE0MiAyNi40OTcxIDM1LjcwMTJDMjcuMDE1MiAzNS40MzcyIDI3LjQzNjkgMzUuMDE0OCAyNy43MDAyIDM0LjQ5OEMyNy44MTMyIDM0LjI3NjIgMjcuOTAxMSAzMy45NjU5IDI3Ljk0OTIgMzMuMzc3OUMyNy45OTg1IDMyLjc3NDkgMjggMzEuOTk1OCAyOCAzMC44NTc0VjE0LjVIMjMuNjQzNkMyMi41NDY0IDE0LjUgMjEuNjQ3OCAxNC41MDEgMjAuOTE4OSAxNC40NDE0QzIwLjE3NTUgMTQuMzgwNyAxOS40OTkyIDE0LjI1MDIgMTguODY2MiAxMy45Mjc3QzE3Ljg3NzQgMTMuNDIzOSAxNy4wNzUgMTIuNjE5NSAxNi41NzIzIDExLjYzMjhDMTYuMjQ5NiAxMC45OTk2IDE2LjExOTQgMTAuMzIzMSAxNi4wNTg2IDkuNTc5MUMxNS45OTkgOC44NDk1NiAxNiA3Ljk0OTA4IDE2IDYuODQ5NjFWMi41SDcuNjUwMzlDNi41MDk2OSAyLjUgNS43Mjg1NCAyLjUwMTQxIDUuMTI0MDIgMi41NTA3OEM0LjUzNDM0IDIuNTk4OTggNC4yMjMwNyAyLjY4NjY0IDQuMDAwOTggMi43OTk4MUMzLjQ4MzYyIDMuMDYzNDQgMy4wNjM0NCAzLjQ4MzYxIDIuNzk5ODEgNC4wMDA5OEMyLjY4NjYxIDQuMjIzMTQgMi41OTg5NyA0LjUzNDk4IDIuNTUwNzggNS4xMjVDMi41MDE0NCA1LjcyOTQ3IDIuNSA2LjUwOTk0IDIuNSA3LjY1MDM5VjMwLjg1MDZaTTE4LjUgNi44NDk2MUMxOC41IDcuOTkwMzUgMTguNTAwNCA4Ljc3MDkyIDE4LjU0OTggOS4zNzVDMTguNTk4IDkuOTY0NDIgMTguNjg2NSAxMC4yNzU3IDE4Ljc5OTggMTAuNDk4QzE5LjA2NCAxMS4wMTY0IDE5LjQ4NDggMTEuNDM4MSAyMC4wMDEgMTEuNzAxMkMyMC4yMjI3IDExLjgxNDEgMjAuNTMzNSAxMS45MDIxIDIxLjEyMjEgMTEuOTUwMkMyMS43MjU2IDExLjk5OTUgMjIuNTA1IDEyIDIzLjY0MzYgMTJIMjcuODQyOEMyNy43NzgyIDExLjgxNTcgMjcuNjk1NiAxMS42Mzc1IDI3LjU5MjggMTEuNDY5N0MyNy40NDA1IDExLjIyMTIgMjcuMjI0NyAxMC45OTIyIDI2LjQ5MjIgMTAuMjU5OEwyMC4yNDEyIDQuMDA4NzlDMTkuNTA3NyAzLjI3NTI5IDE5LjI3ODMgMy4wNTcyNyAxOS4wMzAzIDIuOTA1MjdDMTguODYyNSAyLjgwMjQ3IDE4LjY4NDMgMi43MTk4MSAxOC41IDIuNjU1MjdWNi44NDk2MVoiCiAgICAgICAgICAgICAgICAgICAgLz4",
+					"AQAAAAAAAAABAAAAzVgAAAAAAAAYTgAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "index.html",
+			"redo_stack":
+			[
+				[
+					14,
+					1,
+					"left_delete",
+					null,
+					"AQAAAFAGAAAAAAAArA0AAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAUAYAAAAAAABQBgAAAAAAAAAAAAAAAPC/"
+				]
+			],
+			"settings":
+			{
+				"buffer_size": 4086,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+			]
+		},
+		{
+			"file": "script.js",
+			"settings":
+			{
+				"buffer_size": 2151,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+			]
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Katya/Desktop/course-work-team-41-bakirova-tsitskishvili-khmelyar/front_code/script.js",
+		"/C/lr2/workspace/projects/lab01/myapp/src/main/java/ru/wirbel/lab01/myapp/GreetingsBuilder.java",
+		"/C/lr2/workspace/projects/lab01/myapp/src/main/resources/messages_en.properties",
+		"/C/lr2/workspace/projects/lab01/myapp/src/main/resources/messages_ru.properties",
+		"/C/lr2/workspace/projects/lab01/mylib/src/test/java/ru/wirbel/lab01/mylib/GreetingsBuilderTest.java",
+		"/C/Users/Katya/Desktop/вуз/РПС/лр1/SampleServlet.java",
+		"/C/Program Files/AnyLogic 8.9 Personal Learning Edition/https",
+		"/C/lr1/lab1/index.html",
+		"/C/Users/Katya/Desktop/вуз/РПС/лр1/index.html",
+		"/C/lr1/lab1/WEB-INF/web.xml",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/сайт/Bar.html",
+		"/C/lr1_1/ru/vlsu/ispi/SampleServlet.java",
+		"/C/lr1_1/lab1_1/index.html",
+		"/C/Users/Katya/Desktop/экзамен/stil2.css",
+		"/C/lr1/ru/vlsu/ispi/SampleServlet.java",
+		"/C/Users/Katya/AppData/Local/Temp/Rar$EXa15624.41365/лр1/index.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/игра лб6/style.css",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/игра лб6/igra.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/игра лб6/script.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/игра лб6/lab17.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/lab5.01.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/index.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/cosmeticModule.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/script.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/сайты для лб 4/lab4.03.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/js5.01.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/jsLab4.02.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/jsLab4.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/stil.css",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/script7.js",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/задание 2.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/lab4.03.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/lab4.02.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/lab4.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/lab7-9.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/exempl.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/javS.js",
+		"/C/Users/Katya/Desktop/вуз/2 семестр/ввп/ЛБ13_Хмеляр/java.js",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/Лабы по сайту начало/ЛБ9_Хмеляр/для любименького/test.html",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/сайт/stilg.css",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/сайт/Test.html",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/сайт/stilOwl.css",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/сайт/Owl.html",
+		"/C/Users/Katya/Desktop/вуз/3 семестр/дизайн/Лабы по сайту начало/ЛБ9_Хмеляр/ЛБ9_Хмеляр/test.html",
+		"/C/Users/Katya/Desktop/экзамен/script.js",
+		"/C/Users/Katya/Desktop/вуз/2 семестр/ввп/ЛБ13_Хмеляр/global.html",
+		"/C/Users/Katya/Desktop/вуз/2 семестр/ввп/ЛБ12_Хмеляр/global.html",
+		"/C/Users/Katya/Desktop/экзамен/2.html",
+		"/C/Users/Katya/Desktop/вуз/БИТ-JS/Krem.html",
+		"/C/Users/Katya/Desktop/вуз/2 семестр/ввп/ЛБ12_Хмеляр/stil.css",
+		"/C/Users/Katya/Desktop/вуз/2 семестр/ввп/ЛБ11_Хмеляр/global.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/Лабы по сайту начало/ЛБ9_Хмеляр/ЛБ9_Хмеляр/score.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/Лабы по сайту начало/ЛБ9_Хмеляр/ЛБ9_Хмеляр/test.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/script5.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/stil6-3.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/stil6-2.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/5.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/6-3s.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/6-2s.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/6-1s.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/10.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/script.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/stil2.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/test.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/stil6-3",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/6.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilg.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/экзамен/stil.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilBar.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Test.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/glavnay.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Projekt.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Fan.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Owl.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Kar.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Kop.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Pin.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Los.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Nush.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Bar.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Esh.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilLos.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/Krosh.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilKop.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilPin.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilKar.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilNush.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilEsh.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilKrosh.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/slid.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilOwl.css",
+		"/C/Users/Katya/Desktop/time/tinem.txt",
+		"/C/Users/Katya/Desktop/вуз/дизайн/сайт/stilNush",
+		"/C/Users/Katya/Downloads/style(1).css",
+		"/D/10Б Катюха)/time management/time.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ9_Хмеляр/score.js",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ9_Хмеляр/test.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ6_Хмеляр/1.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ6_Хмеляр/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ6_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ6_Хмеляр/4.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/style1.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ7_Хмеляр/1.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ7_Хмеляр/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ7_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ7_Хмеляр/4.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ8_Хмеляр/1.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ8_Хмеляр/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ8_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ8_Хмеляр/4.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/style1.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/style4.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/4.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/style3.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/style2.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ5_Хмеляр/1.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/style4.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/4.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/style3.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/style2.css",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/2.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ4_Хмеляр/1.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ3_Хмеляр/3.html",
+		"/C/Users/Katya/Desktop/вуз/дизайн/ЛБ3_Хмеляр/style2.css"
+	],
+	"find":
+	{
+		"height": 27.2
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "home.html",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 26515,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								10886,
+								10886
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3604.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4086,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2936,
+								2936
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 187.2,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "script.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2151,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								563,
+								563
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.2
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "script.sublime-project",
+	"replace":
+	{
+		"height": 51.2
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 301.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
