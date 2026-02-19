@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .profile-page-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Карточка профиля */
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .profile-header {
+            padding: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .profile-header h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3b90d3;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .field-item {
+            margin-bottom: 20px;
+        }
+
+        .field-item span {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .field-item p {
+            margin: 0;
+            color: #212529;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Блок с кнопкой сообщения */
+        .message-block {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .message-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .message-info {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .message-info-text {
+            color: #495057;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .btn-secondary-text {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 25px;
+            background: transparent;
+            color: #3b90d3;
+            border: 2px solid #3b90d3;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-secondary-text:hover {
+            background: #3b90d3;
+            color: white;
+        }
+
+        .btn-secondary-text i {
+            margin-right: 8px;
+        }
+
+        /* Панель ввода сообщения */
+        .message-input-panel {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .message-form-header {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 20px;
+            margin: 0;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #messageForm {
+            padding: 20px;
+        }
+
+        .form-input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            resize: vertical;
+        }
+
+        .form-input-field:focus {
+            border-color: #3b90d3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary-blue {
+            padding: 10px 25px;
+            background: #3b90d3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary-blue:hover {
+            background: #2a7cbb;
+        }
+
+        .btn-primary-blue:disabled {
+            background: #a0c4e3;
+            cursor: not-allowed;
+        }
+
+        /* Сообщения об ошибках/успехе */
+        .text-red-500 {
+            color: #dc3545;
+        }
+
+        .text-green-500 {
+            color: #28a745;
+        }
+
+        .bg-green-100 {
+            background-color: #d4edda;
+        }
+
+        .bg-red-100 {
+            background-color: #f8d7da;
+        }
+
+        .text-green-700 {
+            color: #155724;
+        }
+
+        .text-red-700 {
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Анимации */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Иконки */
+        .fa-info-circle {
+            color: #6c757d;
+        }
+
+        /* Пустые значения */
+        .empty-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-page-content">
+
+    <!-- Карточка профиля -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <h3>Основная информация</h3>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Основные поля -->
+            <div class="field-item">
+                <span>ФИО:</span>
+                <p th:text="${viewModel.fullName}">Иванов Алексей Петрович</p>
+            </div>
+
+            <div class="field-item">
+                <span>Роль:</span>
+                <p th:text="${viewModel.roleName}">Учитель</p>
+            </div>
+
+            <div class="field-item">
+                <span>Логин:</span>
+                <p th:text="${viewModel.login}">teacher</p>
+            </div>
+
+            <div class="field-item">
+                <span>Email:</span>
+                <p th:text="${viewModel.email ?: 'Не указан'}"
+                   th:classappend="${viewModel.email == null || viewModel.email.isEmpty()} ? 'empty-value' : ''">
+                    teacher@school.ru
+                </p>
+            </div>
+
+            <div class="field-item">
+                <span>Телефон:</span>
+                <p th:text="${viewModel.phone ?: 'Не указан'}"
+                   th:classappend="${viewModel.phone == null || viewModel.phone.isEmpty()} ? 'empty-value' : ''">
+                    +79991234567
+                </p>
+            </div>
+
+            <div class="field-item">
+                <span>Дата рождения:</span>
+                <p th:text="${viewModel.formattedBirthDate}"
+                   th:classappend="${viewModel.birthDate == null} ? 'empty-value' : ''">
+                    15.05.1980
+                </p>
+            </div>
+
+            <!-- Динамические поля -->
+            <div th:if="${viewModel.classInfo != null && !viewModel.classInfo.isEmpty()}"
+                 class="field-item">
+                <span th:text="${viewModel.roleName == 'Учитель'} ? 'Классное руководство:' : 'Класс ученика:'">
+                    Классное руководство
+                </span>
+                <p th:text="${viewModel.classInfo}">9 "А"</p>
+            </div>
+
+            <div th:if="${homeroomTeacher != null && !homeroomTeacher.isEmpty() &&
+                         (viewModel.roleName == 'Ученик' || viewModel.roleName == 'Родитель')}"
+                 class="field-item">
+                <span>Классный руководитель:</span>
+                <p th:text="${homeroomTeacher}">Иванов Алексей Петрович</p>
+            </div>
+
+            <div th:if="${viewModel.studentInfo != null && !viewModel.studentInfo.isEmpty()}"
+                 class="field-item">
+                <span>Привязанный ученик:</span>
+                <p th:text="${viewModel.studentInfo}">Сидоров Дмитрий Иванович</p>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div class="field-item" style="grid-column: 1 / -1;">
+                <span>Дополнительная информация:</span>
+                <p th:text="${viewModel.info ?: 'Нет данных'}"
+                   th:classappend="${viewModel.info == null || viewModel.info.isEmpty()} ? 'empty-value' : ''"
+                   style="white-space: pre-wrap;">
+                    Классный руководитель 9А, преподаватель математики
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок с кнопкой сообщения (только для не-директоров) -->
+    <div th:if="${!isDirector && directorId != null}" class="message-block">
+        <div class="message-info">
+            <p class="message-info-text">
+                <i class="fas fa-info-circle"></i>
+                Если вам необходимо изменить данные профиля, напишите об этом Директору.
+            </p>
+            <button type="button" id="toggleMessagePanelBtn"
+                    th:attr="data-recipient-id=${directorId}"
+                    class="btn-secondary-text">
+                <i class="fas fa-envelope"></i> Написать Директору
+            </button>
+        </div>
+
+        <!-- Панель ввода сообщения -->
+        <div id="messagePanel" class="message-input-panel">
+            <h3 class="message-form-header">Отправить сообщение Директору</h3>
+
+            <form id="messageForm" th:action="@{/profile/send-message-to-director}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="recipientId" id="recipientIdInput" th:value="${directorId}" />
+
+                <div class="mb-4">
+                    <label for="messageBody" style="display: block; margin-bottom: 8px; font-weight: 500; color: #495057;">
+                        Текст сообщения
+                    </label>
+                    <textarea id="messageBody" name="body" rows="5" required
+                              class="form-input-field"
+                              placeholder="Введите ваше сообщение..."></textarea>
+                    <div id="messageValidationMessage" class="text-red-500" style="font-size: 14px; margin-top: 5px;"></div>
+                </div>
+
+                <div id="messageResponse" style="padding: 12px; margin: 15px 0; border-radius: 4px; display: none;"></div>
+
+                <div class="form-actions">
+                    <button type="button" id="closeMessagePanelBtn" class="btn-secondary-text">Отмена</button>
+                    <button type="submit" class="btn-primary-blue" id="submitMessageBtn">Отправить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Элементы
+        const messagePanel = $('#messagePanel');
+        const toggleMessagePanelBtn = $('#toggleMessagePanelBtn');
+        const closeMessagePanelBtn = $('#closeMessagePanelBtn');
+
+        const messageForm = $('#messageForm');
+        const messageBodyInput = $('#messageBody');
+        const submitMessageBtn = $('#submitMessageBtn');
+        const messageResponse = $('#messageResponse');
+        const messageValidationMessage = $('#messageValidationMessage');
+
+        // Функции управления панелью
+        function showMessagePanel() {
+            messageBodyInput.val('');
+            messageResponse.hide().removeClass('bg-green-100 text-green-700 bg-red-100 text-red-700').html('');
+            messageValidationMessage.text('');
+
+            messagePanel.slideDown(300).removeClass('hidden');
+            toggleMessagePanelBtn.html('<i class="fas fa-times"></i> Скрыть форму');
+        }
+
+        function hideMessagePanel() {
+            messagePanel.slideUp(300, function() {
+                $(this).addClass('hidden');
+            });
+            toggleMessagePanelBtn.html('<i class="fas fa-envelope"></i> Написать Директору');
+        }
+
+        // Обработчики событий
+        // 1. Открытие/Закрытие панели
+        toggleMessagePanelBtn.on('click', function() {
+            if (messagePanel.hasClass('hidden')) {
+                showMessagePanel();
+            } else {
+                hideMessagePanel();
+            }
+        });
+
+        // 2. Закрытие панели по кнопке "Отмена"
+        closeMessagePanelBtn.on('click', hideMessagePanel);
+
+        // 3. Отправка формы сообщения
+        messageForm.on('submit', function(e) {
+            e.preventDefault();
+
+            const body = messageBodyInput.val().trim();
+            if (body === "") {
+                messageValidationMessage.text("Пожалуйста, введите текст сообщения.");
+                return;
+            }
+
+            submitMessageBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Отправка...');
+            messageValidationMessage.text('');
+
+            $.ajax({
+                url: messageForm.attr('action'),
+                type: 'POST',
+                data: messageForm.serialize(),
+                success: function(response) {
+                    messageResponse.removeClass('hidden').show();
+                    if (response.success) {
+                        messageResponse.addClass('bg-green-100 text-green-700')
+                            .html('<i class="fas fa-check-circle"></i> ' + response.message);
+                        messageBodyInput.val('');
+
+                        // Скрываем панель через 2 секунды
+                        setTimeout(hideMessagePanel, 2000);
+                    } else {
+                        messageResponse.addClass('bg-red-100 text-red-700')
+                            .html('<i class="fas fa-exclamation-triangle"></i> ' + response.message);
+                    }
+                },
+                error: function() {
+                    messageResponse.removeClass('hidden').show();
+                    messageResponse.addClass('bg-red-100 text-red-700')
+                        .html('<i class="fas fa-exclamation-triangle"></i> Ошибка связи с сервером.');
+                },
+                complete: function() {
+                    submitMessageBtn.prop('disabled', false).html('Отправить');
+                }
+            });
+        });
+
+        // 4. Закрытие по ESC
+        $(document).on('keydown', function(event) {
+            if (event.key === 'Escape' && !messagePanel.hasClass('hidden')) {
+                hideMessagePanel();
+            }
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

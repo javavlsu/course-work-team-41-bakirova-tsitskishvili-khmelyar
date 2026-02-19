@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - ШкЭД'">ШкЭД</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Наши стили -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!-- Если авторизован - показываем макет -->
+<div sec:authorize="isAuthenticated()">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Боковое меню -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-heading p-3">
+                        <h3 class="text-primary fw-bold">ШкЭД</h3>
+                        <small class="text-muted">Школьный портал</small>
+                    </div>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/}"
+                               th:classappend="${activePage == 'home'} ? 'active'">
+                                <i class="fas fa-home me-2"></i>
+                                Главная
+                            </a>
+                        </li>
+
+                        <!-- Для учителей и директоров -->
+                        <li class="nav-item" sec:authorize="hasAnyRole('TEACHER', 'DIRECTOR')">
+                            <a class="nav-link" th:href="@{/journal/index}"
+                               th:classappend="${activePage == 'journal'} ? 'active' : ''">
+                                <i class="fas fa-book me-2"></i>
+                                Ведение журнала
+                            </a>
+                        </li>
+
+                        <!-- В разделе навигации добавьте: -->
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/grades}"
+                               th:classappend="${activePage == 'grades'} ? 'active'">
+                                <i class="fas fa-chart-line me-2"></i>
+                                <span>Успеваемость</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/messages/index}"
+                               th:classappend="${activePage == 'messages'} ? 'active' : ''">
+                                <i class="fas fa-envelope me-2"></i>
+                                Сообщения
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/schedule/index}"
+                               th:classappend="${activePage == 'schedule'} ? 'active' : ''">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Расписание
+                            </a>
+                        </li>
+
+                        <!-- Для учителей -->
+                        <li class="nav-item" sec:authorize="hasRole('TEACHER')">
+                            <a class="nav-link" th:href="@{/homework/review}"
+                               th:classappend="${activePage == 'homework'} ? 'active'">
+                                <i class="fas fa-clipboard-check me-2"></i>
+                                <span>Проверка ДЗ</span>
+                            </a>
+                        </li>
+
+                        <!-- Для учителей и директоров -->
+                        <li class="nav-item" sec:authorize="hasAnyRole('DIRECTOR', 'TEACHER')">
+                            <a class="nav-link" th:href="@{/users/index}"
+                               th:classappend="${activePage == 'users'} ? 'active' : ''">
+                                <i class="fas fa-users-cog me-2"></i>
+                                <span>Управление пользователями</span>
+                            </a>
+                        </li>
+
+                        <hr class="my-3">
+
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/profile/index}"
+                               th:classappend="${activePage == 'profile'} ? 'active' : ''">
+                                <i class="fas fa-user-circle me-2"></i>
+                                Профиль
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="mt-auto p-3">
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Выйти
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Основной контент -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2" th:text="${title}">Заголовок</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="text-muted">
+                            Приветствуем,
+                            <strong sec:authentication="name">Пользователь</strong>!
+                            Вы вошли как
+                            <strong>
+                                    <span sec:authentication="principal.authorities">
+                                        [ROLE_TEACHER]
+                                    </span>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Контент страницы -->
+                <div th:replace="${content}"></div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Если не авторизован - редирект -->
+<div sec:authorize="!isAuthenticated()">
+    <script>
+        window.location.href = "/login";
+    </script>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Наши скрипты -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Функции для модального окна
+    window.showModal = function() {
+        const modal = document.getElementById('announcementModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.hideModal = function() {
+        const modal = document.getElementById('announcementModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Закрытие по клику вне окна
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('announcementModal');
+        if (event.target === modal) {
+            window.hideModal();
+        }
+    });
+
+    // Обработка отправки формы объявления
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('announcementForm');
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Публикуется...';
+                submitButton.disabled = true;
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form)
+                    });
+
+                    if (response.ok) {
+                        alert('Объявление успешно опубликовано!');
+                        window.hideModal();
+                        form.reset();
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при публикации объявления');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    alert('Ошибка сети');
+                } finally {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                }
+            });
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

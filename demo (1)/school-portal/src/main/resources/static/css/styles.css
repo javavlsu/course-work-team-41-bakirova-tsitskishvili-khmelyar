@@ -1,0 +1,178 @@
+/* Основные стили */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Сайдбар - УБИРАЕМ ОТСТУП СВЕРХУ */
+.sidebar {
+    position: fixed;
+    top: 0; /* Прижимаем к самому верху */
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0 !important; /* Убираем все отступы */
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Заголовок в сайдбаре - добавляем свой отступ */
+.sidebar-heading {
+    font-size: .75rem;
+    text-transform: uppercase;
+    padding: 1rem 1rem 0.5rem 1rem !important; /* Отступ только сверху */
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Навигация в сайдбаре */
+.sidebar .nav {
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e3f2fd;
+    color: #3b90d3;
+}
+
+.sidebar .nav-link.active {
+    background-color: #3b90d3;
+    color: white;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Основной контент - ОСТАВЛЯЕМ ОТСТУП */
+main {
+    padding-top: 20px; /* Отступ остается для контента */
+}
+
+/* Заголовок страницы - сохраняем отступ */
+.d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center {
+    padding-top: 1rem !important; /* Сохраняем отступ */
+    padding-bottom: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    background-color: white;
+}
+
+/* Контентная область - сохраняем отступы */
+main .px-md-4 {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+/* Dashboard content - отступ остается */
+.dashboard-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 20px; /* Отступ остается */
+}
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Адаптивность */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        height: auto;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    main {
+        padding-top: 15px; /* Меньший отступ на мобильных */
+    }
+
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center {
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    .dashboard-content-wrapper {
+        padding: 15px;
+    }
+}
+
+/* Цветовые утилиты */
+.text-primary {
+    color: #3b90d3 !important;
+}
+
+.bg-primary {
+    background-color: #3b90d3 !important;
+}
+
+.btn-primary {
+    background-color: #3b90d3 !important;
+    border-color: #3b90d3 !important;
+}
+
+.border-primary {
+    border-color: #3b90d3 !important;
+}
+
+/* Кнопка выхода в сайдбаре */
+.mt-auto {
+    margin-top: auto !important;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Фикс для position-sticky в сайдбаре */
+.position-sticky {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0 !important; /* Убираем отступы */
+}
+
+/* Стили для блоков на странице */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}

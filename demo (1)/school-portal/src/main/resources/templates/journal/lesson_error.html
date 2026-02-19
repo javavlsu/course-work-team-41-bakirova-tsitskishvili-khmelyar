@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="bg-white rounded-lg shadow-xl">
+    <div class="bg-danger px-6 py-4 rounded-t-lg">
+        <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-white">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Ошибка
+            </h3>
+            <button type="button" onclick="closeLessonModal()"
+                    class="text-white hover:text-gray-200 text-2xl bg-transparent border-0">
+                &times;
+            </button>
+        </div>
+    </div>
+    <div class="p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+        <h4 class="text-danger mb-2">Ошибка загрузки данных урока</h4>
+        <p class="text-muted mb-4" th:text="${error}">Произошла ошибка</p>
+        <button type="button" onclick="closeLessonModal()"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+            Закрыть
+        </button>
+    </div>
+</div>
