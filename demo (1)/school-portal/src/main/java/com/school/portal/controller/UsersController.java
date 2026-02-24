@@ -28,10 +28,10 @@ public class UsersController {
 
     private void initializeDemoData() {
         // Инициализация ролей
-        roles.add(new Role(1, "Учитель"));
-        roles.add(new Role(2, "Директор"));
-        roles.add(new Role(3, "Ученик"));
-        roles.add(new Role(4, "Родитель"));
+        roles.add(new Role("Учитель"));
+        roles.add(new Role("Директор"));
+        roles.add(new Role("Ученик"));
+        roles.add(new Role("Родитель"));
 
         // Инициализация классов
         schoolClasses.add(new SchoolClass(1, 9, "А", 1));
@@ -50,27 +50,27 @@ public class UsersController {
         subjects.add(new Subject(7, "Информатика"));
 
         // Инициализация пользователей
-        users.add(new User(1, "teacher", "Алексей", "Иванов", "Петрович", "Учитель", 1,
+        users.add(createMockUser(1, "teacher1", "Алексей", "Иванов", "Петрович", "Учитель",
                 "teacher@school.ru", "+79991234567", LocalDate.of(1980, 5, 15),
                 "Классный руководитель 9А, преподаватель математики"));
 
-        users.add(new User(2, "director", "Мария", "Петрова", "Сергеевна", "Директор", 2,
+        users.add(createMockUser(2, "director", "Мария", "Петрова", "Сергеевна", "Директор",
                 "director@school.ru", "+79997654321", LocalDate.of(1975, 3, 22),
                 "Директор школы, кандидат педагогических наук"));
 
-        users.add(new User(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик", 3,
+        users.add(createMockUser(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик",
                 "student1@school.ru", null, LocalDate.of(2007, 8, 10),
                 "Успевающий ученик, участник олимпиад"));
 
-        users.add(new User(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик", 3,
+        users.add(createMockUser(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик",
                 "student2@school.ru", "+79998887766", LocalDate.of(2008, 2, 25),
                 "Отличница, занимается музыкой"));
 
-        users.add(new User(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель", 4,
+        users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель",
                 "parent@mail.ru", "+79995554433", LocalDate.of(1982, 11, 5),
                 "Председатель родительского комитета"));
 
-        users.add(new User(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель", 1,
+        users.add(createMockUser(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель",
                 "teacher2@school.ru", "+79993332211", LocalDate.of(1985, 7, 30),
                 "Преподаватель русского языка и литературы"));
     }
@@ -86,7 +86,7 @@ public class UsersController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = auth.getName();
         User currentUser = users.stream()
-                .filter(u -> u.getUsername().equals(currentUsername))
+                .filter(u -> u.getLogin().equals(currentUsername))
                 .findFirst()
                 .orElse(null);
 
@@ -219,7 +219,7 @@ public class UsersController {
             // Создание нового пользователя
             User newUser = new User();
             newUser.setUserId(users.size() + 1);
-            newUser.setUsername(login);
+            newUser.setLogin(login);
             newUser.setFirstName(model.getFirstName());
             newUser.setLastName(model.getLastName());
             newUser.setMiddleName(model.getMiddleName());
@@ -236,8 +236,7 @@ public class UsersController {
                     .orElse(null);
 
             if (selectedRole != null) {
-                newUser.setRole(selectedRole.getRoleName());
-                newUser.setRoleId(selectedRole.getRoleId());
+                newUser.setRole(selectedRole); // Кладём объект Role целиком
             }
 
             users.add(newUser);
@@ -289,8 +288,8 @@ public class UsersController {
             viewModel.setPhone(user.getPhone());
             viewModel.setBirthDate(user.getBirthDate());
             viewModel.setInfo(user.getInfo());
-            viewModel.setRoleId(user.getRoleId());
-            viewModel.setLogin(user.getUsername());
+            viewModel.setRoleId(user.getRole() != null ? user.getRole().getRoleId() : 0);
+            viewModel.setLogin(user.getLogin());
 
             // Заполняем списки
             List<SelectListItem> availableRoles = roles.stream()
@@ -633,7 +632,7 @@ public class UsersController {
             final int currentCounter = counter; // final копия для лямбды
 
             boolean exists = users.stream().anyMatch(u -> {
-                String username = u.getUsername();
+                String username = u.getLogin();
                 return username != null && username.equals(currentLogin);
             });
 
@@ -789,5 +788,27 @@ public class UsersController {
 
         public String getText() { return text; }
         public void setText(String text) { this.text = text; }
+    }
+
+    // Вспомогательный метод для создания тестовых пользователей
+    private User createMockUser(int id, String login, String first, String last, String middle,
+                                String roleName, String email, String phone, LocalDate birthDate, String info) {
+        User u = new User();
+        u.setUserId(id);
+        u.setLogin(login);
+        u.setFirstName(first);
+        u.setLastName(last);
+        u.setMiddleName(middle);
+        u.setPassword("1234");
+        u.setEmail(email);
+        u.setPhone(phone);
+        u.setBirthDate(birthDate);
+        u.setInfo(info);
+
+        Role role = new Role();
+        role.setRoleName(roleName);
+        u.setRole(role);
+
+        return u;
     }
 }

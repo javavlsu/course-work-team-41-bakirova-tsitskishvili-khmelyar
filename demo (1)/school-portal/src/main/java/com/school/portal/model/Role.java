@@ -1,16 +1,26 @@
 package com.school.portal.model;
 
+import jakarta.persistence.*;
+
+@Entity // Класс - таблица в БД
+@Table(name="roles") // Название таблицы
 public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
     private int roleId;
+
+    @Column(name= "role_name", nullable = false, unique = true)
     private String roleName;
 
     public Role() {}
 
-    public Role(int roleId, String roleName) {
-        this.roleId = roleId;
+    public Role(String roleName) {
         this.roleName = roleName;
     }
 
+    // Геттеры и сеттеры
     public int getRoleId() { return roleId; }
     public void setRoleId(int roleId) { this.roleId = roleId; }
 

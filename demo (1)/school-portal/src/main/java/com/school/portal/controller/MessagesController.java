@@ -32,12 +32,12 @@ public class MessagesController {
         roles.add("Родитель");
 
         // Инициализация пользователей
-        users.add(new User(1, "teacher", "Алексей", "Иванов", "Петрович", "Учитель", 1));
-        users.add(new User(2, "director", "Мария", "Петрова", "Сергеевна", "Директор", 2));
-        users.add(new User(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик", 3));
-        users.add(new User(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик", 3));
-        users.add(new User(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель", 4));
-        users.add(new User(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель", 1));
+        users.add(createMockUser(1, "teacher1", "Алексей", "Иванов", "Петрович", "Учитель"));
+        users.add(createMockUser(2, "director", "Мария", "Петрова", "Сергеевна", "Директор"));
+        users.add(createMockUser(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик"));
+        users.add(createMockUser(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик"));
+        users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель"));
+        users.add(createMockUser(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель"));
 
         // Инициализация сообщений
         LocalDateTime now = LocalDateTime.now();
@@ -131,7 +131,7 @@ public class MessagesController {
 
         // Фильтрация пользователей
         List<User> filteredUsers = users.stream()
-                .filter(u -> role.equals(u.getRole()))
+                .filter(u -> u.getRole() != null && role.equals(u.getRole().getRoleName()))
                 .filter(u -> {
                     String searchName = fullName.toLowerCase().trim();
                     String userFullName = u.getFullName().toLowerCase();
@@ -238,5 +238,23 @@ public class MessagesController {
                 .filter(m -> m.getMessageId() == messageId)
                 .findFirst()
                 .orElse(null);
+    }
+
+    // Вспомогательный метод для создания тестовых пользователей
+    private User createMockUser(int id, String login, String first, String last, String middle, String roleName) {
+        User u = new User();
+        u.setUserId(id);
+        u.setLogin(login);
+        u.setFirstName(first);
+        u.setLastName(last);
+        u.setMiddleName(middle);
+        u.setPassword("1234"); // Временный пароль для заглушки
+
+        // Создаем объект Role, как того требует наша новая архитектура
+        Role role = new Role();
+        role.setRoleName(roleName);
+        u.setRole(role);
+
+        return u;
     }
 }

@@ -1,6 +1,8 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,9 @@ import java.util.*;
 @RequestMapping("/profile")
 public class ProfileController {
 
+    @Autowired
+    private UserRepository userRepository;
+
     // Заглушки данных для демонстрации
     private List<User> users = new ArrayList<>();
     private List<SchoolClass> classes = new ArrayList<>();
@@ -25,48 +30,38 @@ public class ProfileController {
         initializeDemoData();
     }
 
+    // Инициализация пользователей
     private void initializeDemoData() {
-        // Инициализация пользователей
-        users.add(new User(1, "teacher", "Алексей", "Иванов", "Петрович", "Учитель", 1,
+        users.add(createMockUser(1, "teacher1", "Алексей", "Иванов", "Петрович", "Учитель",
                 "teacher@school.ru", "+79991234567", LocalDate.of(1980, 5, 15),
                 "Классный руководитель 9А, преподаватель математики"));
 
-        users.add(new User(2, "director", "Мария", "Петрова", "Сергеевна", "Директор", 2,
+        users.add(createMockUser(2, "director", "Мария", "Петрова", "Сергеевна", "Директор",
                 "director@school.ru", "+79997654321", LocalDate.of(1975, 3, 22),
                 "Директор школы, кандидат педагогических наук"));
 
-        users.add(new User(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик", 3,
+        users.add(createMockUser(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик",
                 "student1@school.ru", null, LocalDate.of(2007, 8, 10),
                 "Успевающий ученик, участник олимпиад"));
 
-        users.add(new User(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик", 3,
+        users.add(createMockUser(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик",
                 "student2@school.ru", "+79998887766", LocalDate.of(2008, 2, 25),
                 "Отличница, занимается музыкой"));
 
-        users.add(new User(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель", 4,
+        users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель",
                 "parent@mail.ru", "+79995554433", LocalDate.of(1982, 11, 5),
                 "Председатель родительского комитета"));
-
-        // Инициализация классов
-        classes.add(new SchoolClass(1, 9, "А", 1)); // Классный руководитель - учитель с ID 1
-        classes.add(new SchoolClass(2, 9, "Б", 6)); // Классный руководитель - другой учитель
-        classes.add(new SchoolClass(3, 10, "А", 1));
-
-        // Инициализация сообщений (для отправки директору)
-        LocalDateTime now = LocalDateTime.now();
-        messages.add(new Message(1, 1, 2, "Здравствуйте! Хотел уточнить по расписанию",
-                now.minusDays(2), MessageStatus.READ));
-        messages.add(new Message(2, 3, 2, "Вопрос по учебникам",
-                now.minusDays(1), MessageStatus.NEW));
-        messages.add(new Message(3, 5, 2, "Предложение по школьной форме",
-                now.minusHours(5), MessageStatus.NEW));
     }
 
     // GET: /profile - главная страница профиля
     @GetMapping("/index")
     public String index(Model model) {
-        int currentUserId = getCurrentUserId();
-        User currentUser = findUserById(currentUserId);
+        // Узнаём, кто сейчас авторизован в Spring Security
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentLogin = auth.getName();
+
+        // Достаём этого пользователя напрямую из базы данных
+        User currentUser = userRepository.findByLogin(currentLogin).orElse(null);
 
         if (currentUser == null) {
             model.addAttribute("errorMessage", "Пользователь не найден");
@@ -79,11 +74,11 @@ public class ProfileController {
         profileModel.setLastName(currentUser.getLastName());
         profileModel.setFirstName(currentUser.getFirstName());
         profileModel.setMiddleName(currentUser.getMiddleName());
-        profileModel.setLogin(currentUser.getUsername());
+        profileModel.setLogin(currentUser.getLogin());
         profileModel.setEmail(currentUser.getEmail());
         profileModel.setPhone(currentUser.getPhone());
         profileModel.setBirthDate(currentUser.getBirthDate());
-        profileModel.setRoleName(currentUser.getRole());
+        profileModel.setRoleName(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "Неизвестно");
         profileModel.setInfo(currentUser.getInfo());
 
         // Логика для динамических полей
@@ -192,11 +187,11 @@ public class ProfileController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        // Находим пользователя по username
+        // Находим пользователя по login
         User currentUser = users.stream()
-                .filter(u -> u.getUsername().equals(username))
+                .filter(u -> u.getLogin() != null && u.getLogin().equals(username))
                 .findFirst()
-                .orElse(users.get(0)); // По умолчанию возвращаем учителя
+                .orElse(users.get(0));
 
         return currentUser.getUserId();
     }
@@ -210,7 +205,7 @@ public class ProfileController {
 
     private User findUserByRole(String role) {
         return users.stream()
-                .filter(u -> role.equals(u.getRole()))
+                .filter(u -> u.getRole() != null && role.equals(u.getRole().getRoleName()))
                 .findFirst()
                 .orElse(null);
     }
@@ -295,5 +290,27 @@ public class ProfileController {
         }
 
         return response;
+    }
+
+    // Вспомогательный метод для создания тестовых пользователей
+    private User createMockUser(int id, String login, String first, String last, String middle,
+                                String roleName, String email, String phone, LocalDate birthDate, String info) {
+        User u = new User();
+        u.setUserId(id);
+        u.setLogin(login);
+        u.setFirstName(first);
+        u.setLastName(last);
+        u.setMiddleName(middle);
+        u.setPassword("1234");
+        u.setEmail(email);
+        u.setPhone(phone);
+        u.setBirthDate(birthDate);
+        u.setInfo(info);
+
+        Role role = new Role();
+        role.setRoleName(roleName);
+        u.setRole(role);
+
+        return u;
     }
 }

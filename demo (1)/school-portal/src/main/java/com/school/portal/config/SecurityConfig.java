@@ -50,35 +50,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails teacher = User.builder()
-                .username("teacher")
-                .password(passwordEncoder().encode("password"))
-                .roles("TEACHER")
-                .build();
-
-        UserDetails student = User.builder()
-                .username("student")
-                .password(passwordEncoder().encode("password"))
-                .roles("STUDENT")
-                .build();
-
-        UserDetails parent = User.builder()
-                .username("parent")
-                .password(passwordEncoder().encode("password"))
-                .roles("PARENT")
-                .build();
-
-        UserDetails director = User.builder()
-                .username("director")
-                .password(passwordEncoder().encode("password"))
-                .roles("DIRECTOR")
-                .build();
-
-        return new InMemoryUserDetailsManager(teacher, student, parent, director);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
