@@ -3,6 +3,8 @@ package com.school.portal.controller;
 import com.school.portal.model.*;
 import com.school.portal.model.dto.ScheduleItemViewModel;
 import com.school.portal.model.dto.ScheduleViewModel;
+import com.school.portal.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -22,7 +25,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/schedule")
 public class ScheduleController {
 
-    // Статический словарь времени уроков
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private SchoolClassRepository classRepository;
+
+    @Autowired
+    private StudentClassRepository studentClassRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
+
     private static final Map<Integer, String> LESSON_TIME_MAP = new HashMap<>();
     static {
         LESSON_TIME_MAP.put(1, "08:30 - 10:00");
@@ -33,9 +50,7 @@ public class ScheduleController {
         LESSON_TIME_MAP.put(6, "17:20 - 18:50");
     }
 
-    // Форматтер для дат
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM");
 
     @GetMapping("/index")
     public String index(
@@ -48,13 +63,12 @@ public class ScheduleController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
+
+            User currentUser = userRepository.findByLogin(username)
+                    .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
             String role = getCurrentUserRole(auth);
 
-            if (username == null || "anonymousUser".equals(username) || role == null) {
-                return "redirect:/login";
-            }
-
-            // Устанавливаем заголовок и активную страницу для сайдбара
             model.addAttribute("title", "Расписание");
             model.addAttribute("activePage", "schedule");
             model.addAttribute("content", "schedule/personal-view");
@@ -68,35 +82,74 @@ public class ScheduleController {
                 }
             }
 
-            // Расчет начала недели (понедельник)
             startOfWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDateTime weekStart = startOfWeek.atStartOfDay();
+            LocalDateTime weekEnd = startOfWeek.plusDays(7).atTime(LocalTime.MAX);
 
             boolean isParent = "ROLE_PARENT".equals(role);
+            List<Schedule> lessons;
 
-            // Данные для представления
-            String studentName = "Иванов Алексей Петрович";
-            String className = "9 \"А\"";
-            String classTeacher = "Петрова Мария Сергеевна";
+            if (isParent) {
+                // Для родителя - показываем расписание ребенка (упрощенно - первого)
+                User student = findStudentForParent(currentUser.getUserId());
+                if (student != null) {
+                    Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(student.getUserId());
+                    if (sc.isPresent()) {
+                        lessons = scheduleRepository.findLessonsForClassBetween(
+                                sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
 
-            model.addAttribute("isParent", isParent);
-            model.addAttribute("studentName", studentName);
-            model.addAttribute("className", className);
-            model.addAttribute("classTeacher", classTeacher);
-            model.addAttribute("lessonTimes", LESSON_TIME_MAP);
+                        model.addAttribute("studentName", student.getFullName());
+                        model.addAttribute("className", sc.get().getSchoolClass().getClassName());
+                        model.addAttribute("classTeacher",
+                                sc.get().getSchoolClass().getClassTeacher() != null ?
+                                        sc.get().getSchoolClass().getClassTeacher().getFullName() : "Не назначен");
+                    } else {
+                        lessons = new ArrayList<>();
+                    }
+                } else {
+                    lessons = new ArrayList<>();
+                }
+            } else if ("ROLE_STUDENT".equals(role)) {
+                // Для ученика - его класс
+                Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(currentUser.getUserId());
+                if (sc.isPresent()) {
+                    lessons = scheduleRepository.findLessonsForClassBetween(
+                            sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
 
-            // Создаем демо-расписание
-            List<ScheduleItemViewModel> demoLessons = createDemoLessons(startOfWeek);
-            Map<DayOfWeek, List<ScheduleItemViewModel>> scheduleByDay = groupLessonsByDay(demoLessons);
+                    model.addAttribute("studentName", currentUser.getFullName());
+                    model.addAttribute("className", sc.get().getSchoolClass().getClassName());
+                    model.addAttribute("classTeacher",
+                            sc.get().getSchoolClass().getClassTeacher() != null ?
+                                    sc.get().getSchoolClass().getClassTeacher().getFullName() : "Не назначен");
+                } else {
+                    lessons = new ArrayList<>();
+                }
+            } else if ("ROLE_TEACHER".equals(role)) {
+                // Для учителя - его уроки
+                lessons = scheduleRepository.findLessonsForTeacherBetween(
+                        currentUser.getUserId(), weekStart, weekEnd);
+            } else {
+                // Для директора - все уроки
+                lessons = scheduleRepository.findLessonsBetween(weekStart, weekEnd);
+            }
 
-            // Создаем ViewModel
+            // Преобразуем в ViewModel
+            List<ScheduleItemViewModel> lessonViewModels = lessons.stream()
+                    .map(this::convertToScheduleItem)
+                    .collect(Collectors.toList());
+
+            Map<DayOfWeek, List<ScheduleItemViewModel>> scheduleByDay = groupLessonsByDay(lessonViewModels);
+
             ScheduleViewModel viewModel = new ScheduleViewModel();
             viewModel.setScheduleByDay(scheduleByDay);
             viewModel.setSelectedDate(selectedDate);
             viewModel.setStartOfWeek(startOfWeek);
-            viewModel.setPersonalView(true);
-            viewModel.setAdminView(false);
+            viewModel.setPersonalView(!isParent);
+            viewModel.setAdminView("ROLE_DIRECTOR".equals(role));
 
             model.addAttribute("viewModel", viewModel);
+            model.addAttribute("isParent", isParent);
+            model.addAttribute("lessonTimes", LESSON_TIME_MAP);
             model.addAttribute("currentDate", LocalDate.now().format(DATE_FORMATTER));
 
         } catch (Exception ex) {
@@ -113,190 +166,93 @@ public class ScheduleController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            if (lessonId == null || lessonId <= 0) {
-                response.put("success", false);
-                response.put("message", "Неверный ID урока");
-                return response;
-            }
+            Schedule lesson = scheduleRepository.findById(lessonId)
+                    .orElseThrow(() -> new RuntimeException("Урок не найден"));
 
-            // Здесь должна быть логика получения данных урока из БД
-            // Временно используем демо-данные
-            Map<String, Object> lessonData = createDemoLessonData(lessonId);
+            Map<String, Object> lessonData = new HashMap<>();
+            lessonData.put("lessonId", lesson.getLessonId());
+            lessonData.put("subject", lesson.getSubject() != null ? lesson.getSubject().getSubjectName() : "Неизвестно");
+            lessonData.put("date", lesson.getLessonDateTime().format(DATE_FORMATTER));
+            lessonData.put("lessonNumber", getLessonNumberByTime(lesson.getLessonDateTime().toLocalTime()));
+            lessonData.put("teacher", lesson.getTeacher() != null ? lesson.getTeacher().getFullName() : "Неизвестно");
+            lessonData.put("classroom", lesson.getRoom());
+            lessonData.put("lessonTopic", lesson.getLessonTopic());
+            lessonData.put("homeworkText", lesson.getHomeworkText());
 
             response.put("success", true);
             response.put("data", lessonData);
-
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Ошибка при загрузке данных урока: " + e.getMessage());
+            response.put("message", "Ошибка: " + e.getMessage());
         }
 
         return response;
     }
 
-    @PostMapping("/submit-homework")
-    @ResponseBody
-    public Map<String, Object> submitHomework(
-            @RequestParam Integer lessonId,
-            @RequestParam String studentAnswer,
-            Authentication authentication) {
+    private ScheduleItemViewModel convertToScheduleItem(Schedule schedule) {
+        ScheduleItemViewModel item = new ScheduleItemViewModel();
+        item.setScheduleId(schedule.getLessonId());
+        item.setDate(schedule.getLessonDateTime());
+        item.setLessonNumber(getLessonNumberByTime(schedule.getLessonDateTime().toLocalTime()));
+        item.setLessonTime(LESSON_TIME_MAP.get(item.getLessonNumber()));
 
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            String role = getCurrentUserRole(authentication);
-
-            if (!"ROLE_STUDENT".equals(role)) {
-                response.put("success", false);
-                response.put("message", "Только ученики могут отправлять домашнее задание.");
-                return response;
-            }
-
-            if (lessonId == null || lessonId == 0) {
-                response.put("success", false);
-                response.put("message", "Не удалось определить урок.");
-                return response;
-            }
-
-            String safeAnswer = studentAnswer != null ? studentAnswer.trim() : "";
-            if (safeAnswer.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Пожалуйста, введите текст ответа.");
-                return response;
-            }
-
-            // Здесь должна быть логика сохранения домашнего задания в БД
-            System.out.println("Сохранение ДЗ для урока " + lessonId + ": " + safeAnswer);
-
-            response.put("success", true);
-            response.put("message", "Домашнее задание успешно отправлено!");
-
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Непредвиденная ошибка сервера: " + e.getMessage());
+        if (schedule.getSubject() != null) {
+            item.setSubjectId(schedule.getSubject().getSubjectId());
+            item.setSubjectName(schedule.getSubject().getSubjectName());
         }
 
-        return response;
+        if (schedule.getTeacher() != null) {
+            item.setTeacherId(schedule.getTeacher().getUserId());
+            item.setTeacherFullName(schedule.getTeacher().getFullName());
+        }
+
+        if (schedule.getSchoolClass() != null) {
+            item.setClassroom(schedule.getRoom());
+        }
+
+        item.setLessonTopic(schedule.getLessonTopic());
+        item.setHomeworkText(schedule.getHomeworkText());
+
+        // Проверяем оценку для текущего ученика (упрощенно)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            userRepository.findByLogin(auth.getName()).ifPresent(user -> {
+                if ("ROLE_STUDENT".equals(getCurrentUserRole(auth))) {
+                    gradeRepository.findByStudentUserIdAndLessonLessonId(
+                            user.getUserId(), schedule.getLessonId()).ifPresent(grade -> {
+                        item.setGrade(grade.getGradeValue());
+                        item.setGradeComment(grade.getComment());
+                    });
+                }
+            });
+        }
+
+        return item;
     }
 
-    // Вспомогательные методы
-
-    private String getCurrentUserRole(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return "ROLE_ANONYMOUS";
-        }
-
-        return auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_USER");
-    }
-
-    private List<ScheduleItemViewModel> createDemoLessons(LocalDate startOfWeek) {
-        List<ScheduleItemViewModel> lessons = new ArrayList<>();
-        Random random = new Random(42);
-
-        String[] subjects = {"Математика", "Русский язык", "Физика", "Химия", "История", "Английский язык", "Биология", "География", "Литература", "Информатика"};
-        String[] teachers = {"Иванов А.П.", "Петрова М.С.", "Сидоров Д.И.", "Кузнецова А.В.", "Смирнов П.А.", "Федорова О.Н."};
-        String[] classrooms = {"201", "205", "301", "304", "401", "402", "303", "202"};
-
-        // Дни недели: понедельник - суббота
-        DayOfWeek[] days = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-                DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY};
-
-        for (int dayIndex = 0; dayIndex < days.length; dayIndex++) {
-            DayOfWeek day = days[dayIndex];
-            LocalDate currentDate = startOfWeek.plusDays(dayIndex);
-
-            // Разное количество уроков в разные дни
-            int lessonsPerDay;
-            if (dayIndex < 5) { // Пн-Пт
-                lessonsPerDay = dayIndex == 0 ? 5 : (dayIndex == 4 ? 4 : 6); // Понедельник - 5, Пятница - 4, остальные - 6
-            } else { // Суббота
-                lessonsPerDay = 3;
-            }
-
-            for (int lessonNum = 1; lessonNum <= lessonsPerDay; lessonNum++) {
-                ScheduleItemViewModel lesson = new ScheduleItemViewModel();
-                int lessonId = dayIndex * 10 + lessonNum;
-                lesson.setScheduleId(lessonId);
-                lesson.setLessonNumber(lessonNum);
-                lesson.setDate(LocalDateTime.of(currentDate, java.time.LocalTime.of(8, 30).plusHours((lessonNum - 1) * 2)));
-
-                int subjectIndex = (dayIndex * 3 + lessonNum) % subjects.length;
-                int teacherIndex = (dayIndex + lessonNum) % teachers.length;
-                int classroomIndex = (dayIndex * 2 + lessonNum) % classrooms.length;
-
-                lesson.setSubjectName(subjects[subjectIndex]);
-                lesson.setTeacherFullName(teachers[teacherIndex]);
-                lesson.setClassroom(classrooms[classroomIndex]);
-
-                // Устанавливаем время урока
-                lesson.setLessonTime(LESSON_TIME_MAP.get(lessonNum));
-
-                // 60% вероятность наличия темы урока
-                if (random.nextDouble() < 0.6) {
-                    String[] topics = {
-                            "Основные понятия",
-                            "Решение задач",
-                            "Теоретический материал",
-                            "Практическая работа",
-                            "Лабораторная работа",
-                            "Контрольная работа"
-                    };
-                    lesson.setLessonTopic(subjects[subjectIndex] + ": " + topics[random.nextInt(topics.length)]);
-                }
-
-                // 70% вероятность наличия домашнего задания
-                if (random.nextDouble() < 0.7) {
-                    String[] homeworkTypes = {
-                            "Учебник: стр. " + (20 + dayIndex * 5) + "-" + (25 + dayIndex * 5) + ", №" + (1 + lessonNum * 3),
-                            "Подготовить доклад на тему",
-                            "Решить задачи из рабочей тетради",
-                            "Повторить теоретический материал",
-                            "Подготовиться к контрольной работе",
-                            "Выполнить практическое задание"
-                    };
-                    lesson.setHomeworkText(homeworkTypes[random.nextInt(homeworkTypes.length)]);
-                }
-
-                // 40% вероятность наличия оценки
-                if (random.nextDouble() < 0.4) {
-                    int grade = 2 + random.nextInt(4); // Оценки 2-5
-                    lesson.setGrade(grade);
-
-                    // Комментарии в зависимости от оценки
-                    if (grade >= 4) {
-                        lesson.setGradeComment("Отличная работа!");
-                    } else if (grade == 3) {
-                        lesson.setGradeComment("Можно лучше");
-                    } else {
-                        lesson.setGradeComment("Требуется дополнительная работа");
-                    }
-                }
-
-                lessons.add(lesson);
-            }
-        }
-
-        return lessons;
+    private int getLessonNumberByTime(LocalTime time) {
+        if (time.isBefore(LocalTime.of(9, 30))) return 1;
+        if (time.isBefore(LocalTime.of(11, 0))) return 2;
+        if (time.isBefore(LocalTime.of(12, 30))) return 3;
+        if (time.isBefore(LocalTime.of(14, 30))) return 4;
+        if (time.isBefore(LocalTime.of(16, 0))) return 5;
+        return 6;
     }
 
     private Map<DayOfWeek, List<ScheduleItemViewModel>> groupLessonsByDay(List<ScheduleItemViewModel> lessons) {
         Map<DayOfWeek, List<ScheduleItemViewModel>> scheduleByDay = new EnumMap<>(DayOfWeek.class);
 
-        // Инициализируем все дни недели
         for (DayOfWeek day : DayOfWeek.values()) {
             scheduleByDay.put(day, new ArrayList<>());
         }
 
-        // Группируем уроки по дням недели
         for (ScheduleItemViewModel lesson : lessons) {
-            DayOfWeek day = lesson.getDate().getDayOfWeek();
-            scheduleByDay.get(day).add(lesson);
+            if (lesson.getDate() != null) {
+                DayOfWeek day = lesson.getDate().getDayOfWeek();
+                scheduleByDay.get(day).add(lesson);
+            }
         }
 
-        // Сортируем уроки по номеру урока
         for (List<ScheduleItemViewModel> dayLessons : scheduleByDay.values()) {
             dayLessons.sort(Comparator.comparingInt(ScheduleItemViewModel::getLessonNumber));
         }
@@ -304,51 +260,18 @@ public class ScheduleController {
         return scheduleByDay;
     }
 
-    private Map<String, Object> createDemoLessonData(Integer lessonId) {
-        Map<String, Object> lessonData = new HashMap<>();
+    private User findStudentForParent(int parentId) {
+        // Упрощенно - первый ученик
+        return userRepository.findByRole_RoleName("STUDENT").stream().findFirst().orElse(null);
+    }
 
-        // Генерируем демо-данные на основе ID урока
-        String[] subjects = {"Математика", "Русский язык", "Физика", "Химия", "История", "Английский язык", "Биология", "География"};
-        String[] teachers = {"Иванов А.П.", "Петрова М.С.", "Сидоров Д.И.", "Кузнецова А.В.", "Смирнов П.А."};
-        String[] topics = {
-                "Решение квадратных уравнений",
-                "Части речи в русском языке",
-                "Законы Ньютона",
-                "Химические реакции",
-                "Великая Отечественная война",
-                "Времена английского глагола",
-                "Строение клетки",
-                "Географические открытия"
-        };
-
-        String[] homework = {
-                "Учебник: стр. 45-48, № 12-18",
-                "Упражнения 1-5 на стр. 67",
-                "Задачи 1-3 на стр. 89",
-                "Лабораторная работа №3",
-                "Подготовить доклад по теме",
-                "Выучить новые слова, стр. 34",
-                "Подготовить презентацию",
-                "Нанести на контурную карту"
-        };
-
-        int index = (lessonId - 1) % subjects.length;
-
-        lessonData.put("lessonId", lessonId);
-        lessonData.put("subject", subjects[index]);
-
-        LocalDate date = LocalDate.now().minusDays(lessonId % 7);
-        lessonData.put("date", date.format(DATE_FORMATTER));
-
-        lessonData.put("lessonNumber", (lessonId % 6) + 1);
-        lessonData.put("teacher", teachers[index % teachers.length]);
-        lessonData.put("lessonTopic", topics[index % topics.length]);
-        lessonData.put("homeworkText", homework[index % homework.length]);
-
-        // Добавляем номер кабинета
-        String[] classrooms = {"201", "205", "301", "304", "401", "402"};
-        lessonData.put("classroom", classrooms[index % classrooms.length]);
-
-        return lessonData;
+    private String getCurrentUserRole(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return "ROLE_ANONYMOUS";
+        }
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER");
     }
 }

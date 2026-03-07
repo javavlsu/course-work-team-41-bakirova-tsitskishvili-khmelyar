@@ -24,8 +24,4 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Integer>
             @Param("studentId") Integer studentId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
-
-    @Query("SELECT a.status, COUNT(a) FROM Attendance a " +
-            "WHERE a.lesson.lessonId = :lessonId GROUP BY a.status")
-    List<Object[]> getAttendanceStatsForLesson(@Param("lessonId") Integer lessonId);
 }

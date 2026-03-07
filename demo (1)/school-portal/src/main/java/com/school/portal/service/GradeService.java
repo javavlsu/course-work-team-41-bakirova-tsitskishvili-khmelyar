@@ -40,7 +40,7 @@ public class GradeService {
             int coins = calculateCoinsForGrade(grade.getGradeValue());
             if (coins > 0) {
                 createCoinTransaction(grade.getStudent(), coins,
-                        "Получена оценка " + grade.getGradeValue() + " по предмету", grade);
+                        "Получена оценка " + grade.getGradeValue(), grade);
             }
         }
 
@@ -76,5 +76,10 @@ public class GradeService {
 
     public Double getStudentAverageGrade(Integer studentId) {
         return gradeRepository.getAverageGradeForStudent(studentId);
+    }
+
+    public List<Grade> getGradesForClassAndPeriod(Integer classId, Integer subjectId,
+                                                  LocalDateTime startDate, LocalDateTime endDate) {
+        return gradeRepository.findGradesForClassAndSubjectAndPeriod(classId, subjectId, startDate, endDate);
     }
 }

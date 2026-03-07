@@ -1,6 +1,10 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.Announcement;
+import com.school.portal.model.User;
+import com.school.portal.repository.AnnouncementRepository;
+import com.school.portal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -10,62 +14,50 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
 
-    private List<Announcement> announcements = new ArrayList<>();
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    @Autowired
+    private AnnouncementRepository announcementRepository;
 
-    public HomeController() {
-        // Инициализация тестовыми данными
-        Announcement announcement1 = new Announcement();
-        announcement1.setAnnouncementId(1);
-        announcement1.setTitle("Родительское собрание");
-        announcement1.setText("Уважаемые родители! Приглашаем вас на родительское собрание, которое состоится 15 мая в 18:00 в актовом зале школы.");
-        announcement1.setCreatedAt(LocalDateTime.now().minusDays(1));
-        announcements.add(announcement1);
-
-        Announcement announcement2 = new Announcement();
-        announcement2.setAnnouncementId(2);
-        announcement2.setTitle("Внимание! Изменения в расписании");
-        announcement2.setText("В связи с проведением олимпиады по математике изменено расписание уроков на среду.");
-        announcement2.setCreatedAt(LocalDateTime.now().minusHours(3));
-        announcements.add(announcement2);
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
     public String index(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Проверка аутентификации
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return "redirect:/login";
         }
 
-        // Устанавливаем заголовок и активную страницу
+        String username = auth.getName();
+        User currentUser = userRepository.findByLogin(username).orElse(null);
+
         model.addAttribute("title", "Главная");
         model.addAttribute("activePage", "home");
 
-        // Проверяем роль учителя
-        boolean isTeacher = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
+        boolean isTeacher = currentUser != null &&
+                (currentUser.getRole().getRoleName().equals("TEACHER") ||
+                        currentUser.getRole().getRoleName().equals("DIRECTOR"));
         model.addAttribute("isTeacher", isTeacher);
 
-        // Фильтруем объявления (за последние 7 дней)
-        List<Announcement> recentAnnouncements = announcements.stream()
-                .filter(a -> a.getCreatedAt() != null &&
-                        a.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7)))
-                .collect(Collectors.toList());
+        // Получаем объявления
+        List<Announcement> announcements;
+        if (currentUser != null && currentUser.getRole().getRoleName().equals("STUDENT")) {
+            // Для ученика - объявления его класса и общешкольные
+            // Упрощенно - все объявления
+            announcements = announcementRepository.findAll();
+        } else {
+            announcements = announcementRepository.findAll();
+        }
 
-        // Форматирование даты делаем через метод getFormattedDate() в самом Announcement
-        // или можно добавить formattedDate в модель отдельно
+        // Сортируем по дате (новые сверху)
+        announcements.sort((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()));
 
-        model.addAttribute("announcements", recentAnnouncements);
+        model.addAttribute("announcements", announcements);
         model.addAttribute("content", "home");
 
         return "layout";
@@ -81,31 +73,25 @@ public class HomeController {
             return "redirect:/login";
         }
 
-        // Проверяем роль учителя
-        boolean isTeacher = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
+        String username = auth.getName();
+        User currentUser = userRepository.findByLogin(username).orElse(null);
 
-        if (!isTeacher) {
+        // Проверяем роль учителя или директора
+        boolean canCreate = currentUser != null &&
+                (currentUser.getRole().getRoleName().equals("TEACHER") ||
+                        currentUser.getRole().getRoleName().equals("DIRECTOR"));
+
+        if (!canCreate) {
             return "redirect:/?error=not_authorized";
         }
 
-        // Добавляем новое объявление
-        Long newId = announcements.stream()
-                .mapToLong(announcement -> {
-                    // В модели Announcement используется Integer для announcementId
-                    Integer id = announcement.getAnnouncementId();
-                    return id != null ? id.longValue() : 0L;
-                })
-                .max()
-                .orElse(0L) + 1;
+        Announcement announcement = new Announcement();
+        announcement.setTitle(title);
+        announcement.setText(text);
+        announcement.setCreatedAt(LocalDateTime.now());
+        // announcement.setSchoolClass(null); // Общешкольное
 
-        Announcement newAnnouncement = new Announcement();
-        newAnnouncement.setAnnouncementId(newId.intValue());
-        newAnnouncement.setTitle(title);
-        newAnnouncement.setText(text);
-        newAnnouncement.setCreatedAt(LocalDateTime.now());
-
-        announcements.add(newAnnouncement);
+        announcementRepository.save(announcement);
 
         return "redirect:/";
     }

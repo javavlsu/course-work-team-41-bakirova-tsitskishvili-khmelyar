@@ -31,6 +31,12 @@ public interface GradeRepository extends JpaRepository<Grade, Integer> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT g FROM Grade g WHERE g.lesson.lessonId = :lessonId")
-    List<Grade> findGradesForLesson(@Param("lessonId") Integer lessonId);
+    @Query("SELECT g FROM Grade g WHERE g.lesson.schoolClass.classId = :classId " +
+            "AND g.lesson.subject.subjectId = :subjectId " +
+            "AND g.lesson.lessonDateTime BETWEEN :startDate AND :endDate")
+    List<Grade> findGradesForClassAndSubjectAndPeriod(
+            @Param("classId") Integer classId,
+            @Param("subjectId") Integer subjectId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }
