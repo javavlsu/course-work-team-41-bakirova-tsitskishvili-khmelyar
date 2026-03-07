@@ -1,6 +1,9 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.dto.*;
+import com.school.portal.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,13 +23,29 @@ import java.util.stream.Collectors;
 @RequestMapping("/journal")
 public class JournalController {
 
-    // Заглушки данных для демонстрации
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SchoolClassRepository classRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
+
+    @Autowired
+    private StudentClassRepository studentClassRepository;
+
+    // Заглушки данных для демонстрации (временные, пока нет данных в БД)
     private List<Schedule> schedules = new ArrayList<>();
-    private Map<Integer, List<Student>> classStudents = new HashMap<>();
+    private Map<Integer, List<User>> classStudents = new HashMap<>();
     private Map<Integer, List<Subject>> teacherSubjects = new HashMap<>();
     private Map<Integer, List<SchoolClass>> teacherClasses = new HashMap<>();
-
-    // Дополнительная заглушка для хранения оценок
     private Map<String, GradeData> gradeDataMap = new HashMap<>();
 
     public JournalController() {
@@ -34,7 +53,7 @@ public class JournalController {
     }
 
     private void initializeDemoData() {
-        // Инициализация расписания
+        // Инициализация расписания (только для демо)
         LocalDate today = LocalDate.now();
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
@@ -42,35 +61,105 @@ public class JournalController {
             LocalDate lessonDate = monday.plusDays(i);
             Schedule schedule = new Schedule();
             schedule.setLessonId(i + 1);
-            schedule.setClassId(1);
-            schedule.setSubjectId(1);
-            schedule.setDate(lessonDate.atTime(8, 30));
+
+            // Создаем заглушки для связанных объектов
+            SchoolClass schoolClass = new SchoolClass();
+            schoolClass.setClassId(1);
+            schoolClass.setClassNumber(9);
+            schoolClass.setClassLetter("А");
+            schedule.setSchoolClass(schoolClass);
+
+            Subject subject = new Subject();
+            subject.setSubjectId(1);
+            subject.setSubjectName("Математика");
+            schedule.setSubject(subject);
+
+            User teacher = new User();
+            teacher.setUserId(1);
+            teacher.setFirstName("Алексей");
+            teacher.setLastName("Иванов");
+            schedule.setTeacher(teacher);
+
+            schedule.setLessonDateTime(lessonDate.atTime(8, 30));
             schedule.setLessonTopic("Тема урока " + (i + 1));
             schedule.setHomeworkText("Домашнее задание " + (i + 1));
             schedules.add(schedule);
         }
 
-        // Инициализация учеников
-        List<Student> students9A = new ArrayList<>();
-        students9A.add(new Student(1, "Иванов", "Алексей", "Петрович"));
-        students9A.add(new Student(2, "Петрова", "Мария", "Сергеевна"));
-        students9A.add(new Student(3, "Сидоров", "Дмитрий", "Иванович"));
-        students9A.add(new Student(4, "Кузнецова", "Анна", "Владимировна"));
-        students9A.add(new Student(5, "Смирнов", "Павел", "Александрович"));
+        // Инициализация учеников (для демо)
+        List<User> students9A = new ArrayList<>();
+
+        User student1 = new User();
+        student1.setUserId(1);
+        student1.setLastName("Иванов");
+        student1.setFirstName("Алексей");
+        student1.setMiddleName("Петрович");
+        students9A.add(student1);
+
+        User student2 = new User();
+        student2.setUserId(2);
+        student2.setLastName("Петрова");
+        student2.setFirstName("Мария");
+        student2.setMiddleName("Сергеевна");
+        students9A.add(student2);
+
+        User student3 = new User();
+        student3.setUserId(3);
+        student3.setLastName("Сидоров");
+        student3.setFirstName("Дмитрий");
+        student3.setMiddleName("Иванович");
+        students9A.add(student3);
+
+        User student4 = new User();
+        student4.setUserId(4);
+        student4.setLastName("Кузнецова");
+        student4.setFirstName("Анна");
+        student4.setMiddleName("Владимировна");
+        students9A.add(student4);
+
         classStudents.put(1, students9A);
 
         // Инициализация предметов для учителя
         List<Subject> teacherSubjs = new ArrayList<>();
-        teacherSubjs.add(new Subject(1, "Математика"));
-        teacherSubjs.add(new Subject(2, "Русский язык"));
-        teacherSubjs.add(new Subject(3, "Физика"));
+
+        Subject math = new Subject();
+        math.setSubjectId(1);
+        math.setSubjectName("Математика");
+        teacherSubjs.add(math);
+
+        Subject russian = new Subject();
+        russian.setSubjectId(2);
+        russian.setSubjectName("Русский язык");
+        teacherSubjs.add(russian);
+
+        Subject physics = new Subject();
+        physics.setSubjectId(3);
+        physics.setSubjectName("Физика");
+        teacherSubjs.add(physics);
+
         teacherSubjects.put(1, teacherSubjs);
 
         // Инициализация классов для учителя
         List<SchoolClass> teacherCls = new ArrayList<>();
-        teacherCls.add(new SchoolClass(1, 9, "А", 1));
-        teacherCls.add(new SchoolClass(2, 9, "Б", 6));
-        teacherCls.add(new SchoolClass(3, 10, "А", 1));
+
+        SchoolClass class9A = new SchoolClass();
+        class9A.setClassId(1);
+        class9A.setClassNumber(9);
+        class9A.setClassLetter("А");
+        teacherCls.add(class9A);
+
+        SchoolClass class9B = new SchoolClass();
+        class9B.setClassId(2);
+        class9B.setClassNumber(9);
+        class9B.setClassLetter("Б");
+        teacherCls.add(class9B);
+
+        SchoolClass class10A = new SchoolClass();
+        class10A.setClassId(3);
+        class10A.setClassNumber(10);
+        class10A.setClassLetter("А");
+        teacherCls.add(class10A);
+
         teacherClasses.put(1, teacherCls);
     }
 
@@ -83,8 +172,16 @@ public class JournalController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        String role = getCurrentUserRole(auth);
-        boolean isDirector = role.equals("ROLE_DIRECTOR");
+
+        // Получаем текущего пользователя
+        Optional<User> currentUserOpt = userRepository.findByLogin(username);
+        if (!currentUserOpt.isPresent()) {
+            return "redirect:/login";
+        }
+
+        User currentUser = currentUserOpt.get();
+        String role = currentUser.getRole().getRoleName();
+        boolean isDirector = "DIRECTOR".equals(role);
 
         LocalDate today = LocalDate.now();
         LocalDate currentMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -107,7 +204,7 @@ public class JournalController {
         int weekNumber = 1;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
-        while (!week.isAfter(currentMonday)) {
+        while (!week.isAfter(currentMonday.plusWeeks(1))) {
             LocalDate weekEnd = week.plusDays(6);
             String weekLabel = weekNumber + " нед. (" + week.format(formatter) + " - " + weekEnd.format(formatter) + ")";
             availableWeeks.put(week.toString(), weekLabel);
@@ -119,22 +216,40 @@ public class JournalController {
         Map<Integer, String> availableSubjects = new LinkedHashMap<>();
 
         if (isDirector) {
-            for (int i = 1; i <= 3; i++) {
-                availableClasses.put(i, (i + 8) + " \"А\"");
+            // Для директора - все классы и предметы
+            List<SchoolClass> allClasses = classRepository.findAll();
+            for (SchoolClass cls : allClasses) {
+                availableClasses.put(cls.getClassId(), cls.getClassName());
             }
-            for (int i = 1; i <= 5; i++) {
-                availableSubjects.put(i, "Предмет " + i);
+
+            List<Subject> allSubjects = subjectRepository.findAll();
+            for (Subject subj : allSubjects) {
+                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
             }
         } else {
-            List<SchoolClass> teacherCls = teacherClasses.getOrDefault(1, new ArrayList<>());
+            // Для учителя - только его классы и предметы
+            List<SchoolClass> teacherCls = teacherClasses.getOrDefault(currentUser.getUserId(), new ArrayList<>());
             for (SchoolClass cls : teacherCls) {
                 availableClasses.put(cls.getClassId(), cls.getClassName());
             }
 
-            List<Subject> teacherSubjs = teacherSubjects.getOrDefault(1, new ArrayList<>());
+            List<Subject> teacherSubjs = teacherSubjects.getOrDefault(currentUser.getUserId(), new ArrayList<>());
             for (Subject subj : teacherSubjs) {
                 availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
             }
+        }
+
+        // Если списки пустые, добавляем заглушки
+        if (availableClasses.isEmpty()) {
+            availableClasses.put(1, "9 \"А\"");
+            availableClasses.put(2, "9 \"Б\"");
+            availableClasses.put(3, "10 \"А\"");
+        }
+
+        if (availableSubjects.isEmpty()) {
+            availableSubjects.put(1, "Математика");
+            availableSubjects.put(2, "Русский язык");
+            availableSubjects.put(3, "Физика");
         }
 
         int selectedClassId = classId != null ? classId : availableClasses.keySet().iterator().next();
@@ -142,21 +257,26 @@ public class JournalController {
 
         final LocalDate filterWeekStart = weekStart;
         final LocalDate filterWeekEnd = weekStart.plusDays(7);
-        final int filterClassId = selectedClassId;
-        final int filterSubjectId = selectedSubjectId;
 
+        // Получаем уроки для выбранного класса и недели
         List<Schedule> lessonsForWeek = schedules.stream()
-                .filter(s -> s.getClassId() == filterClassId &&
-                        s.getSubjectId() == filterSubjectId &&
-                        s.getDate().toLocalDate().isAfter(filterWeekStart.minusDays(1)) &&
-                        s.getDate().toLocalDate().isBefore(filterWeekEnd))
-                .sorted(Comparator.comparing(Schedule::getDate))
+                .filter(s -> {
+                    SchoolClass sc = s.getSchoolClass();
+                    Subject subj = s.getSubject();
+                    return sc != null && sc.getClassId() == selectedClassId &&
+                            subj != null && subj.getSubjectId() == selectedSubjectId &&
+                            s.getLessonDateTime() != null &&
+                            s.getLessonDateTime().toLocalDate().isAfter(filterWeekStart.minusDays(1)) &&
+                            s.getLessonDateTime().toLocalDate().isBefore(filterWeekEnd);
+                })
+                .sorted(Comparator.comparing(Schedule::getLessonDateTime))
                 .collect(Collectors.toList());
 
-        List<Student> students = classStudents.getOrDefault(selectedClassId, new ArrayList<>());
+        // Получаем учеников класса
+        List<User> students = classStudents.getOrDefault(selectedClassId, new ArrayList<>());
 
         List<JournalRow> rows = new ArrayList<>();
-        for (Student student : students) {
+        for (User student : students) {
             JournalRow row = new JournalRow();
             row.setStudent(student);
 
@@ -166,7 +286,6 @@ public class JournalController {
                 CellData cell;
 
                 if (gradeDataMap.containsKey(key)) {
-                    // Используем сохраненные данные
                     GradeData gradeData = gradeDataMap.get(key);
                     cell = new CellData();
                     if (gradeData.getAttendanceStatus() != null && !gradeData.getAttendanceStatus().isEmpty()) {
@@ -277,13 +396,6 @@ public class JournalController {
                 .findFirst()
                 .orElse(null);
 
-        if (lesson != null) {
-            SchoolClass schoolClass = new SchoolClass(lesson.getClassId(), 9, "А", 1);
-            Subject subject = new Subject(lesson.getSubjectId(), "Математика");
-            lesson.setSchoolClass(schoolClass);
-            lesson.setSubject(subject);
-        }
-
         model.addAttribute("lesson", lesson);
         return "journal/_lesson_form_partial";
     }
@@ -298,17 +410,14 @@ public class JournalController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            final String finalLessonTopic = lessonTopic;
-            final String finalHomeworkText = homeworkText;
-
             Optional<Schedule> optionalLesson = schedules.stream()
                     .filter(s -> s.getLessonId() == lessonId)
                     .findFirst();
 
             if (optionalLesson.isPresent()) {
                 Schedule lesson = optionalLesson.get();
-                lesson.setLessonTopic(finalLessonTopic);
-                lesson.setHomeworkText(finalHomeworkText);
+                lesson.setLessonTopic(lessonTopic);
+                lesson.setHomeworkText(homeworkText);
                 response.put("success", true);
                 response.put("message", "Данные урока успешно сохранены");
             } else {
@@ -347,17 +456,6 @@ public class JournalController {
         return cell;
     }
 
-    private String getCurrentUserRole(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return "ROLE_ANONYMOUS";
-        }
-
-        return auth.getAuthorities().stream()
-                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_USER");
-    }
-
     // Вспомогательный класс для хранения данных об оценках
     private static class GradeData {
         private int studentId;
@@ -376,7 +474,6 @@ public class JournalController {
             this.createdDate = LocalDateTime.now();
         }
 
-        // Getters and setters
         public int getStudentId() { return studentId; }
         public int getLessonId() { return lessonId; }
         public String getGradeValue() { return gradeValue; }

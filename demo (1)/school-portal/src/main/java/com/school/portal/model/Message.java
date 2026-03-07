@@ -1,38 +1,48 @@
 package com.school.portal.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "message")
 public class Message {
-    private int messageId;
-    private int fromUserId;
-    private int toUserId;
-    private String messageText;
-    private LocalDateTime sentAt;
-    private MessageStatus status;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MessageId")
+    private Integer messageId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "FromUserId", nullable = false)
     private User fromUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ToUserId", nullable = false)
     private User toUser;
 
-    public Message() {}
+    @Column(name = "MessageText", columnDefinition = "TEXT", nullable = false)
+    private String messageText;
 
-    public Message(int messageId, int fromUserId, int toUserId, String messageText,
-                   LocalDateTime sentAt, MessageStatus status) {
-        this.messageId = messageId;
-        this.fromUserId = fromUserId;
-        this.toUserId = toUserId;
-        this.messageText = messageText;
-        this.sentAt = sentAt;
-        this.status = status;
+    @Column(name = "SentAt", nullable = false)
+    private LocalDateTime sentAt;
+
+    @Column(name = "Status", nullable = false)
+    private Integer status;
+
+    @PrePersist
+    protected void onCreate() {
+        sentAt = LocalDateTime.now();
+        if (status == null) status = 0;
     }
 
-    // Геттеры и сеттеры
-    public int getMessageId() { return messageId; }
-    public void setMessageId(int messageId) { this.messageId = messageId; }
+    public Integer getMessageId() { return messageId; }
+    public void setMessageId(Integer messageId) { this.messageId = messageId; }
 
-    public int getFromUserId() { return fromUserId; }
-    public void setFromUserId(int fromUserId) { this.fromUserId = fromUserId; }
+    public User getFromUser() { return fromUser; }
+    public void setFromUser(User fromUser) { this.fromUser = fromUser; }
 
-    public int getToUserId() { return toUserId; }
-    public void setToUserId(int toUserId) { this.toUserId = toUserId; }
+    public User getToUser() { return toUser; }
+    public void setToUser(User toUser) { this.toUser = toUser; }
 
     public String getMessageText() { return messageText; }
     public void setMessageText(String messageText) { this.messageText = messageText; }
@@ -40,14 +50,8 @@ public class Message {
     public LocalDateTime getSentAt() { return sentAt; }
     public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
 
-    public MessageStatus getStatus() { return status; }
-    public void setStatus(MessageStatus status) { this.status = status; }
-
-    public User getFromUser() { return fromUser; }
-    public void setFromUser(User fromUser) { this.fromUser = fromUser; }
-
-    public User getToUser() { return toUser; }
-    public void setToUser(User toUser) { this.toUser = toUser; }
+    public Integer getStatus() { return status; }
+    public void setStatus(Integer status) { this.status = status; }
 
     public String getFormattedSentAt() {
         if (sentAt != null) {
@@ -59,13 +63,5 @@ public class Message {
                     sentAt.getMinute());
         }
         return "";
-    }
-
-    public String getShortMessage() {
-        if (messageText == null || messageText.isEmpty()) {
-            return "";
-        }
-        return messageText.length() > 50 ?
-                messageText.substring(0, 50) + "..." : messageText;
     }
 }

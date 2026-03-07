@@ -1,27 +1,43 @@
 package com.school.portal.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "announcement")
 public class Announcement {
-    private Long id;
-    private String title;
-    private String text;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "AnnouncementId")
+    private Integer announcementId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ClassId")
+    private SchoolClass schoolClass;
+
+    @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
-    private String formattedDate;
 
-    // Конструкторы
-    public Announcement() {}
+    @Column(name = "Title", nullable = false, length = 200)
+    private String title;
 
-    public Announcement(Long id, String title, String text, LocalDateTime createdAt) {
-        this.id = id;
-        this.title = title;
-        this.text = text;
-        this.createdAt = createdAt;
+    @Column(name = "Text", columnDefinition = "TEXT", nullable = false)
+    private String text;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 
-    // Геттеры и сеттеры
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Integer getAnnouncementId() { return announcementId; }
+    public void setAnnouncementId(Integer announcementId) { this.announcementId = announcementId; }
+
+    public SchoolClass getSchoolClass() { return schoolClass; }
+    public void setSchoolClass(SchoolClass schoolClass) { this.schoolClass = schoolClass; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -29,9 +45,15 @@ public class Announcement {
     public String getText() { return text; }
     public void setText(String text) { this.text = text; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public String getFormattedDate() { return formattedDate; }
-    public void setFormattedDate(String formattedDate) { this.formattedDate = formattedDate; }
+    public String getFormattedDate() {
+        if (createdAt != null) {
+            return String.format("%02d.%02d.%04d %02d:%02d",
+                    createdAt.getDayOfMonth(),
+                    createdAt.getMonthValue(),
+                    createdAt.getYear(),
+                    createdAt.getHour(),
+                    createdAt.getMinute());
+        }
+        return "";
+    }
 }

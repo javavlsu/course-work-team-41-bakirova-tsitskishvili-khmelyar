@@ -1,6 +1,7 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.dto.SendMessageViewModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -43,24 +44,78 @@ public class MessagesController {
         LocalDateTime now = LocalDateTime.now();
 
         // Входящие сообщения для текущего пользователя (ID = 1)
-        messages.add(new Message(1, 2, 1, "Привет! Напоминаю о собрании завтра в 18:00",
-                now.minusHours(2), MessageStatus.NEW));
-        messages.add(new Message(2, 3, 1, "Здравствуйте! Можно получить консультацию?",
-                now.minusDays(1), MessageStatus.READ));
-        messages.add(new Message(3, 4, 1, "Спасибо за помощь с домашним заданием!",
-                now.minusDays(2), MessageStatus.READ));
-        messages.add(new Message(4, 5, 1, "Добрый день! Хотел уточнить про успеваемость",
-                now.minusDays(3), MessageStatus.ARCHIVED));
+        Message msg1 = new Message();
+        msg1.setMessageId(1);
+        msg1.setFromUser(findUserById(2));
+        msg1.setToUser(findUserById(1));
+        msg1.setMessageText("Привет! Напоминаю о собрании завтра в 18:00");
+        msg1.setSentAt(now.minusHours(2));
+        msg1.setStatus(0); // NEW
+        messages.add(msg1);
+
+        Message msg2 = new Message();
+        msg2.setMessageId(2);
+        msg2.setFromUser(findUserById(3));
+        msg2.setToUser(findUserById(1));
+        msg2.setMessageText("Здравствуйте! Можно получить консультацию?");
+        msg2.setSentAt(now.minusDays(1));
+        msg2.setStatus(1); // READ
+        messages.add(msg2);
+
+        Message msg3 = new Message();
+        msg3.setMessageId(3);
+        msg3.setFromUser(findUserById(4));
+        msg3.setToUser(findUserById(1));
+        msg3.setMessageText("Спасибо за помощь с домашним заданием!");
+        msg3.setSentAt(now.minusDays(2));
+        msg3.setStatus(1); // READ
+        messages.add(msg3);
+
+        Message msg4 = new Message();
+        msg4.setMessageId(4);
+        msg4.setFromUser(findUserById(5));
+        msg4.setToUser(findUserById(1));
+        msg4.setMessageText("Добрый день! Хотел уточнить про успеваемость");
+        msg4.setSentAt(now.minusDays(3));
+        msg4.setStatus(2); // ARCHIVED
+        messages.add(msg4);
 
         // Отправленные сообщения от текущего пользователя
-        messages.add(new Message(5, 1, 2, "Отчет по успеваемости готов",
-                now.minusHours(1), MessageStatus.NEW));
-        messages.add(new Message(6, 1, 3, "Консультация будет в пятницу",
-                now.minusDays(1), MessageStatus.READ));
-        messages.add(new Message(7, 1, 4, "Отличная работа на уроке!",
-                now.minusDays(2), MessageStatus.READ));
-        messages.add(new Message(8, 1, 5, "Приглашаю на родительское собрание",
-                now.minusDays(3), MessageStatus.READ));
+        Message msg5 = new Message();
+        msg5.setMessageId(5);
+        msg5.setFromUser(findUserById(1));
+        msg5.setToUser(findUserById(2));
+        msg5.setMessageText("Отчет по успеваемости готов");
+        msg5.setSentAt(now.minusHours(1));
+        msg5.setStatus(0); // NEW
+        messages.add(msg5);
+
+        Message msg6 = new Message();
+        msg6.setMessageId(6);
+        msg6.setFromUser(findUserById(1));
+        msg6.setToUser(findUserById(3));
+        msg6.setMessageText("Консультация будет в пятницу");
+        msg6.setSentAt(now.minusDays(1));
+        msg6.setStatus(1); // READ
+        messages.add(msg6);
+
+        Message msg7 = new Message();
+        msg7.setMessageId(7);
+        msg7.setFromUser(findUserById(1));
+        msg7.setToUser(findUserById(4));
+        msg7.setMessageText("Отличная работа на уроке!");
+        msg7.setSentAt(now.minusDays(2));
+        msg7.setStatus(1); // READ
+        messages.add(msg7);
+
+        Message msg8 = new Message();
+        msg8.setMessageId(8);
+        msg8.setFromUser(findUserById(1));
+        msg8.setToUser(findUserById(5));
+        msg8.setMessageText("Приглашаю на родительское собрание");
+        msg8.setSentAt(now.minusDays(3));
+        msg8.setStatus(1); // READ
+        messages.add(msg8);
     }
 
     // Главная страница сообщений
@@ -74,13 +129,14 @@ public class MessagesController {
         // Фильтрация сообщений
         if ("inbox".equals(filter)) {
             filteredMessages = messages.stream()
-                    .filter(m -> m.getToUserId() == currentUserId &&
-                            m.getStatus() != MessageStatus.ARCHIVED)
+                    .filter(m -> m.getToUser() != null &&
+                            m.getToUser().getUserId() == currentUserId &&
+                            m.getStatus() != 2) // не ARCHIVED
                     .sorted((m1, m2) -> {
                         // Сначала новые, потом прочитанные
-                        if (m1.getStatus() == MessageStatus.NEW && m2.getStatus() != MessageStatus.NEW) {
+                        if (m1.getStatus() == 0 && m2.getStatus() != 0) {
                             return -1;
-                        } else if (m1.getStatus() != MessageStatus.NEW && m2.getStatus() == MessageStatus.NEW) {
+                        } else if (m1.getStatus() != 0 && m2.getStatus() == 0) {
                             return 1;
                         }
                         // Затем по дате (новые сверху)
@@ -89,25 +145,17 @@ public class MessagesController {
                     .collect(Collectors.toList());
         } else if ("sent".equals(filter)) {
             filteredMessages = messages.stream()
-                    .filter(m -> m.getFromUserId() == currentUserId)
+                    .filter(m -> m.getFromUser() != null &&
+                            m.getFromUser().getUserId() == currentUserId)
                     .sorted((m1, m2) -> m2.getSentAt().compareTo(m1.getSentAt()))
                     .collect(Collectors.toList());
         } else if ("archive".equals(filter)) {
             filteredMessages = messages.stream()
-                    .filter(m -> m.getToUserId() == currentUserId &&
-                            m.getStatus() == MessageStatus.ARCHIVED)
+                    .filter(m -> m.getToUser() != null &&
+                            m.getToUser().getUserId() == currentUserId &&
+                            m.getStatus() == 2) // ARCHIVED
                     .sorted((m1, m2) -> m2.getSentAt().compareTo(m1.getSentAt()))
                     .collect(Collectors.toList());
-        }
-
-        // Добавляем информацию об отправителях/получателях
-        for (Message message : filteredMessages) {
-            if (message.getFromUser() == null) {
-                message.setFromUser(findUserById(message.getFromUserId()));
-            }
-            if (message.getToUser() == null) {
-                message.setToUser(findUserById(message.getToUserId()));
-            }
         }
 
         model.addAttribute("messages", filteredMessages);
@@ -158,15 +206,21 @@ public class MessagesController {
     public String createMessage(@ModelAttribute SendMessageViewModel model) {
         try {
             int currentUserId = getCurrentUserId();
+            User currentUser = findUserById(currentUserId);
+            User recipient = findUserById(model.getRecipientId());
+
+            if (currentUser == null || recipient == null) {
+                return "redirect:/messages/index?filter=sent&error=true";
+            }
 
             // Создание нового сообщения
             Message newMessage = new Message();
             newMessage.setMessageId(messages.size() + 1);
-            newMessage.setFromUserId(currentUserId);
-            newMessage.setToUserId(model.getRecipientId());
+            newMessage.setFromUser(currentUser);
+            newMessage.setToUser(recipient);
             newMessage.setMessageText(model.getBody());
             newMessage.setSentAt(LocalDateTime.now());
-            newMessage.setStatus(MessageStatus.NEW);
+            newMessage.setStatus(0); // NEW
 
             messages.add(newMessage);
 
@@ -180,8 +234,9 @@ public class MessagesController {
     @PostMapping("/mark-as-read")
     public String markAsRead(@RequestParam int id) {
         Message message = findMessageById(id);
-        if (message != null && message.getToUserId() == getCurrentUserId()) {
-            message.setStatus(MessageStatus.READ);
+        if (message != null && message.getToUser() != null &&
+                message.getToUser().getUserId() == getCurrentUserId()) {
+            message.setStatus(1); // READ
         }
         return "redirect:/messages/index?filter=inbox";
     }
@@ -190,9 +245,10 @@ public class MessagesController {
     @PostMapping("/archive")
     public String archiveMessage(@RequestParam int id) {
         Message message = findMessageById(id);
-        if (message != null && message.getToUserId() == getCurrentUserId() &&
-                message.getStatus() != MessageStatus.ARCHIVED) {
-            message.setStatus(MessageStatus.ARCHIVED);
+        if (message != null && message.getToUser() != null &&
+                message.getToUser().getUserId() == getCurrentUserId() &&
+                message.getStatus() != 2) { // не ARCHIVED
+            message.setStatus(2); // ARCHIVED
         }
         return "redirect:/messages/index?filter=inbox";
     }
@@ -201,9 +257,10 @@ public class MessagesController {
     @PostMapping("/restore")
     public String restoreMessage(@RequestParam int id) {
         Message message = findMessageById(id);
-        if (message != null && message.getToUserId() == getCurrentUserId() &&
-                message.getStatus() == MessageStatus.ARCHIVED) {
-            message.setStatus(MessageStatus.READ);
+        if (message != null && message.getToUser() != null &&
+                message.getToUser().getUserId() == getCurrentUserId() &&
+                message.getStatus() == 2) { // ARCHIVED
+            message.setStatus(1); // READ
         }
         return "redirect:/messages/index?filter=archive";
     }
@@ -212,8 +269,9 @@ public class MessagesController {
     @PostMapping("/delete")
     public String deleteMessage(@RequestParam int id) {
         Message message = findMessageById(id);
-        if (message != null && message.getFromUserId() == getCurrentUserId() &&
-                message.getStatus() == MessageStatus.NEW) {
+        if (message != null && message.getFromUser() != null &&
+                message.getFromUser().getUserId() == getCurrentUserId() &&
+                message.getStatus() == 0) { // NEW
             messages.remove(message);
         }
         return "redirect:/messages/index?filter=sent";
@@ -248,9 +306,8 @@ public class MessagesController {
         u.setFirstName(first);
         u.setLastName(last);
         u.setMiddleName(middle);
-        u.setPassword("1234"); // Временный пароль для заглушки
+        u.setPassword("1234");
 
-        // Создаем объект Role, как того требует наша новая архитектура
         Role role = new Role();
         role.setRoleName(roleName);
         u.setRole(role);

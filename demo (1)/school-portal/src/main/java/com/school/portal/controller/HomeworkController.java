@@ -1,6 +1,7 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.dto.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,7 +36,7 @@ public class HomeworkController {
             item.setClassName("9 \"А\"");
             item.setSubjectName(getRandomSubject(i));
             item.setLessonDate(LocalDateTime.now().minusDays(i));
-            item.setLessonNumber(i);
+            item.setLessonNumber(i % 6 + 1);
             item.setSubmissionDate(LocalDateTime.now().minusHours(i));
             item.setStudentAnswer(getRandomAnswer(i));
             item.setStatusId(i % 3); // 0, 1, 2
@@ -61,7 +62,7 @@ public class HomeworkController {
             item.setClassName("9 \"Б\"");
             item.setSubjectName(getRandomSubject(i + 100));
             item.setLessonDate(LocalDateTime.now().minusDays(i + 5));
-            item.setLessonNumber(i);
+            item.setLessonNumber(i % 6 + 1);
             item.setSubmissionDate(LocalDateTime.now().minusHours(i + 5));
             item.setStudentAnswer(getRandomAnswer(i + 100));
             item.setStatusId((i + 1) % 3);

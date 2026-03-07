@@ -7,6 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {
-    // Метод для поиска роли по названию
     Optional<Role> findByRoleName(String roleName);
 }

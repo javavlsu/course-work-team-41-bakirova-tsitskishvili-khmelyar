@@ -1,14 +1,16 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.dto.ProfileViewModel;
+import com.school.portal.model.enums.MessageStatus;
 import com.school.portal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +53,30 @@ public class ProfileController {
         users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель",
                 "parent@mail.ru", "+79995554433", LocalDate.of(1982, 11, 5),
                 "Председатель родительского комитета"));
+
+        // Инициализация классов
+        SchoolClass class9A = new SchoolClass();
+        class9A.setClassId(1);
+        class9A.setClassNumber(9);
+        class9A.setClassLetter("А");
+        // В вашей модели SchoolClass нет поля classTeacherId, есть classTeacher (объект User)
+        User teacher1 = findUserById(1);
+        class9A.setClassTeacher(teacher1);
+        classes.add(class9A);
+
+        SchoolClass class9B = new SchoolClass();
+        class9B.setClassId(2);
+        class9B.setClassNumber(9);
+        class9B.setClassLetter("Б");
+        User teacher2 = findUserById(6); // teacher2
+        if (teacher2 == null) {
+            teacher2 = createMockUser(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель",
+                    "teacher2@school.ru", "+79993332211", LocalDate.of(1985, 7, 30),
+                    "Преподаватель русского языка и литературы");
+            users.add(teacher2);
+        }
+        class9B.setClassTeacher(teacher2);
+        classes.add(class9B);
     }
 
     // GET: /profile - главная страница профиля
@@ -62,6 +88,11 @@ public class ProfileController {
 
         // Достаём этого пользователя напрямую из базы данных
         User currentUser = userRepository.findByLogin(currentLogin).orElse(null);
+
+        if (currentUser == null) {
+            // Если в БД нет, ищем в заглушках
+            currentUser = findUserByLogin(currentLogin);
+        }
 
         if (currentUser == null) {
             model.addAttribute("errorMessage", "Пользователь не найден");
@@ -80,30 +111,31 @@ public class ProfileController {
         profileModel.setBirthDate(currentUser.getBirthDate());
         profileModel.setRoleName(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "Неизвестно");
         profileModel.setInfo(currentUser.getInfo());
+        profileModel.setCoins(currentUser.getCoins());
 
         // Логика для динамических полей
         String homeroomTeacherName = null;
 
-        if ("Ученик".equals(currentUser.getRole())) {
+        if ("Ученик".equals(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "")) {
             // Для ученика: находим его класс
             SchoolClass studentClass = findClassByStudentId(currentUser.getUserId());
             if (studentClass != null) {
                 profileModel.setClassInfo(studentClass.getClassName());
 
                 // Находим классного руководителя
-                User classTeacher = findUserById(studentClass.getClassTeacherId());
+                User classTeacher = studentClass.getClassTeacher();
                 if (classTeacher != null) {
                     homeroomTeacherName = classTeacher.getFullName();
                 }
             } else {
                 profileModel.setClassInfo("Не определен");
             }
-        } else if ("Учитель".equals(currentUser.getRole())) {
+        } else if ("Учитель".equals(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "")) {
             // Для учителя: проверяем, есть ли классное руководство
             SchoolClass teacherClass = findClassByTeacherId(currentUser.getUserId());
             profileModel.setClassInfo(teacherClass != null ?
                     teacherClass.getClassName() : "Нет классного руководства");
-        } else if ("Родитель".equals(currentUser.getRole())) {
+        } else if ("Родитель".equals(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "")) {
             // Для родителя: ищем связанного ученика
             User student = findStudentForParent(currentUser.getUserId());
             if (student != null) {
@@ -112,7 +144,7 @@ public class ProfileController {
                 // Находим класс ученика и классного руководителя
                 SchoolClass studentClass = findClassByStudentId(student.getUserId());
                 if (studentClass != null) {
-                    User classTeacher = findUserById(studentClass.getClassTeacherId());
+                    User classTeacher = studentClass.getClassTeacher();
                     if (classTeacher != null) {
                         homeroomTeacherName = classTeacher.getFullName();
                     }
@@ -124,7 +156,7 @@ public class ProfileController {
 
         // Получаем ID директора
         User director = findUserByRole("Директор");
-        boolean isDirector = "Директор".equals(currentUser.getRole());
+        boolean isDirector = "Директор".equals(currentUser.getRole() != null ? currentUser.getRole().getRoleName() : "");
 
         model.addAttribute("viewModel", profileModel);
         model.addAttribute("homeroomTeacher", homeroomTeacherName);
@@ -157,16 +189,16 @@ public class ProfileController {
                 return response;
             }
 
-            int currentUserId = getCurrentUserId();
+            User currentUser = findUserById(getCurrentUserId());
 
             // Создание нового сообщения
             Message newMessage = new Message();
             newMessage.setMessageId(messages.size() + 1);
-            newMessage.setFromUserId(currentUserId);
-            newMessage.setToUserId(director.getUserId());
+            newMessage.setFromUser(currentUser);
+            newMessage.setToUser(director);
             newMessage.setMessageText(body.trim());
             newMessage.setSentAt(LocalDateTime.now());
-            newMessage.setStatus(MessageStatus.NEW);
+            newMessage.setStatus(MessageStatus.NEW.getCode());
 
             messages.add(newMessage);
 
@@ -182,8 +214,6 @@ public class ProfileController {
 
     // Вспомогательные методы
     private int getCurrentUserId() {
-        // Для демо: возвращаем ID учителя (1)
-        // В реальном приложении получаем из аутентификации
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
@@ -203,9 +233,16 @@ public class ProfileController {
                 .orElse(null);
     }
 
-    private User findUserByRole(String role) {
+    private User findUserByLogin(String login) {
         return users.stream()
-                .filter(u -> u.getRole() != null && role.equals(u.getRole().getRoleName()))
+                .filter(u -> u.getLogin() != null && u.getLogin().equals(login))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private User findUserByRole(String roleName) {
+        return users.stream()
+                .filter(u -> u.getRole() != null && roleName.equals(u.getRole().getRoleName()))
                 .findFirst()
                 .orElse(null);
     }
@@ -213,16 +250,19 @@ public class ProfileController {
     private SchoolClass findClassByStudentId(int studentId) {
         // Для демо: ученик с ID 3 в классе 9А, ученик с ID 4 в классе 9Б
         if (studentId == 3) {
-            return classes.get(0); // 9А
+            return classes.stream().filter(c -> c.getClassId() == 1).findFirst().orElse(null);
         } else if (studentId == 4) {
-            return classes.get(1); // 9Б
+            return classes.stream().filter(c -> c.getClassId() == 2).findFirst().orElse(null);
         }
         return null;
     }
 
     private SchoolClass findClassByTeacherId(int teacherId) {
         return classes.stream()
-                .filter(c -> c.getClassTeacherId() == teacherId)
+                .filter(c -> {
+                    User classTeacher = c.getClassTeacher();
+                    return classTeacher != null && classTeacher.getUserId() == teacherId;
+                })
                 .findFirst()
                 .orElse(null);
     }
@@ -306,6 +346,7 @@ public class ProfileController {
         u.setPhone(phone);
         u.setBirthDate(birthDate);
         u.setInfo(info);
+        u.setCoins(0);
 
         Role role = new Role();
         role.setRoleName(roleName);

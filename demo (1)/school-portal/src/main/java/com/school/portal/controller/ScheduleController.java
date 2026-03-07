@@ -1,12 +1,15 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.dto.ScheduleItemViewModel;
+import com.school.portal.model.dto.ScheduleViewModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +35,7 @@ public class ScheduleController {
 
     // Форматтер для дат
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM");
 
     @GetMapping("/index")
     public String index(
@@ -89,6 +93,8 @@ public class ScheduleController {
             viewModel.setScheduleByDay(scheduleByDay);
             viewModel.setSelectedDate(selectedDate);
             viewModel.setStartOfWeek(startOfWeek);
+            viewModel.setPersonalView(true);
+            viewModel.setAdminView(false);
 
             model.addAttribute("viewModel", viewModel);
             model.addAttribute("currentDate", LocalDate.now().format(DATE_FORMATTER));
@@ -225,6 +231,9 @@ public class ScheduleController {
                 lesson.setTeacherFullName(teachers[teacherIndex]);
                 lesson.setClassroom(classrooms[classroomIndex]);
 
+                // Устанавливаем время урока
+                lesson.setLessonTime(LESSON_TIME_MAP.get(lessonNum));
+
                 // 60% вероятность наличия темы урока
                 if (random.nextDouble() < 0.6) {
                     String[] topics = {
@@ -323,15 +332,22 @@ public class ScheduleController {
                 "Нанести на контурную карту"
         };
 
-        int index = lessonId % subjects.length;
+        int index = (lessonId - 1) % subjects.length;
 
         lessonData.put("lessonId", lessonId);
         lessonData.put("subject", subjects[index]);
-        lessonData.put("date", LocalDate.now().minusDays(lessonId % 7).format(DATE_FORMATTER));
+
+        LocalDate date = LocalDate.now().minusDays(lessonId % 7);
+        lessonData.put("date", date.format(DATE_FORMATTER));
+
         lessonData.put("lessonNumber", (lessonId % 6) + 1);
         lessonData.put("teacher", teachers[index % teachers.length]);
-        lessonData.put("lessonTopic", topics[index]);
-        lessonData.put("homeworkText", homework[index]);
+        lessonData.put("lessonTopic", topics[index % topics.length]);
+        lessonData.put("homeworkText", homework[index % homework.length]);
+
+        // Добавляем номер кабинета
+        String[] classrooms = {"201", "205", "301", "304", "401", "402"};
+        lessonData.put("classroom", classrooms[index % classrooms.length]);
 
         return lessonData;
     }

@@ -1,48 +1,56 @@
 package com.school.portal.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
-// Модель для урока/занятия
+@Entity
+@Table(name = "schedule")
 public class Schedule {
-    private int lessonId;
-    private int classId;
-    private int subjectId;
-    private LocalDateTime date;
-    private String lessonTopic;
-    private String homeworkText;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "LessonId")
+    private Integer lessonId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ClassId", nullable = false)
     private SchoolClass schoolClass;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SubjectId", nullable = false)
     private Subject subject;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TeacherId", nullable = false)
+    private User teacher;
 
-    // Конструкторы, геттеры и сеттеры
-    public Schedule() {}
+    @Column(name = "Room", length = 10)
+    private String room;
 
-    public Schedule(int lessonId, int classId, int subjectId, LocalDateTime date, String lessonTopic, String homeworkText) {
-        this.lessonId = lessonId;
-        this.classId = classId;
-        this.subjectId = subjectId;
-        this.date = date;
-        this.lessonTopic = lessonTopic;
-        this.homeworkText = homeworkText;
-    }
+    @Column(name = "LessonTopic", columnDefinition = "TEXT")
+    private String lessonTopic;
 
-    public int getLessonId() { return lessonId; }
-    public void setLessonId(int lessonId) { this.lessonId = lessonId; }
+    @Column(name = "HomeworkText", columnDefinition = "TEXT")
+    private String homeworkText;
 
-    public int getClassId() { return classId; }
-    public void setClassId(int classId) { this.classId = classId; }
+    @Column(name = "LessonDateTime", nullable = false)
+    private LocalDateTime lessonDateTime;
 
-    public int getSubjectId() { return subjectId; }
-    public void setSubjectId(int subjectId) { this.subjectId = subjectId; }
+    @OneToMany(mappedBy = "lesson")
+    private Set<Homework> homeworks;
 
-    public LocalDateTime getDate() { return date; }
-    public void setDate(LocalDateTime date) { this.date = date; }
+    @OneToMany(mappedBy = "lesson")
+    private Set<Grade> grades;
 
-    public String getLessonTopic() { return lessonTopic; }
-    public void setLessonTopic(String lessonTopic) { this.lessonTopic = lessonTopic; }
+    @OneToMany(mappedBy = "lesson")
+    private Set<Remark> remarks;
 
-    public String getHomeworkText() { return homeworkText; }
-    public void setHomeworkText(String homeworkText) { this.homeworkText = homeworkText; }
+    @OneToMany(mappedBy = "lesson")
+    private Set<Attendance> attendances;
+
+    public Integer getLessonId() { return lessonId; }
+    public void setLessonId(Integer lessonId) { this.lessonId = lessonId; }
 
     public SchoolClass getSchoolClass() { return schoolClass; }
     public void setSchoolClass(SchoolClass schoolClass) { this.schoolClass = schoolClass; }
@@ -50,17 +58,39 @@ public class Schedule {
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
 
+    public User getTeacher() { return teacher; }
+    public void setTeacher(User teacher) { this.teacher = teacher; }
+
+    public String getRoom() { return room; }
+    public void setRoom(String room) { this.room = room; }
+
+    public String getLessonTopic() { return lessonTopic; }
+    public void setLessonTopic(String lessonTopic) { this.lessonTopic = lessonTopic; }
+
+    public String getHomeworkText() { return homeworkText; }
+    public void setHomeworkText(String homeworkText) { this.homeworkText = homeworkText; }
+
+    public LocalDateTime getLessonDateTime() { return lessonDateTime; }
+    public void setLessonDateTime(LocalDateTime lessonDateTime) { this.lessonDateTime = lessonDateTime; }
+
     public String getFormattedDate() {
-        if (date != null) {
-            return String.format("%02d.%02d", date.getDayOfMonth(), date.getMonthValue());
+        if (lessonDateTime != null) {
+            return String.format("%02d.%02d",
+                    lessonDateTime.getDayOfMonth(),
+                    lessonDateTime.getMonthValue());
         }
         return "";
     }
 
-    public String getShortLessonTopic() {
-        if (lessonTopic == null || lessonTopic.isEmpty()) {
-            return "тема не указана";
-        }
-        return lessonTopic.length() > 30 ? lessonTopic.substring(0, 30) + "..." : lessonTopic;
-    }
+    public Set<Homework> getHomeworks() { return homeworks; }
+    public void setHomeworks(Set<Homework> homeworks) { this.homeworks = homeworks; }
+
+    public Set<Grade> getGrades() { return grades; }
+    public void setGrades(Set<Grade> grades) { this.grades = grades; }
+
+    public Set<Remark> getRemarks() { return remarks; }
+    public void setRemarks(Set<Remark> remarks) { this.remarks = remarks; }
+
+    public Set<Attendance> getAttendances() { return attendances; }
+    public void setAttendances(Set<Attendance> attendances) { this.attendances = attendances; }
 }

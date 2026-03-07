@@ -23,15 +23,19 @@ public class HomeController {
 
     public HomeController() {
         // Инициализация тестовыми данными
-        announcements.add(new Announcement(1L,
-                "Родительское собрание",
-                "Уважаемые родители! Приглашаем вас на родительское собрание, которое состоится 15 мая в 18:00 в актовом зале школы.",
-                LocalDateTime.now().minusDays(1)));
+        Announcement announcement1 = new Announcement();
+        announcement1.setAnnouncementId(1);
+        announcement1.setTitle("Родительское собрание");
+        announcement1.setText("Уважаемые родители! Приглашаем вас на родительское собрание, которое состоится 15 мая в 18:00 в актовом зале школы.");
+        announcement1.setCreatedAt(LocalDateTime.now().minusDays(1));
+        announcements.add(announcement1);
 
-        announcements.add(new Announcement(2L,
-                "Внимание! Изменения в расписании",
-                "В связи с проведением олимпиады по математике изменено расписание уроков на среду.",
-                LocalDateTime.now().minusHours(3)));
+        Announcement announcement2 = new Announcement();
+        announcement2.setAnnouncementId(2);
+        announcement2.setTitle("Внимание! Изменения в расписании");
+        announcement2.setText("В связи с проведением олимпиады по математике изменено расписание уроков на среду.");
+        announcement2.setCreatedAt(LocalDateTime.now().minusHours(3));
+        announcements.add(announcement2);
     }
 
     @GetMapping("/")
@@ -52,14 +56,14 @@ public class HomeController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
         model.addAttribute("isTeacher", isTeacher);
 
-        // Фильтруем и форматируем объявления
+        // Фильтруем объявления (за последние 7 дней)
         List<Announcement> recentAnnouncements = announcements.stream()
-                .filter(a -> a.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7)))
+                .filter(a -> a.getCreatedAt() != null &&
+                        a.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7)))
                 .collect(Collectors.toList());
 
-        recentAnnouncements.forEach(a -> {
-            a.setFormattedDate(a.getCreatedAt().format(DATE_FORMATTER));
-        });
+        // Форматирование даты делаем через метод getFormattedDate() в самом Announcement
+        // или можно добавить formattedDate в модель отдельно
 
         model.addAttribute("announcements", recentAnnouncements);
         model.addAttribute("content", "home");
@@ -87,12 +91,19 @@ public class HomeController {
 
         // Добавляем новое объявление
         Long newId = announcements.stream()
-                .mapToLong(Announcement::getId)
+                .mapToLong(announcement -> {
+                    // В модели Announcement используется Integer для announcementId
+                    Integer id = announcement.getAnnouncementId();
+                    return id != null ? id.longValue() : 0L;
+                })
                 .max()
                 .orElse(0L) + 1;
 
-        Announcement newAnnouncement = new Announcement(
-                newId, title, text, LocalDateTime.now());
+        Announcement newAnnouncement = new Announcement();
+        newAnnouncement.setAnnouncementId(newId.intValue());
+        newAnnouncement.setTitle(title);
+        newAnnouncement.setText(text);
+        newAnnouncement.setCreatedAt(LocalDateTime.now());
 
         announcements.add(newAnnouncement);
 

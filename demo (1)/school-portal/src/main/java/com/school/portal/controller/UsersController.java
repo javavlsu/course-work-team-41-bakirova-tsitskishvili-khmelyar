@@ -28,49 +28,105 @@ public class UsersController {
 
     private void initializeDemoData() {
         // Инициализация ролей
-        roles.add(new Role("Учитель"));
-        roles.add(new Role("Директор"));
-        roles.add(new Role("Ученик"));
-        roles.add(new Role("Родитель"));
+        Role teacherRole = new Role("Учитель");
+        teacherRole.setRoleId(1);
+        roles.add(teacherRole);
+
+        Role directorRole = new Role("Директор");
+        directorRole.setRoleId(2);
+        roles.add(directorRole);
+
+        Role studentRole = new Role("Ученик");
+        studentRole.setRoleId(3);
+        roles.add(studentRole);
+
+        Role parentRole = new Role("Родитель");
+        parentRole.setRoleId(4);
+        roles.add(parentRole);
 
         // Инициализация классов
-        schoolClasses.add(new SchoolClass(1, 9, "А", 1));
-        schoolClasses.add(new SchoolClass(2, 9, "Б", 2));
-        schoolClasses.add(new SchoolClass(3, 10, "А", 3));
-        schoolClasses.add(new SchoolClass(4, 10, "Б", 4));
-        schoolClasses.add(new SchoolClass(5, 11, "А", 1));
+        SchoolClass class9A = new SchoolClass();
+        class9A.setClassId(1);
+        class9A.setClassNumber(9);
+        class9A.setClassLetter("А");
+        // Временно без классного руководителя
+        schoolClasses.add(class9A);
+
+        SchoolClass class9B = new SchoolClass();
+        class9B.setClassId(2);
+        class9B.setClassNumber(9);
+        class9B.setClassLetter("Б");
+        schoolClasses.add(class9B);
+
+        SchoolClass class10A = new SchoolClass();
+        class10A.setClassId(3);
+        class10A.setClassNumber(10);
+        class10A.setClassLetter("А");
+        schoolClasses.add(class10A);
+
+        SchoolClass class10B = new SchoolClass();
+        class10B.setClassId(4);
+        class10B.setClassNumber(10);
+        class10B.setClassLetter("Б");
+        schoolClasses.add(class10B);
+
+        SchoolClass class11A = new SchoolClass();
+        class11A.setClassId(5);
+        class11A.setClassNumber(11);
+        class11A.setClassLetter("А");
+        schoolClasses.add(class11A);
 
         // Инициализация предметов
-        subjects.add(new Subject(1, "Математика"));
-        subjects.add(new Subject(2, "Русский язык"));
-        subjects.add(new Subject(3, "Физика"));
-        subjects.add(new Subject(4, "Химия"));
-        subjects.add(new Subject(5, "История"));
-        subjects.add(new Subject(6, "Английский язык"));
-        subjects.add(new Subject(7, "Информатика"));
+        Subject math = new Subject("Математика");
+        math.setSubjectId(1);
+        subjects.add(math);
+
+        Subject russian = new Subject("Русский язык");
+        russian.setSubjectId(2);
+        subjects.add(russian);
+
+        Subject physics = new Subject("Физика");
+        physics.setSubjectId(3);
+        subjects.add(physics);
+
+        Subject chemistry = new Subject("Химия");
+        chemistry.setSubjectId(4);
+        subjects.add(chemistry);
+
+        Subject history = new Subject("История");
+        history.setSubjectId(5);
+        subjects.add(history);
+
+        Subject english = new Subject("Английский язык");
+        english.setSubjectId(6);
+        subjects.add(english);
+
+        Subject informatics = new Subject("Информатика");
+        informatics.setSubjectId(7);
+        subjects.add(informatics);
 
         // Инициализация пользователей
-        users.add(createMockUser(1, "teacher1", "Алексей", "Иванов", "Петрович", "Учитель",
+        users.add(createMockUser(1, "teacher1", "Алексей", "Иванов", "Петрович", teacherRole,
                 "teacher@school.ru", "+79991234567", LocalDate.of(1980, 5, 15),
                 "Классный руководитель 9А, преподаватель математики"));
 
-        users.add(createMockUser(2, "director", "Мария", "Петрова", "Сергеевна", "Директор",
+        users.add(createMockUser(2, "director", "Мария", "Петрова", "Сергеевна", directorRole,
                 "director@school.ru", "+79997654321", LocalDate.of(1975, 3, 22),
                 "Директор школы, кандидат педагогических наук"));
 
-        users.add(createMockUser(3, "student1", "Дмитрий", "Сидоров", "Иванович", "Ученик",
+        users.add(createMockUser(3, "student1", "Дмитрий", "Сидоров", "Иванович", studentRole,
                 "student1@school.ru", null, LocalDate.of(2007, 8, 10),
                 "Успевающий ученик, участник олимпиад"));
 
-        users.add(createMockUser(4, "student2", "Анна", "Кузнецова", "Владимировна", "Ученик",
+        users.add(createMockUser(4, "student2", "Анна", "Кузнецова", "Владимировна", studentRole,
                 "student2@school.ru", "+79998887766", LocalDate.of(2008, 2, 25),
                 "Отличница, занимается музыкой"));
 
-        users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", "Родитель",
+        users.add(createMockUser(5, "parent1", "Павел", "Смирнов", "Александрович", parentRole,
                 "parent@mail.ru", "+79995554433", LocalDate.of(1982, 11, 5),
                 "Председатель родительского комитета"));
 
-        users.add(createMockUser(6, "teacher2", "Елена", "Федорова", "Дмитриевна", "Учитель",
+        users.add(createMockUser(6, "teacher2", "Елена", "Федорова", "Дмитриевна", teacherRole,
                 "teacher2@school.ru", "+79993332211", LocalDate.of(1985, 7, 30),
                 "Преподаватель русского языка и литературы"));
     }
@@ -101,7 +157,7 @@ public class UsersController {
 
         if (roleFilter != null && !roleFilter.isEmpty() && !"Все роли".equals(roleFilter)) {
             filteredUsers = filteredUsers.stream()
-                    .filter(u -> u.getRole().equals(roleFilter))
+                    .filter(u -> u.getRole() != null && roleFilter.equals(u.getRole().getRoleName()))
                     .collect(Collectors.toList());
         }
 
@@ -111,7 +167,6 @@ public class UsersController {
         }
 
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            // Создаем final копию для использования в лямбда-выражении
             final String searchTermFinal = searchTerm.toLowerCase().trim();
             filteredUsers = filteredUsers.stream()
                     .filter(u -> {
@@ -164,8 +219,21 @@ public class UsersController {
                 return response;
             }
 
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userId", user.getUserId());
+            userMap.put("fullName", user.getFullName());
+            userMap.put("firstName", user.getFirstName());
+            userMap.put("lastName", user.getLastName());
+            userMap.put("middleName", user.getMiddleName());
+            userMap.put("email", user.getEmail());
+            userMap.put("phone", user.getPhone());
+            userMap.put("birthDate", user.getBirthDate() != null ? user.getBirthDate().toString() : null);
+            userMap.put("login", user.getLogin());
+            userMap.put("info", user.getInfo());
+            userMap.put("role", user.getRole() != null ? user.getRole().getRoleName() : "Неизвестно");
+
             response.put("success", true);
-            response.put("user", user);
+            response.put("user", userMap);
 
         } catch (NumberFormatException e) {
             response.put("success", false);
@@ -191,7 +259,7 @@ public class UsersController {
 
         // Список учеников для выбора родителя
         List<SelectListItem> allStudents = users.stream()
-                .filter(u -> "Ученик".equals(u.getRole()))
+                .filter(u -> u.getRole() != null && "Ученик".equals(u.getRole().getRoleName()))
                 .map(u -> new SelectListItem(String.valueOf(u.getUserId()), u.getFullName()))
                 .collect(Collectors.toList());
 
@@ -227,6 +295,7 @@ public class UsersController {
             newUser.setPhone(model.getPhone());
             newUser.setBirthDate(model.getBirthDate());
             newUser.setInfo(model.getInfo());
+            newUser.setCoins(0);
 
             // Устанавливаем роль
             int roleId = model.getRoleId();
@@ -236,8 +305,11 @@ public class UsersController {
                     .orElse(null);
 
             if (selectedRole != null) {
-                newUser.setRole(selectedRole); // Кладём объект Role целиком
+                newUser.setRole(selectedRole);
             }
+
+            // Устанавливаем пароль (в реальном приложении нужно хэшировать)
+            newUser.setPassword(password);
 
             users.add(newUser);
 
@@ -301,7 +373,7 @@ public class UsersController {
                     .collect(Collectors.toList());
 
             List<SelectListItem> allStudents = users.stream()
-                    .filter(u -> "Ученик".equals(u.getRole()))
+                    .filter(u -> u.getRole() != null && "Ученик".equals(u.getRole().getRoleName()))
                     .map(u -> new SelectListItem(String.valueOf(u.getUserId()), u.getFullName()))
                     .collect(Collectors.toList());
 
@@ -347,8 +419,6 @@ public class UsersController {
             userToUpdate.setBirthDate(request.getBirthDate());
             userToUpdate.setInfo(request.getInfo());
 
-            // Здесь была бы логика обновления роли, класса и т.д.
-
             response.put("success", true);
             response.put("message", "Данные пользователя успешно обновлены");
 
@@ -379,8 +449,7 @@ public class UsersController {
             }
 
             // Проверяем, можно ли удалить пользователя
-            // Для демо просто запрещаем удаление директора
-            if ("Директор".equals(userToDelete.getRole())) {
+            if (userToDelete.getRole() != null && "Директор".equals(userToDelete.getRole().getRoleName())) {
                 response.put("success", false);
                 response.put("message", "Невозможно удалить пользователя с ролью Директор");
                 return response;
@@ -409,7 +478,7 @@ public class UsersController {
         try {
             // Получаем список учителей для выбора классного руководителя
             List<SelectListItem> availableTeachers = users.stream()
-                    .filter(u -> "Учитель".equals(u.getRole()))
+                    .filter(u -> u.getRole() != null && "Учитель".equals(u.getRole().getRoleName()))
                     .map(u -> new SelectListItem(String.valueOf(u.getUserId()), u.getFullName()))
                     .collect(Collectors.toList());
 
@@ -434,7 +503,6 @@ public class UsersController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Создаем final копии для использования в лямбда-выражении
             final int finalClassNumber = classNumber;
             final String finalClassLetter = classLetter.toUpperCase();
 
@@ -451,22 +519,22 @@ public class UsersController {
             }
 
             // Создаем новый класс
-            SchoolClass newClass = new SchoolClass(
-                    schoolClasses.size() + 1,
-                    finalClassNumber,
-                    finalClassLetter,
-                    classTeacherId
-            );
+            SchoolClass newClass = new SchoolClass();
+            newClass.setClassId(schoolClasses.size() + 1);
+            newClass.setClassNumber(finalClassNumber);
+            newClass.setClassLetter(finalClassLetter);
+
+            // Находим учителя по ID
+            User teacher = users.stream()
+                    .filter(u -> u.getUserId() == classTeacherId)
+                    .findFirst()
+                    .orElse(null);
+            newClass.setClassTeacher(teacher);
 
             schoolClasses.add(newClass);
 
             // Получаем имя учителя
-            final int finalTeacherId = classTeacherId;
-            String teacherName = users.stream()
-                    .filter(u -> u.getUserId() == finalTeacherId)
-                    .map(User::getFullName)
-                    .findFirst()
-                    .orElse("Неизвестно");
+            String teacherName = teacher != null ? teacher.getFullName() : "Неизвестно";
 
             response.put("success", true);
             response.put("message", String.format("Класс %s успешно добавлен. Классный руководитель: %s",
@@ -487,7 +555,6 @@ public class UsersController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Создаем final копию для использования в лямбда-выражении
             final int finalClassId = classId;
 
             SchoolClass classToDelete = schoolClasses.stream()
@@ -501,7 +568,6 @@ public class UsersController {
                 return response;
             }
 
-            // В реальном приложении здесь была бы проверка на наличие учеников в классе
             schoolClasses.removeIf(c -> c.getClassId() == finalClassId);
 
             response.put("success", true);
@@ -541,7 +607,6 @@ public class UsersController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Создаем final копию для использования в лямбда-выражении
             final String finalSubjectName = subjectName;
 
             // Проверяем, существует ли уже такой предмет
@@ -555,10 +620,8 @@ public class UsersController {
             }
 
             // Создаем новый предмет
-            Subject newSubject = new Subject(
-                    subjects.size() + 1,
-                    subjectName
-            );
+            Subject newSubject = new Subject(subjectName);
+            newSubject.setSubjectId(subjects.size() + 1);
 
             subjects.add(newSubject);
 
@@ -580,7 +643,6 @@ public class UsersController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Создаем final копию для использования в лямбда-выражении
             final int finalSubjectId = subjectId;
 
             Subject subjectToDelete = subjects.stream()
@@ -615,21 +677,17 @@ public class UsersController {
             return "user" + (users.size() + 1);
         }
 
-        // Создаем base login
         String baseLogin = firstName.toLowerCase().charAt(0) +
                 lastName.toLowerCase().replaceAll("[^a-zа-я]", "");
 
-        // Проверяем уникальность логина
         String login = baseLogin;
         int counter = 1;
 
-        // Создаем final копию для использования в лямбда-выражении
         final String finalBaseLogin = baseLogin;
 
-        // Проверяем, существует ли уже такой логин
         while (true) {
             final String currentLogin = (counter == 1) ? finalBaseLogin : finalBaseLogin + counter;
-            final int currentCounter = counter; // final копия для лямбды
+            final int currentCounter = counter;
 
             boolean exists = users.stream().anyMatch(u -> {
                 String username = u.getLogin();
@@ -737,7 +795,6 @@ public class UsersController {
         private Integer studentIdForParent;
         private Integer teacherClassId;
 
-        // Геттеры и сеттеры
         public int getUserId() { return userId; }
         public void setUserId(int userId) { this.userId = userId; }
 
@@ -792,7 +849,7 @@ public class UsersController {
 
     // Вспомогательный метод для создания тестовых пользователей
     private User createMockUser(int id, String login, String first, String last, String middle,
-                                String roleName, String email, String phone, LocalDate birthDate, String info) {
+                                Role role, String email, String phone, LocalDate birthDate, String info) {
         User u = new User();
         u.setUserId(id);
         u.setLogin(login);
@@ -804,11 +861,8 @@ public class UsersController {
         u.setPhone(phone);
         u.setBirthDate(birthDate);
         u.setInfo(info);
-
-        Role role = new Role();
-        role.setRoleName(roleName);
+        u.setCoins(0);
         u.setRole(role);
-
         return u;
     }
 }
