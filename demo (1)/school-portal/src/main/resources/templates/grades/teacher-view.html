@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .global-tooltip {
+            position: fixed;
+            z-index: 99999;
+            background-color: #1f2937;
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            min-width: 320px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            pointer-events: none;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .global-tooltip.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .global-tooltip .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #1f2937;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+<!-- Фильтры для учителя -->
+<div class="bg-white rounded-lg shadow p-4 mb-4">
+    <form th:action="@{/grades}" method="get" class="row g-3">
+        <!-- Фильтр по классу -->
+        <div class="col-md-4">
+            <label for="classId" class="form-label">Класс:</label>
+            <select name="classId" id="classId" onchange="this.form.submit()"
+                    class="form-select">
+                <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
+                        th:value="${cls.key}"
+                        th:text="${cls.value}"
+                        th:selected="${cls.key == viewModel.selectedClassId}"></option>
+            </select>
+        </div>
+
+        <!-- Фильтр по предмету -->
+        <div class="col-md-4">
+            <label for="subjectId" class="form-label">Предмет:</label>
+            <select name="subjectId" id="subjectId" onchange="this.form.submit()"
+                    class="form-select">
+                <option th:each="subject : ${viewModel.availableSubjects.entrySet()}"
+                        th:value="${subject.key}"
+                        th:text="${subject.value}"
+                        th:selected="${subject.key == viewModel.selectedSubjectId}"></option>
+            </select>
+        </div>
+
+        <!-- Фильтр по четверти -->
+        <div class="col-md-4">
+            <label for="quarter" class="form-label">Период:</label>
+            <select name="quarter" id="quarter" onchange="this.form.submit()"
+                    class="form-select">
+                <option th:each="q : ${viewModel.availableQuarters}"
+                        th:value="${q}"
+                        th:text="${q == 'Итоговые оценки' ? q : q + ' четверть'}"
+                        th:selected="${q == viewModel.selectedQuarter}"></option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<!-- Информация о выбранных фильтрах -->
+<div class="bg-white rounded-lg shadow p-4 mb-4">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <p class="text-muted mb-1">Класс:</p>
+            <p class="h5 mb-0" th:text="${viewModel.selectedClassName}">9 "А"</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <p class="text-muted mb-1">Предмет:</p>
+            <p class="h5 mb-0" th:text="${viewModel.selectedSubjectName}">Математика</p>
+        </div>
+        <div class="col-md-4">
+            <p class="text-muted mb-1">Период:</p>
+            <p class="h5 mb-0">
+                    <span th:if="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                        Итоговые оценки (Год)
+                    </span>
+                <span th:unless="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                        <span th:text="${viewModel.selectedQuarter}"></span> четверть
+                    </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Таблица с данными учеников -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr>
+                <th scope="col" class="text-nowrap">№</th>
+                <th scope="col" class="text-nowrap">ФИО ученика</th>
+                <th scope="col" class="text-nowrap">
+                            <span th:if="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                                Ср. балл итоговых (Год)
+                            </span>
+                    <span th:unless="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                                Средний балл (Четверть)
+                            </span>
+                </th>
+                <th scope="col" class="text-nowrap">
+                            <span th:if="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                                <strong>Годовая Оценка</strong>
+                            </span>
+                    <span th:unless="${viewModel.selectedQuarter == 'Итоговые оценки'}">
+                                <strong>Итоговая Оценка</strong>
+                            </span>
+                </th>
+                <th scope="col" class="text-nowrap">Пропуски</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student, stat : ${viewModel.students}">
+                <td class="align-middle" th:text="${stat.count}">1</td>
+                <td class="align-middle" th:text="${student.fullName}">Иванов Алексей Петрович</td>
+
+                <!-- Ячейка со средним баллом и тултипом -->
+                <td class="align-middle">
+                            <span th:classappend="${student.quarterFinalGrade >= 4.0 ? 'text-success fw-bold' :
+                                                   (student.quarterFinalGrade >= 3.0 ? 'text-warning fw-bold' : 'text-danger fw-bold')}">
+                                <span th:if="${student.gradeCount > 0}"
+                                      class="tooltip-trigger text-decoration-none"
+                                      style="cursor: help;"
+                                      data-tooltip-type="grades"
+                                      th:attr="data-student-name=${student.fullName},
+                                               data-average-grade=${#numbers.formatDecimal(student.averageGrade, 1, 2)},
+                                               data-final-grade=${student.quarterFinalGrade},
+                                               data-grade-count=${student.gradeCount},
+                                               data-all-grades=${student.allGradesString},
+                                               data-grade5=${student.gradeCount5},
+                                               data-grade4=${student.gradeCount4},
+                                               data-grade3=${student.gradeCount3},
+                                               data-grade2=${student.gradeCount2},
+                                               data-grade1=${student.gradeCount1},
+                                               data-grade0=${student.gradeCount0},
+                                               data-percent5=${#numbers.formatDecimal(student.percent5, 1, 1)},
+                                               data-percent4=${#numbers.formatDecimal(student.percent4, 1, 1)},
+                                               data-percent3=${#numbers.formatDecimal(student.percent3, 1, 1)},
+                                               data-percent2=${#numbers.formatDecimal(student.percent2, 1, 1)},
+                                               data-percent1=${#numbers.formatDecimal(student.percent1, 1, 1)},
+                                               data-percent0=${#numbers.formatDecimal(student.percent0, 1, 1)}">
+                                    <span th:text="${#numbers.formatDecimal(student.averageGrade, 1, 2)}">4.67</span>
+                                    <small class="text-muted ms-1">(наведите для деталей)</small>
+                                </span>
+                                <span th:unless="${student.gradeCount > 0}"
+                                      th:text="${#numbers.formatDecimal(student.averageGrade, 1, 2)}">4.67</span>
+                            </span>
+                </td>
+
+                <!-- Итоговая оценка -->
+                <td class="align-middle">
+                            <span th:classappend="${student.quarterFinalGrade < 3 ? 'text-danger fw-bold fs-5' : 'text-success fw-bold fs-5'}"
+                                  th:text="${student.quarterFinalGrade}">5</span>
+                </td>
+
+                <!-- Ячейка с пропусками и тултипом -->
+                <td class="align-middle">
+                            <span th:if="${student.totalAbsences > 0}"
+                                  class="tooltip-trigger text-decoration-none"
+                                  style="cursor: help;"
+                                  data-tooltip-type="absences"
+                                  th:attr="data-student-name=${student.fullName},
+                                           data-total-absences=${student.totalAbsences},
+                                           data-absent-h=${student.absentTypeH},
+                                           data-absent-u=${student.absentTypeU},
+                                           data-absent-b=${student.absentTypeB},
+                                           data-total-lessons=${student.totalLessonsInPeriod}">
+                                <span th:text="${student.totalAbsences}">2</span>
+                                <small class="text-muted ms-1">(наведите для деталей)</small>
+                            </span>
+                    <span th:unless="${student.totalAbsences > 0}"
+                          th:text="${student.totalAbsences}">0</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Глобальный тултип -->
+<div id="globalTooltip" class="global-tooltip"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        // Автоматическая отправка формы при изменении фильтров
+        const filters = ['classId', 'subjectId', 'quarter'];
+        filters.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', function () {
+                    this.form.submit();
+                });
+            }
+        });
+
+        // Создаем глобальный тултип
+        let tooltip = document.getElementById('globalTooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'globalTooltip';
+            tooltip.className = 'global-tooltip';
+            document.body.appendChild(tooltip);
+        }
+
+        let tooltipVisible = false;
+        let currentTrigger = null;
+
+        // Обработчики для тултипов
+        const allTriggers = document.querySelectorAll('.tooltip-trigger');
+
+        allTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', function (e) {
+                currentTrigger = this;
+                const type = this.getAttribute('data-tooltip-type');
+
+                let tooltipContent = '';
+
+                if (type === 'grades') {
+                    const studentName = this.getAttribute('data-student-name');
+                    const averageGrade = this.getAttribute('data-average-grade');
+                    const finalGrade = this.getAttribute('data-final-grade');
+
+                    tooltipContent = `
+                        <div class="fw-bold mb-2 border-bottom pb-1">Детализация оценок ученика:</div>
+                        <div class="text-light mb-1">${studentName}</div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2" style="width: 20px; height: 20px;"></span>
+                                    <span>Отлично (5):</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-2">${this.getAttribute('data-grade5')}</span>
+                                    <span class="small text-secondary">(${this.getAttribute('data-percent5')}%)</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2" style="width: 20px; height: 20px;"></span>
+                                    <span>Хорошо (4):</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-2">${this.getAttribute('data-grade4')}</span>
+                                    <span class="small text-secondary">(${this.getAttribute('data-percent4')}%)</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-warning me-2" style="width: 20px; height: 20px;"></span>
+                                    <span>Удовлетворительно (3):</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-2">${this.getAttribute('data-grade3')}</span>
+                                    <span class="small text-secondary">(${this.getAttribute('data-percent3')}%)</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2" style="width: 20px; height: 20px;"></span>
+                                    <span>Неудовлетворительно (2):</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-2">${this.getAttribute('data-grade2')}</span>
+                                    <span class="small text-secondary">(${this.getAttribute('data-percent2')}%)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <div class="d-flex justify-content-between fw-bold mb-1">
+                                <span>Средний балл:</span>
+                                <span class="${averageGrade >= 4.0 ? 'text-success' : (averageGrade >= 3.0 ? 'text-warning' : 'text-danger')}">
+                                    ${averageGrade}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Итоговая оценка:</span>
+                                <span class="fw-bold ${finalGrade < 3 ? 'text-danger' : 'text-success'}">
+                                    ${finalGrade}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="tooltip-arrow"></div>`;
+                } else if (type === 'absences') {
+                    const studentName = this.getAttribute('data-student-name');
+                    const totalAbsences = this.getAttribute('data-total-absences');
+
+                    tooltipContent = `
+                        <div class="fw-bold mb-2 border-bottom pb-1">Детализация пропусков:</div>
+                        <div class="text-light mb-1">${studentName}</div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-danger">Неуважительные (Н):</span>
+                                <span class="fw-bold">${this.getAttribute('data-absent-h')}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-warning">Уважительные (У):</span>
+                                <span class="fw-bold">${this.getAttribute('data-absent-u')}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-info">Болезнь (Б):</span>
+                                <span class="fw-bold">${this.getAttribute('data-absent-b')}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Всего пропусков:</span>
+                                <span class="fw-bold">${totalAbsences}</span>
+                            </div>
+                        </div>
+                        <div class="tooltip-arrow"></div>`;
+                }
+
+                tooltip.innerHTML = tooltipContent;
+                tooltip.classList.add('show');
+                tooltipVisible = true;
+                positionTooltip(e);
+            });
+
+            trigger.addEventListener('mousemove', function (e) {
+                if (tooltipVisible && currentTrigger === this) {
+                    positionTooltip(e);
+                }
+            });
+
+            trigger.addEventListener('mouseleave', function () {
+                if (tooltipVisible && currentTrigger === this) {
+                    tooltip.classList.remove('show');
+                    tooltipVisible = false;
+                    currentTrigger = null;
+                }
+            });
+        });
+
+        function positionTooltip(e) {
+            if (!tooltipVisible || !currentTrigger) return;
+
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            let left = mouseX + 15;
+            let top = mouseY + 15;
+
+            if (left + tooltipRect.width > viewportWidth - 10) {
+                left = mouseX - tooltipRect.width - 15;
+            }
+            if (left < 10) left = 10;
+            if (top + tooltipRect.height > viewportHeight - 10) {
+                top = mouseY - tooltipRect.height - 15;
+            }
+            if (top < 10) top = 10;
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            tooltip.style.right = 'auto';
+            tooltip.style.bottom = 'auto';
+            tooltip.style.transform = 'none';
+        }
+
+        document.addEventListener('scroll', function () {
+            if (tooltipVisible) {
+                tooltip.classList.remove('show');
+                tooltipVisible = false;
+                currentTrigger = null;
+            }
+        });
+
+        window.addEventListener('resize', function () {
+            if (tooltipVisible) {
+                tooltip.classList.remove('show');
+                tooltipVisible = false;
+                currentTrigger = null;
+            }
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

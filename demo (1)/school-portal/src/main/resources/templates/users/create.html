@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .user-creation-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .user-form-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .admin-tools-container {
+            width: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-input-field, .form-select-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input-field:focus, .form-select-field:focus {
+            border-color: #3b90d3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.1);
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .btn-admin-tool {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #3b90d3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-admin-tool:hover {
+            background-color: #2a7cbb;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .col-span-2 {
+            grid-column: span 2;
+        }
+
+        .col-span-1 {
+            grid-column: span 1;
+        }
+
+        @media (max-width: 768px) {
+            .user-creation-layout {
+                flex-direction: column;
+            }
+
+            .admin-tools-container {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .col-span-2, .col-span-1 {
+                grid-column: span 1;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content-form {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-form-header {
+            padding: 20px;
+            background: #3b90d3;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-form-body {
+            padding: 20px;
+        }
+
+        .modal-form-actions {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+<div class="user-creation-layout">
+
+    <!-- Форма создания пользователя -->
+    <div class="user-form-container">
+        <h2 class="text-xl font-semibold mb-4">Создание нового пользователя</h2>
+
+        <div th:if="${param.success != null}" class="alert alert-success mb-4">
+            <i class="fas fa-check-circle me-2"></i> Пользователь успешно создан
+        </div>
+
+        <div th:if="${param.error != null}" class="alert alert-danger mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i> Ошибка создания пользователя
+        </div>
+
+        <form th:action="@{/users/create}" method="post" class="bg-white p-6 rounded-lg shadow">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="grid mb-4">
+                <!-- ФИО -->
+                <div class="col-span-2">
+                    <label for="lastName" class="form-label">Фамилия *</label>
+                    <input type="text" id="lastName" name="lastName"
+                           class="form-input-field" th:field="*{viewModel.lastName}" required />
+                    <span th:errors="*{viewModel.lastName}" class="text-danger"></span>
+                </div>
+
+                <div class="col-span-1">
+                    <label for="firstName" class="form-label">Имя *</label>
+                    <input type="text" id="firstName" name="firstName"
+                           class="form-input-field" th:field="*{viewModel.firstName}" required />
+                    <span th:errors="*{viewModel.firstName}" class="text-danger"></span>
+                </div>
+
+                <div class="col-span-1">
+                    <label for="middleName" class="form-label">Отчество</label>
+                    <input type="text" id="middleName" name="middleName"
+                           class="form-input-field" th:field="*{viewModel.middleName}" />
+                </div>
+
+                <!-- Роль -->
+                <div class="col-span-2">
+                    <label for="roleId" class="form-label">Роль *</label>
+                    <select id="roleId" name="roleId"
+                            class="form-select-field" th:field="*{viewModel.roleId}" required
+                            onchange="handleRoleChange()">
+                        <option value="">-- Выберите роль --</option>
+                        <option th:each="item : ${viewModel.availableRoles}"
+                                th:value="${item.value}"
+                                th:text="${item.text}"></option>
+                    </select>
+                    <span th:errors="*{viewModel.roleId}" class="text-danger"></span>
+                </div>
+
+                <!-- Динамические поля (появляются в зависимости от роли) -->
+                <div id="dynamicFields" class="col-span-2"></div>
+
+                <!-- Контактная информация -->
+                <div class="col-span-2">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email"
+                           class="form-input-field" th:field="*{viewModel.email}" />
+                </div>
+
+                <div class="col-span-1">
+                    <label for="phone" class="form-label">Телефон</label>
+                    <input type="tel" id="phone" name="phone"
+                           class="form-input-field" th:field="*{viewModel.phone}" />
+                </div>
+
+                <div class="col-span-1">
+                    <label for="birthDate" class="form-label">Дата рождения</label>
+                    <input type="date" id="birthDate" name="birthDate"
+                           class="form-input-field" th:field="*{viewModel.birthDate}" />
+                </div>
+
+                <!-- Дополнительная информация -->
+                <div class="col-span-2">
+                    <label for="info" class="form-label">Дополнительная информация</label>
+                    <textarea id="info" name="info" rows="3"
+                              class="form-input-field" th:field="*{viewModel.info}"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-plus mr-2"></i> Создать пользователя
+            </button>
+        </form>
+    </div>
+
+    <!-- Панель администрирования -->
+    <div class="admin-tools-container">
+        <h3 class="text-lg font-semibold mb-3 text-gray-700">
+            <i class="fas fa-tools mr-2"></i> Дополнительные инструменты
+        </h3>
+
+        <p class="text-sm text-gray-600 mb-4">Управляйте классами и предметами школы.</p>
+
+        <button type="button" id="openClassModal" class="btn-admin-tool">
+            <i class="fas fa-school mr-2"></i> Управление классами
+        </button>
+
+        <button type="button" id="openSubjectModal" class="btn-admin-tool">
+            <i class="fas fa-book-open mr-2"></i> Управление предметами
+        </button>
+    </div>
+</div>
+
+<!-- Модальное окно управления классами -->
+<div id="classManagementModal" class="modal-overlay hidden">
+    <div class="modal-content-form">
+        <div class="modal-form-header">
+            Управление классами
+        </div>
+
+        <div id="classManagementContent" class="modal-form-body">
+            <p>Загрузка данных...</p>
+        </div>
+
+        <div class="modal-form-actions">
+            <button type="button" class="btn-secondary-text close-modal">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно управления предметами -->
+<div id="subjectManagementModal" class="modal-overlay hidden">
+    <div class="modal-content-form">
+        <div class="modal-form-header">
+            Управление предметами
+        </div>
+
+        <div id="subjectManagementContent" class="modal-form-body">
+            <p>Загрузка данных...</p>
+        </div>
+
+        <div class="modal-form-actions">
+            <button type="button" class="btn-secondary-text close-modal">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Обработка динамических полей формы
+        function handleRoleChange() {
+            const roleSelect = $('#roleId');
+            const selectedRoleText = roleSelect.find('option:selected').text();
+            const dynamicFields = $('#dynamicFields');
+
+            dynamicFields.empty();
+
+            if (selectedRoleText === 'Ученик') {
+                dynamicFields.html(`
+                    <div class="col-span-2">
+                        <label for="classId" class="form-label">Класс ученика *</label>
+                        <select id="classId" name="classId" class="form-select-field" required>
+                            <option value="">-- Выберите класс --</option>
+                            <option th:each="item : ${viewModel.schoolClasses}"
+                                    th:value="${item.value}"
+                                    th:text="${item.text}"></option>
+                        </select>
+                    </div>
+                `);
+            } else if (selectedRoleText === 'Родитель') {
+                dynamicFields.html(`
+                    <div class="col-span-2">
+                        <label for="studentIdForParent" class="form-label">Привязать к ученику *</label>
+                        <select id="studentIdForParent" name="studentIdForParent" class="form-select-field" required>
+                            <option value="">-- Выберите ученика --</option>
+                            <option th:each="item : ${viewModel.allStudents}"
+                                    th:value="${item.value}"
+                                    th:text="${item.text}"></option>
+                        </select>
+                    </div>
+                `);
+            }
+        }
+
+        // Инициализация
+        handleRoleChange();
+
+        // Обработчики модальных окон
+        const classModal = $('#classManagementModal');
+        const subjectModal = $('#subjectManagementModal');
+
+        // Открытие модального окна классов
+        $('#openClassModal').on('click', function() {
+            classModal.removeClass('hidden').fadeIn(300);
+            $('#classManagementContent').html('<p class="text-center py-4">Загрузка...</p>');
+
+            $.ajax({
+                url: '/users/manage-classes-partial',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        let html = '<h4 class="font-semibold mb-3">Список классов</h4>';
+                        html += '<div class="space-y-2 mb-4">';
+
+                        response.schoolClasses.forEach(function(cls) {
+                            html += `<div class="p-2 bg-gray-50 border rounded flex justify-between">
+                                        <span>${cls.className}</span>
+                                        <button class="text-red-500 delete-class" data-id="${cls.classId}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                     </div>`;
+                        });
+
+                        html += '</div>';
+                        html += '<h4 class="font-semibold mb-3">Добавить новый класс</h4>';
+                        html += '<form id="addClassForm" class="space-y-3">';
+                        html += '<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />';
+                        html += '<div><input type="number" name="classNumber" placeholder="Номер класса" class="form-input-field" required min="1" max="11" /></div>';
+                        html += '<div><input type="text" name="classLetter" placeholder="Буква класса" class="form-input-field" required maxlength="1" /></div>';
+                        html += '<div><select name="classTeacherId" class="form-select-field" required>';
+                        html += '<option value="">-- Выберите классного руководителя --</option>';
+
+                        response.availableTeachers.forEach(function(teacher) {
+                            html += `<option value="${teacher.value}">${teacher.text}</option>`;
+                        });
+
+                        html += '</select></div>';
+                        html += '<button type="submit" class="btn-primary-blue">Добавить класс</button>';
+                        html += '</form>';
+                        html += '<p id="classMessage" class="mt-2 text-sm"></p>';
+
+                        $('#classManagementContent').html(html);
+                    } else {
+                        $('#classManagementContent').html(`<p class="text-red-500">${response.message}</p>`);
+                    }
+                },
+                error: function() {
+                    $('#classManagementContent').html('<p class="text-red-500">Ошибка загрузки данных</p>');
+                }
+            });
+        });
+
+        // Открытие модального окна предметов
+        $('#openSubjectModal').on('click', function() {
+            subjectModal.removeClass('hidden').fadeIn(300);
+            $('#subjectManagementContent').html('<p class="text-center py-4">Загрузка...</p>');
+
+            $.ajax({
+                url: '/users/manage-subjects-partial',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        let html = '<h4 class="font-semibold mb-3">Список предметов</h4>';
+                        html += '<div class="space-y-2 mb-4">';
+
+                        response.subjects.forEach(function(subject) {
+                            html += `<div class="p-2 bg-gray-50 border rounded flex justify-between">
+                                        <span>${subject.subjectName}</span>
+                                        <button class="text-red-500 delete-subject" data-id="${subject.subjectId}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                     </div>`;
+                        });
+
+                        html += '</div>';
+                        html += '<h4 class="font-semibold mb-3">Добавить новый предмет</h4>';
+                        html += '<form id="addSubjectForm" class="space-y-3">';
+                        html += '<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />';
+                        html += '<div><input type="text" name="subjectName" placeholder="Название предмета" class="form-input-field" required /></div>';
+                        html += '<button type="submit" class="btn-primary-blue">Добавить предмет</button>';
+                        html += '</form>';
+                        html += '<p id="subjectMessage" class="mt-2 text-sm"></p>';
+
+                        $('#subjectManagementContent').html(html);
+                    } else {
+                        $('#subjectManagementContent').html(`<p class="text-red-500">${response.message}</p>`);
+                    }
+                },
+                error: function() {
+                    $('#subjectManagementContent').html('<p class="text-red-500">Ошибка загрузки данных</p>');
+                }
+            });
+        });
+
+        // Закрытие модальных окон
+        $('.close-modal').on('click', function() {
+            $(this).closest('.modal-overlay').fadeOut(300, function() {
+                $(this).addClass('hidden');
+            });
+        });
+
+        // Закрытие по клику вне окна
+        $(window).on('click', function(event) {
+            if ($(event.target).is('.modal-overlay')) {
+                $(event.target).fadeOut(300, function() {
+                    $(this).addClass('hidden');
+                });
+            }
+        });
+
+        // Закрытие по клавише Escape
+        $(document).on('keydown', function(event) {
+            if (event.key === 'Escape') {
+                $('.modal-overlay:visible').fadeOut(300, function() {
+                    $(this).addClass('hidden');
+                });
+            }
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

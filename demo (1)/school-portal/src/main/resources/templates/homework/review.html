@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-dialog {
+            margin: 2rem auto;
+            max-width: 800px;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .btn-close:hover {
+            color: #374151;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .bg-red-100 { background-color: #fee2e2; }
+        .text-red-800 { color: #991b1b; }
+        .bg-yellow-100 { background-color: #fef3c7; }
+        .text-yellow-800 { color: #92400e; }
+        .bg-green-100 { background-color: #d1fae5; }
+        .text-green-800 { color: #065f46; }
+
+        .bg-blue-50 { background-color: #eff6ff; }
+        .border-blue-200 { border-color: #bfdbfe; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .btn-outline:hover {
+            background-color: #eff6ff;
+        }
+
+        .answer-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            min-height: 150px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+<!-- Заголовок и фильтр класса -->
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+        <h2 class="h5 mb-3 mb-md-0">
+                <span th:if="${viewModel.selectedClassName != null}"
+                      class="text-gray-700">
+                    Текущий класс:
+                    <span class="fw-bold" th:text="${viewModel.selectedClassName}">9 "А"</span>
+                </span>
+        </h2>
+
+        <div class="d-flex align-items-center">
+            <label for="classSelector" class="form-label mb-0 me-2">Сортировка по классу:</label>
+            <select id="classSelector"
+                    class="form-select"
+                    style="min-width: 150px;"
+                    onchange="filterByClass()">
+                <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
+                        th:value="${cls.key}"
+                        th:text="${cls.value}"
+                        th:selected="${cls.key == viewModel.selectedClassId}">
+                </option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Сообщение об ошибке -->
+<div th:if="${viewModel.errorMessage != null}"
+     class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span th:text="${viewModel.errorMessage}">Нет доступных классов</span>
+</div>
+
+<!-- Таблица с заданиями -->
+<div th:if="${viewModel.submissions != null && !viewModel.submissions.isEmpty()}">
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="text-nowrap">ФИО Ученика</th>
+                        <th class="text-nowrap">Предмет | Урок</th>
+                        <th class="text-nowrap">Задание</th>
+                        <th class="text-nowrap">Дата сдачи</th>
+                        <th class="text-nowrap">Статус</th>
+                        <th class="text-nowrap">Просмотр ДЗ</th>
+                        <th class="text-nowrap" style="min-width: 200px;">Комментарий учителя</th>
+                        <th class="text-nowrap" style="min-width: 80px;">Оценка</th>
+                        <th class="text-nowrap" style="min-width: 100px;">Действие</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${viewModel.submissions}"
+                        th:id="'row-' + ${item.homeworkId}">
+                        <td class="align-middle">
+                            <div th:text="${item.studentFullName}">Иванов Алексей</div>
+                            <div class="text-muted small" th:text="${item.className}">9 "А"</div>
+                        </td>
+                        <td class="align-middle">
+                            <div th:text="${item.subjectName}">Математика</div>
+                            <div class="text-muted small">
+                                <span th:text="${item.formattedLessonDate}">01.12</span> |
+                                Урок <span th:text="${item.lessonNumber}">1</span>
+                            </div>
+                        </td>
+                        <td class="align-middle">
+                            <button th:if="${item.currentTeacherComment != null && !item.currentTeacherComment.isEmpty()}"
+                                    th:onclick="'viewAssignmentText(\'' + ${#strings.replace(item.subjectName, '\'', '\\\'')} + '\', \'' + ${#strings.replace(item.currentTeacherComment, '\'', '\\\'').replace('\n', '\\n')} + '\')'"
+                                    class="btn btn-link text-decoration-none p-0 text-start">
+                                <i class="fas fa-book-open me-1"></i>
+                                <span th:text="${item.shortTeacherComment}">Задание...</span>
+                            </button>
+                            <span th:unless="${item.currentTeacherComment != null && !item.currentTeacherComment.isEmpty()}"
+                                  class="text-muted">Не задано</span>
+                        </td>
+                        <td class="align-middle" th:text="${item.formattedSubmissionDate}">01.12.2023 14:30</td>
+                        <td class="align-middle">
+                                    <span th:id="'status-badge-' + ${item.homeworkId}"
+                                          th:class="${item.statusCssClass} + ' status-badge'"
+                                          th:text="${item.reviewStatus}">Сдано</span>
+                        </td>
+                        <td class="align-middle">
+                            <button th:if="${item.studentAnswer != null && !item.studentAnswer.isEmpty()}"
+                                    th:onclick="'viewTextHomework(' + ${item.homeworkId} + ', \'' + ${#strings.replace(item.studentFullName, '\'', '\\\'')} + '\', \'' + ${#strings.replace(item.studentAnswer, '\'', '\\\'').replace('\n', '\\n')} + '\', \'' + (${item.currentGradeValue != null} ? ${item.currentGradeValue} : 'Н/О') + '\')'"
+                                    class="btn btn-outline btn-sm">
+                                <i class="fas fa-file-alt me-1"></i> Текст
+                            </button>
+                        </td>
+                        <td class="align-middle">
+                                    <textarea th:id="'comment-' + ${item.homeworkId}"
+                                              rows="2"
+                                              class="form-textarea w-100"></textarea>
+                            <input type="hidden"
+                                   th:id="'originalcomment-' + ${item.homeworkId}"
+                                   th:value="${item.currentTeacherComment}" />
+                        </td>
+                        <td class="align-middle">
+                            <select th:id="'grade-' + ${item.homeworkId}"
+                                    class="form-select">
+                                <option value=""
+                                        th:selected="${item.currentGradeValue == null}">Н/О</option>
+                                <option th:each="i : ${#numbers.sequence(5, 1, -1)}"
+                                        th:value="${i}"
+                                        th:text="${i}"
+                                        th:selected="${item.currentGradeValue != null && item.currentGradeValue == i}">
+                                </option>
+                            </select>
+                            <input type="hidden"
+                                   th:id="'gradeid-' + ${item.homeworkId}"
+                                   th:value="${item.gradeId}" />
+                        </td>
+                        <td class="align-middle">
+                            <button th:onclick="'saveReview(' + ${item.homeworkId} + ')'"
+                                    class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i> Сохранить
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Сообщение при отсутствии заданий -->
+<div th:if="${viewModel.submissions == null || viewModel.submissions.isEmpty()}"
+     class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">Нет заданий на проверку</h5>
+        <p class="text-muted mb-0" th:if="${viewModel.selectedClassName != null}">
+            для класса <span th:text="${viewModel.selectedClassName}">9 "А"</span>
+        </p>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра ответа ученика -->
+<div id="textModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title" id="textModalTitle">Ответ ученика</h3>
+            <button type="button" class="btn-close" onclick="closeTextModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-4">
+                <label class="form-label fw-bold">Текущая оценка:</label>
+                <p id="modalCurrentGrade" class="h4 text-primary mb-0">Н/О</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Текст ответа:</label>
+                <div class="answer-text">
+                    <p id="modalAnswerText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра задания -->
+<div id="assignmentModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title" id="assignmentModalTitle">Задание с урока</h3>
+            <button type="button" class="btn-close" onclick="closeAssignmentModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Текст задания:</label>
+                <div class="answer-text">
+                    <p id="modalAssignmentText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // CSRF токен
+    const csrfToken = '[[${_csrf.token}]]';
+    const csrfHeader = '[[${_csrf.headerName}]]';
+
+    // Функция для фильтрации по классу
+    function filterByClass() {
+        const selectedClassId = document.getElementById('classSelector').value;
+        if (selectedClassId) {
+            window.location.href = '/homework/review?classId=' + selectedClassId;
+        }
+    }
+
+    // Функция для открытия модального окна с ответом ученика
+    function viewTextHomework(homeworkId, studentName, answerText, currentGrade) {
+        document.getElementById('textModalTitle').textContent = 'Ответ ученика: ' + studentName;
+        document.getElementById('modalCurrentGrade').textContent = currentGrade;
+
+        // Заменяем \\n на реальные переносы строк
+        const formattedText = answerText.replace(/\\n/g, '\n');
+        document.getElementById('modalAnswerText').textContent = formattedText;
+        document.getElementById('textModal').style.display = 'block';
+    }
+
+    // Функция для закрытия модального окна с ответом ученика
+    function closeTextModal() {
+        document.getElementById('textModal').style.display = 'none';
+    }
+
+    // Функция для открытия модального окна с заданием
+    function viewAssignmentText(subjectName, assignmentText) {
+        document.getElementById('assignmentModalTitle').textContent = 'Задание по предмету: ' + subjectName;
+
+        // Заменяем \\n на реальные переносы строк
+        const formattedText = assignmentText.replace(/\\n/g, '\n');
+        document.getElementById('modalAssignmentText').textContent = formattedText;
+        document.getElementById('assignmentModal').style.display = 'block';
+    }
+
+    // Функция для закрытия модального окна с заданием
+    function closeAssignmentModal() {
+        document.getElementById('assignmentModal').style.display = 'none';
+    }
+
+    // Функция для сохранения оценки и комментария
+    async function saveReview(homeworkId) {
+        const gradeElement = document.getElementById('grade-' + homeworkId);
+        const commentElement = document.getElementById('comment-' + homeworkId);
+        const gradeIdElement = document.getElementById('gradeid-' + homeworkId);
+
+        // Преобразуем пустую строку в null
+        const gradeValue = gradeElement.value === "" ? null : parseInt(gradeElement.value);
+        const comment = commentElement.value;
+        const existingGradeId = gradeIdElement.value === "" ? null : parseInt(gradeIdElement.value);
+
+        try {
+            const response = await fetch('/homework/save-review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({
+                    homeworkId: homeworkId,
+                    gradeValue: gradeValue,
+                    comment: comment,
+                    existingGradeId: existingGradeId
+                })
+            });
+
+            const result = await response.json();
+            const row = document.getElementById('row-' + homeworkId);
+
+            if (result.success) {
+                // Обновляем ID оценки если он был создан
+                if (result.newGradeId) {
+                    gradeIdElement.value = result.newGradeId;
+                }
+
+                // Обновляем статус
+                const statusBadge = document.getElementById('status-badge-' + homeworkId);
+                if (statusBadge && statusBadge.textContent !== 'Проверено') {
+                    statusBadge.textContent = 'Проверено';
+                    statusBadge.className = 'status-badge bg-green-100 text-green-800';
+                }
+
+                // Визуальное подтверждение сохранения
+                row.style.transition = 'background-color 0.3s';
+                row.style.backgroundColor = '#d1fae5';
+
+                setTimeout(() => {
+                    row.style.backgroundColor = '';
+                }, 1500);
+
+                // Показываем уведомление об успехе
+                showNotification('Оценка и комментарий успешно сохранены!', 'success');
+            } else {
+                row.style.transition = 'background-color 0.3s';
+                row.style.backgroundColor = '#fee2e2';
+
+                setTimeout(() => {
+                    row.style.backgroundColor = '';
+                }, 1500);
+
+                showNotification('Ошибка: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Ошибка сохранения:', error);
+            showNotification('Произошла ошибка сети или сервера', 'error');
+        }
+    }
+
+    // Функция для показа уведомлений
+    function showNotification(message, type) {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = 'position-fixed top-0 end-0 p-3';
+        notification.style.zIndex = '1060';
+
+        let bgColor = 'bg-primary';
+        if (type === 'success') {
+            bgColor = 'bg-success';
+        } else if (type === 'error') {
+            bgColor = 'bg-danger';
+        }
+
+        notification.innerHTML = `
+            <div class="toast show" role="alert">
+                <div class="toast-header ${bgColor} text-white">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                    <strong class="me-auto">${type === 'success' ? 'Успех' : 'Ошибка'}</strong>
+                    <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Автоматически удаляем уведомление через 3 секунды
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+    }
+
+    // Закрытие модальных окон при клике вне их
+    window.onclick = function(event) {
+        const textModal = document.getElementById('textModal');
+        const assignmentModal = document.getElementById('assignmentModal');
+
+        if (event.target === textModal) {
+            closeTextModal();
+        }
+        if (event.target === assignmentModal) {
+            closeAssignmentModal();
+        }
+    };
+
+    // Закрытие модальных окон по клавише Escape
+    document.onkeydown = function(event) {
+        if (event.key === 'Escape') {
+            closeTextModal();
+            closeAssignmentModal();
+        }
+    };
+    /*]]>*/
+</script>
+</body>
+</html>

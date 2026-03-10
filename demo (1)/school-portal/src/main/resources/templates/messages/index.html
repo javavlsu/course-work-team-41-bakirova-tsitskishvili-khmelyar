@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сообщения</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/messages.css}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+</head>
+<body>
+<div class="messages-page-content">
+    <!-- Сообщения об успехе/ошибке -->
+    <div th:if="${param.success != null}" class="alert-success">
+        <i class="fas fa-check-circle me-2"></i> Операция выполнена успешно
+    </div>
+    <div th:if="${param.error != null}" class="alert-error">
+        <i class="fas fa-exclamation-circle me-2"></i> Произошла ошибка
+    </div>
+
+    <a href="#" id="openNewMessageModal" class="btn-new-message">
+        <i class="fas fa-plus"></i> Новое сообщение
+    </a>
+
+    <div class="message-content-box">
+        <div class="message-tabs-header">
+            <a th:href="@{/messages/index(filter='inbox')}"
+               th:classappend="${filter == 'inbox'} ? 'message-tab active' : 'message-tab'">
+                Входящие
+            </a>
+
+            <a th:href="@{/messages/index(filter='sent')}"
+               th:classappend="${filter == 'sent'} ? 'message-tab active' : 'message-tab'">
+                Отправленные
+            </a>
+
+            <a th:href="@{/messages/index(filter='archive')}"
+               th:classappend="${filter == 'archive'} ? 'message-tab active' : 'message-tab'">
+                Архив
+            </a>
+        </div>
+
+        <div class="message-list-container">
+            <div th:if="${messages == null || messages.isEmpty()}">
+                <p class="empty-list-message">
+                    Нет
+                    <span th:if="${filter == 'inbox'}">входящих</span>
+                    <span th:if="${filter == 'sent'}">отправленных</span>
+                    <span th:if="${filter == 'archive'}">архивированных</span>
+                    сообщений.
+                </p>
+            </div>
+
+            <div th:if="${messages != null && !messages.isEmpty()}">
+                <div class="message-list-header">
+                    <div class="message-header-fio">
+                        <span th:text="${filter == 'inbox' || filter == 'archive'} ? 'Отправитель' : 'Получатель'"></span>
+                    </div>
+                    <div class="message-header-text">Сообщение</div>
+                    <div class="message-header-status">Статус</div>
+                    <div class="message-header-actions">Действия</div>
+                </div>
+
+                <div th:each="message : ${messages}"
+                     th:classappend="${filter == 'inbox' && message.status.name() == 'NEW'} ? 'message-row unread' : 'message-row'">
+
+                    <div class="message-user">
+                        <span th:if="${filter == 'inbox' || filter == 'archive'}"
+                              th:text="${message.fromUser != null ? message.fromUser.fullName : 'Неизвестно'}">
+                        </span>
+                        <span th:unless="${filter == 'inbox' || filter == 'archive'}"
+                              th:text="${message.toUser != null ? message.toUser.fullName : 'Неизвестно'}">
+                        </span>
+                    </div>
+
+                    <div class="message-snippet" th:title="${message.messageText}">
+                        <span th:text="${#strings.abbreviate(message.messageText, 100)}"></span>
+                    </div>
+
+                    <div class="message-status">
+                        <span th:switch="${message.status.name()}">
+                            <span th:case="'NEW'" class="status-new">Новое</span>
+                            <span th:case="'READ'" class="status-read">Прочитано</span>
+                            <span th:case="'ARCHIVED'" class="status-archived">Архив</span>
+                        </span>
+                    </div>
+
+                    <div class="message-actions">
+                        <!-- Для входящих сообщений -->
+                        <div th:if="${filter == 'inbox'}">
+                            <!-- Кнопка Ответить -->
+                            <button type="button" class="btn-action btn-reply"
+                                    th:data-user-id="${message.fromUser != null ? message.fromUser.userId : 0}"
+                                    th:data-user-name="${message.fromUser != null ? message.fromUser.fullName : 'Неизвестно'}">
+                                Ответить
+                            </button>
+
+                            <!-- Кнопка Прочитано (только для новых) -->
+                            <form th:if="${message.status.name() == 'NEW'}"
+                                  th:action="@{/messages/mark-as-read}"
+                                  method="post" class="inline-form-action">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="id" th:value="${message.messageId}" />
+                                <button type="submit" class="btn-action btn-read">Прочитано</button>
+                            </form>
+
+                            <!-- Кнопка Архивировать (только для прочитанных) -->
+                            <form th:if="${message.status.name() == 'READ'}"
+                                  th:action="@{/messages/archive}"
+                                  method="post" class="inline-form-action">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="id" th:value="${message.messageId}" />
+                                <button type="submit" class="btn-action btn-archive">Архивировать</button>
+                            </form>
+                        </div>
+
+                        <!-- Для отправленных сообщений -->
+                        <div th:if="${filter == 'sent'}">
+                            <!-- Кнопка Удалить (только для новых) -->
+                            <form th:if="${message.status.name() == 'NEW'}"
+                                  th:action="@{/messages/delete}"
+                                  method="post" class="inline-form-action">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="id" th:value="${message.messageId}" />
+                                <button type="submit" class="btn-action btn-delete"
+                                        onclick="return confirm('Вы уверены, что хотите удалить это сообщение?');">
+                                    Удалить
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Для архива -->
+                        <div th:if="${filter == 'archive'}">
+                            <!-- Кнопка Восстановить -->
+                            <form th:action="@{/messages/restore}"
+                                  method="post" class="inline-form-action">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="id" th:value="${message.messageId}" />
+                                <button type="submit" class="btn-action btn-restore">Восстановить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно нового сообщения -->
+<div id="newMessageModal" class="message-modal-overlay">
+    <div class="message-modal-content">
+        <div class="message-modal-header">
+            Новое сообщение
+        </div>
+
+        <form id="messageForm" method="post" th:action="@{/messages/create}" class="message-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="recipientId" id="hiddenToUserId" required />
+
+            <select id="recipientRole" class="form-input-field recipient-input" required>
+                <option value="" disabled selected>Выберите роль получателя</option>
+                <option th:each="role : ${recipientRoles}"
+                        th:value="${role}"
+                        th:text="${role}">
+                </option>
+            </select>
+
+            <input type="text" id="recipientSearch" name="recipientName"
+                   class="form-input-field recipient-input"
+                   placeholder="ФИО (начните вводить после выбора роли)"
+                   disabled required>
+            <div id="recipientValidationMessage" class="validation-message"></div>
+
+            <textarea id="messageText" name="body"
+                      class="form-textarea-field"
+                      placeholder="Текст сообщения"
+                      rows="6" required></textarea>
+
+            <div class="message-modal-actions">
+                <button type="button" id="closeNewMessageModal" class="btn btn-secondary-text">Отмена</button>
+                <button type="submit" id="sendMessageButton" class="btn btn-primary-blue" disabled>Отправить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Подключение jQuery и jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Инициализация элементов
+        const modal = $('#newMessageModal');
+        const openNewMsgBtn = $('#openNewMessageModal');
+        const closeBtn = $('#closeNewMessageModal');
+        const replyButtons = $('.btn-reply');
+
+        const roleSelect = $('#recipientRole');
+        const searchInput = $('#recipientSearch');
+        const validationMsg = $('#recipientValidationMessage');
+        const sendButton = $('#sendMessageButton');
+        const hiddenToUserId = $('#hiddenToUserId');
+        const messageTextarea = $('#messageText');
+        const messageForm = $('#messageForm');
+
+        // --- Вспомогательные функции ---
+        function prepareModal(isReply = false, userId = '', userName = '') {
+            messageForm[0].reset();
+            validationMsg.text('');
+            validationMsg.removeClass('text-green-500 text-red-500 text-gray-500');
+            messageTextarea.val('');
+
+            // Сброс полей роли и поиска
+            roleSelect.val('');
+            searchInput.val('');
+            searchInput.prop('disabled', true);
+
+            // Уничтожаем Autocomplete
+            if (searchInput.autocomplete('instance')) {
+                searchInput.autocomplete('destroy');
+            }
+
+            if (isReply) {
+                // Режим "Ответить":
+                searchInput.val(userName);
+                hiddenToUserId.val(userId);
+                searchInput.prop('readonly', true);
+                roleSelect.prop('disabled', true);
+                searchInput.prop('disabled', false);
+
+                validationMsg.text('Ответ пользователю: ' + userName);
+                validationMsg.addClass('text-green-500');
+                sendButton.prop('disabled', messageTextarea.val().trim().length === 0);
+            } else {
+                // Режим "Новое сообщение":
+                hiddenToUserId.val('');
+                searchInput.prop('readonly', false);
+                roleSelect.prop('disabled', false);
+                sendButton.prop('disabled', true);
+            }
+            modal.show();
+        }
+
+        function checkFormValidity() {
+            const hasRecipient = hiddenToUserId.val() !== '';
+            const hasText = messageTextarea.val().trim().length > 0;
+            sendButton.prop('disabled', !(hasRecipient && hasText));
+        }
+
+        // --- Логика Autocomplete ---
+        function initAutocomplete() {
+            searchInput.autocomplete({
+                source: function(request, response) {
+                    const role = roleSelect.val();
+                    const term = request.term;
+
+                    // Если роль не выбрана
+                    if (!role) {
+                        validationMsg.text('Сначала выберите роль получателя.');
+                        validationMsg.addClass('text-gray-500');
+                        return response([]);
+                    }
+
+                    // Если поле пустое
+                    if (term.length < 1) {
+                        validationMsg.text('Начните вводить ФИО получателя.');
+                        validationMsg.addClass('text-gray-500');
+                        return response([]);
+                    }
+
+                    // Показываем индикатор поиска
+                    validationMsg.text('Поиск...');
+                    validationMsg.addClass('text-gray-500');
+                    hiddenToUserId.val('');
+                    checkFormValidity();
+
+                    // AJAX-запрос к контроллеру
+                    $.ajax({
+                        url: '/messages/search-user',
+                        dataType: "json",
+                        data: {
+                            fullName: term,
+                            role: role
+                        },
+                        success: function(data) {
+                            if (data && data.length > 0) {
+                                validationMsg.text('Выберите получателя из списка.');
+                                validationMsg.addClass('text-gray-500');
+                                response($.map(data, function(item) {
+                                    return {
+                                        label: item.fullName + ' (' + role + ')',
+                                        value: item.fullName,
+                                        userId: item.userId
+                                    };
+                                }));
+                            } else {
+                                validationMsg.text('Пользователи не найдены среди ' + role + '.');
+                                validationMsg.addClass('text-red-500');
+                                response([]);
+                            }
+                        },
+                        error: function() {
+                            validationMsg.text('Произошла ошибка сети/сервера.');
+                            validationMsg.addClass('text-red-500');
+                            response([]);
+                        }
+                    });
+                },
+                minLength: 1,
+                select: function(event, ui) {
+                    // Обработка выбора элемента
+                    hiddenToUserId.val(ui.item.userId);
+                    searchInput.val(ui.item.value);
+                    validationMsg.text('Получатель найден: ' + ui.item.value);
+                    validationMsg.removeClass('text-red-500 text-gray-500').addClass('text-green-500');
+                    checkFormValidity();
+                    return false;
+                }
+            });
+        }
+
+        // --- Обработчики событий ---
+        // При изменении роли
+        roleSelect.on('change', function() {
+            searchInput.val('');
+            hiddenToUserId.val('');
+            searchInput.prop('disabled', false);
+            searchInput.prop('readonly', false);
+            validationMsg.text('Введите ФИО...');
+            validationMsg.removeClass('text-green-500 text-red-500').addClass('text-gray-500');
+            checkFormValidity();
+
+            initAutocomplete();
+            searchInput.focus();
+        });
+
+        // Сброс ID при ручном вводе
+        searchInput.on('input', function() {
+            if (!$(this).prop('readonly')) {
+                hiddenToUserId.val('');
+                checkFormValidity();
+            }
+        });
+
+        // Остальные обработчики
+        openNewMsgBtn.on('click', function(e) {
+            e.preventDefault();
+            prepareModal(false);
+        });
+
+        closeBtn.on('click', function(e) {
+            e.preventDefault();
+            modal.hide();
+        });
+
+        $(window).on('click', function(event) {
+            if ($(event.target).is(modal)) {
+                modal.hide();
+            }
+        });
+
+        messageTextarea.on('input', checkFormValidity);
+
+        replyButtons.on('click', function(e) {
+            e.preventDefault();
+            const userId = $(this).data('user-id');
+            const userName = $(this).data('user-name');
+            prepareModal(true, userId, userName);
+            messageTextarea.focus();
+        });
+
+        // Закрытие по ESC
+        $(document).on('keydown', function(event) {
+            if (event.key === 'Escape' && modal.is(':visible')) {
+                modal.hide();
+            }
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
