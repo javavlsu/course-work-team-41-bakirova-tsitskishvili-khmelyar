@@ -156,44 +156,7 @@
         }
 
         if (form) {
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault();
 
-                const formData = new FormData(form);
-                const actionUrl = form.getAttribute('action');
-                const submitButton = form.querySelector('button[type="submit"]');
-                const originalText = submitButton.textContent;
-
-                submitButton.textContent = 'Публикуется...';
-                submitButton.disabled = true;
-
-                try {
-                    const response = await fetch(actionUrl, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            alert(result.message || 'Объявление успешно опубликовано');
-                            hideModal();
-                            form.reset();
-                            window.location.reload();
-                        } else {
-                            alert('Ошибка: ' + (result.message || 'Не удалось опубликовать объявление'));
-                        }
-                    } else {
-                        alert('Ошибка сервера: ' + response.status);
-                    }
-                } catch (error) {
-                    console.error('Ошибка AJAX:', error);
-                    alert('Ошибка сети или сервера.');
-                } finally {
-                    submitButton.textContent = originalText;
-                    submitButton.disabled = false;
-                }
-            });
         }
     });
 </script>
