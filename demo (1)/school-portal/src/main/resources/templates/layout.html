@@ -21,10 +21,10 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Боковое меню -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
-                    <div class="sidebar-heading p-3">
-                        <h3 class="text-primary fw-bold">ШкЭД</h3>
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar" style="max-width: 250px">
+                <div class="position-sticky">
+                    <div class="sidebar-heading">
+                        <h3 class="text-primary fw-bold" style="color: #3b90d3 !important">ШкЭД</h3>
                         <small class="text-muted">Школьный портал</small>
                     </div>
 
@@ -79,6 +79,15 @@
                             </a>
                         </li>
 
+                        <!-- Магазин (видят все, покупают ученики) -->
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/merch}"
+                               th:classappend="${activePage == 'merch'} ? 'active'">
+                                <i class="fas fa-store me-2"></i>
+                                <span>Магазин мерча</span>
+                            </a>
+                        </li>
+
                         <!-- Для учителей и директоров -->
                         <li class="nav-item" sec:authorize="hasAnyRole('DIRECTOR', 'TEACHER')">
                             <a class="nav-link" th:href="@{/users/index}"
@@ -112,18 +121,25 @@
 
             <!-- Основной контент -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                     <h1 class="h2" th:text="${title}">Заголовок</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="text-muted">
+                        <div class="text-muted" style="text-align: right">
                             Приветствуем,
-                            <strong sec:authentication="name">Пользователь</strong>!
-                            Вы вошли как
+                            <!-- Выводим метод getFullName() из класса User -->
+                            <strong th:text="${currentUser.fullName}">Пользователь</strong>!
+                            Вы вошли в систему как
                             <strong>
-                                    <span sec:authentication="principal.authorities">
-                                        [ROLE_TEACHER]
-                                    </span>
+                                <!-- Переводим системные роли на русский язык -->
+                                <span th:if="${currentUser.role.roleName == 'DIRECTOR'}">директор</span>
+                                <span th:if="${currentUser.role.roleName == 'TEACHER'}">учитель</span>
+                                <span th:if="${currentUser.role.roleName == 'STUDENT'}">ученик</span>
+                                <span th:if="${currentUser.role.roleName == 'PARENT'}">родитель</span>
                             </strong>
+                            <span th:if="${currentUser.role.roleName == 'STUDENT'}">
+                                <br>
+                                <strong>Баланс монет:</strong> <span th:text="${currentUser.coins}"></span>
+                            </span>
                         </div>
                     </div>
                 </div>

@@ -22,7 +22,8 @@ public class DataInitializer {
             StudentClassRepository studentClassRepository,
             GradeRepository gradeRepository,
             ScheduleRepository scheduleRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            MerchItemRepository merchItemRepository) {
         return args -> {
             System.out.println("=== НАЧАЛО ИНИЦИАЛИЗАЦИИ ДАННЫХ ===");
 
@@ -128,7 +129,7 @@ public class DataInitializer {
                 parent1.setMiddleName("Александрович");
                 parent1.setRole(parentRole);
                 parent1.setBirthDate(LocalDate.of(1982, 11, 5));
-                parent1.setEmail("parent1@mail.ru");
+                parent1.setEmail("parent1@school.ru");
                 parent1.setPhone("+79995554433");
                 parent1.setInfo("Председатель родительского комитета");
                 parent1.setCoins(0);
@@ -187,6 +188,33 @@ public class DataInitializer {
                 studentClassRepository.save(sc2);
 
                 System.out.println("Ученики привязаны к классам");
+            }
+
+            // Создание товаров (только если их нет)
+            if (merchItemRepository.count() == 0) {
+                System.out.println("Создание товаров в магазине мерча...");
+
+                MerchItem pen = new MerchItem();
+                pen.setName("Фирменная ручка");
+                pen.setText("Стильная синяя шариковая ручка. Приносит удачу на контрольных!");
+                pen.setPrice(50);
+                merchItemRepository.save(pen);
+
+                MerchItem notebook = new MerchItem();
+                notebook.setName("Блокнот");
+                notebook.setText("Блокнот формата А6 для черновиков, коротких записей и прочего.");
+                notebook.setPrice(150);
+                notebook.setImageUrl("/img/notebook.jpg");
+                merchItemRepository.save(notebook);
+
+                MerchItem hoodie = new MerchItem();
+                hoodie.setName("Худи");
+                hoodie.setText("Теплое и уютное худи для прохладного времени года.");
+                hoodie.setPrice(1000);
+                hoodie.setImageUrl("/img/hoodie.jpg");
+                merchItemRepository.save(hoodie);
+
+                System.out.println("Товары для магазина мерча добавлены");
             }
 
             System.out.println("=== ИНИЦИАЛИЗАЦИЯ ДАННЫХ ЗАВЕРШЕНА ===");

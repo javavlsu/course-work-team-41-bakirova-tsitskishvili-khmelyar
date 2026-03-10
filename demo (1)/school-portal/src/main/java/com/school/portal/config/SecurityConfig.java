@@ -23,6 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/homework/**").hasAnyRole("TEACHER", "DIRECTOR")
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/error").permitAll()
@@ -33,6 +34,15 @@ public class SecurityConfig {
                         .requestMatchers("/grades/**").authenticated()
                         .requestMatchers("/users/**").hasAnyRole("DIRECTOR", "TEACHER")
                         .anyRequest().authenticated()
+                )
+                // Отключаем CSRF-защиту ТОЛЬКО для консоли БД
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**")
+                )
+
+                // Разрешаем отображение HTML-фреймов для консоли БД
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

@@ -263,7 +263,10 @@
 
             <div class="field-item">
                 <span>Роль:</span>
-                <p th:text="${viewModel.roleName}">Учитель</p>
+                <p th:if="${viewModel.roleName == 'DIRECTOR'}">Директор</p>
+                <p th:if="${viewModel.roleName == 'TEACHER'}">Учитель</p>
+                <p th:if="${viewModel.roleName == 'STUDENT'}">Ученик</p>
+                <p th:if="${viewModel.roleName == 'PARENT'}">Родитель</p>
             </div>
 
             <div class="field-item">
@@ -298,14 +301,14 @@
             <!-- Динамические поля -->
             <div th:if="${viewModel.classInfo != null && !viewModel.classInfo.isEmpty()}"
                  class="field-item">
-                <span th:text="${viewModel.roleName == 'Учитель'} ? 'Классное руководство:' : 'Класс ученика:'">
+                <span th:text="${viewModel.roleName == 'TEACHER'} ? 'Классное руководство:' : 'Класс ученика:'">
                     Классное руководство
                 </span>
                 <p th:text="${viewModel.classInfo}">9 "А"</p>
             </div>
 
             <div th:if="${homeroomTeacher != null && !homeroomTeacher.isEmpty() &&
-                         (viewModel.roleName == 'Ученик' || viewModel.roleName == 'Родитель')}"
+                         (viewModel.roleName == 'STUDENT' || viewModel.roleName == 'PARENT')}"
                  class="field-item">
                 <span>Классный руководитель:</span>
                 <p th:text="${homeroomTeacher}">Иванов Алексей Петрович</p>
@@ -315,6 +318,12 @@
                  class="field-item">
                 <span>Привязанный ученик:</span>
                 <p th:text="${viewModel.studentInfo}">Сидоров Дмитрий Иванович</p>
+            </div>
+
+            <div th:if="${viewModel.roleName == 'STUDENT'}"
+                 class="field-item">
+                <span>Баланс монет:</span>
+                <p th:text="${viewModel.coins}">123</p>
             </div>
 
             <!-- Дополнительная информация -->

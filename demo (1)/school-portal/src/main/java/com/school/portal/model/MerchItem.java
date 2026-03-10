@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "MerchantItem")
+@Table(name = "MerchItem")
 public class MerchItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MerchantId")
-    private Integer merchantId;
+    @Column(name = "MerchId")
+    private Integer merchId;
 
     @Column(name = "Name", nullable = false, length = 100)
     private String name;
@@ -27,8 +27,8 @@ public class MerchItem {
     @OneToMany(mappedBy = "merchItem")
     private Set<MerchRequest> merchRequests;
 
-    public Integer getMerchantId() { return merchantId; }
-    public void setMerchantId(Integer merchantId) { this.merchantId = merchantId; }
+    public Integer getMerchId() { return merchId; }
+    public void setMerchId(Integer merchId) { this.merchId = merchId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
