@@ -54,13 +54,13 @@ public class MessagesController {
         }
 
         // Получаем все роли для формы
-        List<String> roles = roleRepository.findAll().stream()
+        List<String> role = roleRepository.findAll().stream()
                 .map(Role::getRoleName)
                 .collect(Collectors.toList());
 
         model.addAttribute("messages", messages);
         model.addAttribute("filter", filter);
-        model.addAttribute("recipientRoles", roles);
+        model.addAttribute("recipientRoles", role);
         model.addAttribute("title", "Сообщения");
         model.addAttribute("activePage", "messages");
         model.addAttribute("content", "messages/index");

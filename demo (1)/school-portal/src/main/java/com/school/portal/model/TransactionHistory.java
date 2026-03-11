@@ -30,10 +30,6 @@ public class TransactionHistory {
     private MerchRequest merchRequest;
 
     @OneToOne
-    @JoinColumn(name = "LessonId")
-    private Schedule lesson;
-
-    @OneToOne
     @JoinColumn(name = "GradeId")
     private Grade grade;
 
@@ -59,9 +55,6 @@ public class TransactionHistory {
 
     public MerchRequest getMerchRequest() { return merchRequest; }
     public void setMerchRequest(MerchRequest merchRequest) { this.merchRequest = merchRequest; }
-
-    public Schedule getLesson() { return lesson; }
-    public void setLesson(Schedule lesson) { this.lesson = lesson; }
 
     public Grade getGrade() { return grade; }
     public void setGrade(Grade grade) { this.grade = grade; }
