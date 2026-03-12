@@ -23,26 +23,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/homework/**").hasAnyRole("TEACHER", "DIRECTOR")
+                        .requestMatchers("/homework/**").hasAnyRole("TEACHER", "DIRECTOR", "ADMIN")
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/error").permitAll()
-                        .requestMatchers("/journal/**").hasAnyRole("TEACHER", "DIRECTOR")
+                        .requestMatchers("/journal/**").hasAnyRole("TEACHER", "DIRECTOR", "ADMIN")
                         .requestMatchers("/messages/**").authenticated()
                         .requestMatchers("/profile/**").authenticated()
                         .requestMatchers("/schedule/**").authenticated()
                         .requestMatchers("/grades/**").authenticated()
-                        .requestMatchers("/users/**").hasAnyRole("DIRECTOR", "TEACHER")
+                        .requestMatchers("/users/**").hasAnyRole("DIRECTOR", "TEACHER", "ADMIN")
                         .anyRequest().authenticated()
-                )
-                // Отключаем CSRF-защиту ТОЛЬКО для консоли БД
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
-                )
-
-                // Разрешаем отображение HTML-фреймов для консоли БД
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -65,8 +55,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        return new BCryptPasswordEncoder();}
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
