@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.school.portal.model.enums.MessageStatus;
 
 @Service
 public class MessageService {
@@ -22,8 +23,8 @@ public class MessageService {
         return messageRepository.findSentMessages(userId);
     }
 
-    public List<Message> getArchivedMessages(Integer userId) {
-        return messageRepository.findArchivedMessages(userId);
+    public List<Message> getElectMessages(Integer userId) {
+        return messageRepository.findElectMessages(userId);
     }
 
     public Long getUnreadCount(Integer userId) {
@@ -33,7 +34,7 @@ public class MessageService {
     @Transactional
     public Message sendMessage(Message message) {
         message.setSentAt(LocalDateTime.now());
-        message.setStatus(0); // Новое
+        message.setStatus(MessageStatus.NEW); // Новое
         return messageRepository.save(message);
     }
 
@@ -41,15 +42,15 @@ public class MessageService {
     public void markAsRead(Integer messageId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Message not found"));
-        message.setStatus(1); // Прочитано
+        message.setStatus(MessageStatus.READ); // Прочитано
         messageRepository.save(message);
     }
 
     @Transactional
-    public void archiveMessage(Integer messageId) {
+    public void electMessage(Integer messageId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Message not found"));
-        message.setStatus(2); // В архиве
+        message.setStatus(MessageStatus.ELECT); // В избранное
         messageRepository.save(message);
     }
 
@@ -57,7 +58,7 @@ public class MessageService {
     public void restoreMessage(Integer messageId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Message not found"));
-        message.setStatus(1); // Прочитано
+        message.setStatus(MessageStatus.READ); // Прочитано
         messageRepository.save(message);
     }
 

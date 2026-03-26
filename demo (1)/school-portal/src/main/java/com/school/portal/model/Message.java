@@ -2,6 +2,7 @@ package com.school.portal.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.school.portal.model.enums.MessageStatus;
 
 @Entity
 @Table(name = "message")
@@ -15,7 +16,6 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FromUserId", nullable = false)
     private User fromUser;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ToUserId", nullable = false)
     private User toUser;
@@ -26,13 +26,14 @@ public class Message {
     @Column(name = "SentAt", nullable = false)
     private LocalDateTime sentAt;
 
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "Status", nullable = false)
-    private Integer status;
+    private MessageStatus status;
 
     @PrePersist
     protected void onCreate() {
         sentAt = LocalDateTime.now();
-        if (status == null) status = 0;
+        if (status == null) status = MessageStatus.NEW;
     }
 
     public Integer getMessageId() { return messageId; }
@@ -50,8 +51,8 @@ public class Message {
     public LocalDateTime getSentAt() { return sentAt; }
     public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
 
-    public Integer getStatus() { return status; }
-    public void setStatus(Integer status) { this.status = status; }
+    public MessageStatus getStatus() { return status; }
+    public void setStatus(MessageStatus status) { this.status = status; }
 
     public String getFormattedSentAt() {
         if (sentAt != null) {

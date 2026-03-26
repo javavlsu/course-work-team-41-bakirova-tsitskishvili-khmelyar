@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.school.portal.model.enums.MessageStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,7 +136,7 @@ public class ProfileController {
             message.setToUser(director);
             message.setMessageText(body.trim());
             message.setSentAt(java.time.LocalDateTime.now());
-            message.setStatus(0); // NEW
+            message.setStatus(MessageStatus.NEW); // NEW
 
             messageRepository.save(message);
 

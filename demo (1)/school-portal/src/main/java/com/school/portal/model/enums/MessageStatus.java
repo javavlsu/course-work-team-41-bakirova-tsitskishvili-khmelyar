@@ -3,7 +3,7 @@ package com.school.portal.model.enums;
 public enum MessageStatus {
     NEW(0, "Новое"),
     READ(1, "Прочитано"),
-    ARCHIVED(2, "Архив");
+    ELECT(2, "Избранное");
 
     private final int code;
     private final String displayName;

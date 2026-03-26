@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.school.portal.model.enums.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,8 +47,8 @@ public class MessagesController {
             case "sent":
                 messages = messageRepository.findSentMessages(currentUser.getUserId());
                 break;
-            case "archive":
-                messages = messageRepository.findArchivedMessages(currentUser.getUserId());
+            case "elect":
+                messages = messageRepository.findElectMessages(currentUser.getUserId());
                 break;
             default:
                 messages = messageRepository.findInboxMessages(currentUser.getUserId());
@@ -72,49 +73,59 @@ public class MessagesController {
     @ResponseBody
     public List<Map<String, Object>> searchUser(
             @RequestParam String fullName,
-            @RequestParam String role) {
+            @RequestParam(required = false) String role) {
 
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        List<User> users = userRepository.findByRole_RoleName(role);
-
-        String searchLower = fullName.toLowerCase().trim();
-
-        List<User> filteredUsers = users.stream()
-                .filter(u -> u.getFullName().toLowerCase().contains(searchLower))
-                .limit(10)
-                .collect(Collectors.toList());
-
-        for (User user : filteredUsers) {
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userId", user.getUserId());
-            userMap.put("fullName", user.getFullName());
-            result.add(userMap);
+        List<User> users;
+        // Если роль пришла как пустая строка или null - ищем по всем
+        if (role == null || role.trim().isEmpty()) {
+            users = userRepository.findAll();
+        } else {
+            users = userRepository.findByRole_RoleName(role);
         }
 
-        return result;
+        String searchLower = fullName.toLowerCase().trim();
+        return users.stream()
+                .filter(u -> u.getFullName().toLowerCase().contains(searchLower))
+                .limit(10)
+                .map(user -> {
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("userId", user.getUserId());
+                    userMap.put("fullName", user.getFullName());
+                    return userMap;
+                })
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/create")
-    public String createMessage(@ModelAttribute SendMessageViewModel model) {
+    public String createMessage(@ModelAttribute SendMessageViewModel model,
+                                @RequestParam(required = false) Integer parentMessageId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-
             User fromUser = userRepository.findByLogin(username)
                     .orElseThrow(() -> new RuntimeException("Отправитель не найден"));
 
             User toUser = userRepository.findById(model.getRecipientId())
                     .orElseThrow(() -> new RuntimeException("Получатель не найден"));
 
-            Message message = new Message();
-            message.setFromUser(fromUser);
-            message.setToUser(toUser);
-            message.setMessageText(model.getBody());
-            message.setSentAt(LocalDateTime.now());
-            message.setStatus(0); // NEW
+            // 1. Создаем и сохраняем новое сообщение
+            Message newMessage = new Message();
+            newMessage.setFromUser(fromUser);
+            newMessage.setToUser(toUser);
+            newMessage.setMessageText(model.getBody());
+            newMessage.setStatus(com.school.portal.model.enums.MessageStatus.NEW); // Используем Enum
+            messageRepository.save(newMessage);
 
-            messageRepository.save(message);
+            // 2. Если это ответ, помечаем исходное сообщение как прочитанное
+            if (parentMessageId != null) {
+                messageRepository.findById(parentMessageId).ifPresent(oldMsg -> {
+                    // Если оно еще "Новое", делаем "Прочитанным"
+                    if (oldMsg.getStatus() == com.school.portal.model.enums.MessageStatus.NEW) {
+                        oldMsg.setStatus(com.school.portal.model.enums.MessageStatus.READ);
+                        messageRepository.save(oldMsg);
+                    }
+                });
+            }
 
             return "redirect:/messages/index?filter=sent&success=true";
         } catch (Exception e) {
@@ -126,7 +137,7 @@ public class MessagesController {
     public String markAsRead(@RequestParam int id) {
         try {
             messageRepository.findById(id).ifPresent(message -> {
-                message.setStatus(1); // READ
+                message.setStatus(MessageStatus.READ); // READ
                 messageRepository.save(message);
             });
         } catch (Exception e) {
@@ -135,11 +146,11 @@ public class MessagesController {
         return "redirect:/messages/index?filter=inbox";
     }
 
-    @PostMapping("/archive")
-    public String archiveMessage(@RequestParam int id) {
+    @PostMapping("/elect")
+    public String electMessage(@RequestParam int id) {
         try {
             messageRepository.findById(id).ifPresent(message -> {
-                message.setStatus(2); // ARCHIVED
+                message.setStatus(MessageStatus.ELECT); // ELECT
                 messageRepository.save(message);
             });
         } catch (Exception e) {
@@ -152,13 +163,13 @@ public class MessagesController {
     public String restoreMessage(@RequestParam int id) {
         try {
             messageRepository.findById(id).ifPresent(message -> {
-                message.setStatus(1); // READ
+                message.setStatus(MessageStatus.READ); // READ
                 messageRepository.save(message);
             });
         } catch (Exception e) {
             // ignore
         }
-        return "redirect:/messages/index?filter=archive";
+        return "redirect:/messages/index?filter=elect";
     }
 
     @PostMapping("/delete")

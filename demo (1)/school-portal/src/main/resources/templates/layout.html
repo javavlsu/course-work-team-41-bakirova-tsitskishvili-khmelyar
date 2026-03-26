@@ -135,6 +135,7 @@
                                 <span th:if="${currentUser.role.roleName == 'TEACHER'}">учитель</span>
                                 <span th:if="${currentUser.role.roleName == 'STUDENT'}">ученик</span>
                                 <span th:if="${currentUser.role.roleName == 'PARENT'}">родитель</span>
+                                <span th:if="${currentUser.role.roleName == 'ADMIN'}">администратор</span>
                             </strong>
                             <span th:if="${currentUser.role.roleName == 'STUDENT'}">
                                 <br>
@@ -164,65 +165,95 @@
 <!-- Наши скрипты -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // Функции для модального окна
-    window.showModal = function() {
-        const modal = document.getElementById('announcementModal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
-    };
+        // Универсальные функции управления окнами
+        window.showModal = function() {
+            const modal = document.getElementById('announcementModal');
+            if (modal) modal.style.display = 'flex';
+        };
 
-    window.hideModal = function() {
-        const modal = document.getElementById('announcementModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    };
+        window.hideModal = function() {
+            const modal = document.getElementById('announcementModal');
+            if (modal) modal.style.display = 'none';
+        };
 
-    // Закрытие по клику вне окна
-    document.addEventListener('click', function(event) {
-        const modal = document.getElementById('announcementModal');
-        if (event.target === modal) {
-            window.hideModal();
-        }
-    });
+        // Функция для КРАСИВОГО уведомления
+        window.showStatus = function(title, message, isSuccess) {
+            const sModal = document.getElementById('statusModal');
+            const sTitle = document.getElementById('statusTitle');
+            const sMsg = document.getElementById('statusMessage');
+            const sBtn = document.getElementById('closeStatusModal');
 
-    // Обработка отправки формы объявления
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('announcementForm');
-        if (form) {
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault();
+            if (!sModal) return; // Если окна нет на странице, ничего не делаем
 
-                const submitButton = form.querySelector('button[type="submit"]');
-                const originalText = submitButton.innerHTML;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Публикуется...';
-                submitButton.disabled = true;
+            sTitle.textContent = title;
+            sMsg.textContent = message;
+            sTitle.style.color = isSuccess ? '#1e40af' : '#dc3545';
+            sModal.style.display = 'flex';
 
-                try {
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        body: new FormData(form)
-                    });
+            sBtn.onclick = function() {
+                sModal.style.display = 'none';
+                if (isSuccess) window.location.reload();
+            };
+        };
 
-                    if (response.ok) {
-                        alert('Объявление успешно опубликовано!');
-                        window.hideModal();
-                        form.reset();
-                        window.location.reload();
-                    } else {
-                        alert('Ошибка при публикации объявления');
+        // Закрытие по клику вне окна (для обоих окон)
+        document.addEventListener('click', function(event) {
+            const annModal = document.getElementById('announcementModal');
+            const statModal = document.getElementById('statusModal');
+            if (event.target === annModal) window.hideModal();
+            if (event.target === statModal) statModal.style.display = 'none';
+        });
+
+        // Обработка отправки (ЕДИНСТВЕННЫЙ обработчик здесь)
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('announcementForm');
+            if (form) {
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const originalText = submitButton.innerHTML;
+
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Публикуется...';
+                    submitButton.disabled = true;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: new FormData(form)
+                        });
+
+                        // ПРОВЕРКА: Если статус 200-299, значит в БД всё записалось!
+                        if (response.ok) {
+                            window.hideModal();
+                            form.reset();
+
+                            // Пытаемся прочитать сообщение от сервера, если оно есть
+                            let message = 'Объявление успешно опубликовано';
+                            try {
+                                const result = await response.json();
+                                if (result.message) message = result.message;
+                            } catch (e) {
+                                // Если сервер прислал не JSON, просто игнорируем и оставляем стандартный текст
+                            }
+
+                            // Показываем наше голубое окно успеха
+                            window.showStatus('Публикация!', message, true);
+                        } else {
+                            window.showStatus('Ошибка', 'Сервер вернул ошибку: ' + response.status, false);
+                        }
+                    } catch (error) {
+                        // Если мы попали сюда, значит была ошибка в самом коде JS или сети
+                        console.error('Ошибка исполнения:', error);
+                        // На всякий случай проверяем: если запись все же дошла, не пугаем пользователя
+                        window.showStatus('Внимание', 'Запрос отправлен, проверьте список объявлений.', true);
+                    } finally {
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
                     }
-                } catch (error) {
-                    console.error('Ошибка:', error);
-                    alert('Ошибка сети');
-                } finally {
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
-                }
-            });
-        }
-    });
+                });
+            }
+        });
     /*]]>*/
 </script>
 </body>

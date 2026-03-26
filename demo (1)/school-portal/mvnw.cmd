@@ -147,7 +147,7 @@ if ($distributionSha256Sum) {
 }
 
 # unzip and move
-Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+Expand-Elect "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
 
 # Find the actual extracted directory name (handles snapshots where filename != directory name)
 $actualDistributionDir = ""
@@ -170,7 +170,7 @@ if (!$actualDistributionDir) {
 }
 
 if (!$actualDistributionDir) {
-  Write-Error "Could not find Maven distribution directory in extracted archive"
+  Write-Error "Could not find Maven distribution directory in extracted elect"
 }
 
 Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
