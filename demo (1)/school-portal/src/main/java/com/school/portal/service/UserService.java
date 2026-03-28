@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -48,8 +49,7 @@ public class UserService {
     }
 
     public String generateLogin(String firstName, String lastName) {
-        String baseLogin = (firstName != null && !firstName.isEmpty() ?
-                firstName.toLowerCase().charAt(0) : "") +
+        String baseLogin = (firstName != null && !firstName.isEmpty() ? firstName.toLowerCase().charAt(0) : "") +
                 (lastName != null ? lastName.toLowerCase() : "");
 
         String login = baseLogin;

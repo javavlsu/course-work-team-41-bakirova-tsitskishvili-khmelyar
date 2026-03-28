@@ -22,6 +22,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/homework/**").hasAnyRole("TEACHER", "DIRECTOR", "ADMIN")
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
@@ -48,6 +49,7 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
+
                 .authenticationProvider(authenticationProvider());
 
         return http.build();

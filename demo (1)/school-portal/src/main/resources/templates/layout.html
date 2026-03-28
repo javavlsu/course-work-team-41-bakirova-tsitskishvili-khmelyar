@@ -38,7 +38,7 @@
                         </li>
 
                         <!-- Для учителей и директоров -->
-                        <li class="nav-item" sec:authorize="hasAnyRole('TEACHER', 'DIRECTOR')">
+                        <li class="nav-item" sec:authorize="hasAnyRole('TEACHER', 'DIRECTOR', 'ADMIN')">
                             <a class="nav-link" th:href="@{/journal/index}"
                                th:classappend="${activePage == 'journal'} ? 'active' : ''">
                                 <i class="fas fa-book me-2"></i>
@@ -89,7 +89,7 @@
                         </li>
 
                         <!-- Для учителей и директоров -->
-                        <li class="nav-item" sec:authorize="hasAnyRole('DIRECTOR', 'TEACHER')">
+                        <li class="nav-item" sec:authorize="hasAnyRole('DIRECTOR', 'TEACHER', 'ADMIN')">
                             <a class="nav-link" th:href="@{/users/index}"
                                th:classappend="${activePage == 'users'} ? 'active' : ''">
                                 <i class="fas fa-users-cog me-2"></i>

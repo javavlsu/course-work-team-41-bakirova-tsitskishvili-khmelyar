@@ -2,176 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <style>
-        .user-creation-layout {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .user-form-container {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .admin-tools-container {
-            width: 300px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .form-input-field, .form-select-field {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-input-field:focus, .form-select-field:focus {
-            border-color: #3b90d3;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.1);
-        }
-
-        .text-danger {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .btn-admin-tool {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background-color: #3b90d3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-admin-tool:hover {
-            background-color: #2a7cbb;
-        }
-
-        .btn-submit {
-            padding: 12px 24px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-submit:hover {
-            background-color: #218838;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .col-span-2 {
-            grid-column: span 2;
-        }
-
-        .col-span-1 {
-            grid-column: span 1;
-        }
-
-        @media (max-width: 768px) {
-            .user-creation-layout {
-                flex-direction: column;
-            }
-
-            .admin-tools-container {
-                width: 100%;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .col-span-2, .col-span-1 {
-                grid-column: span 1;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Модальные окна */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content-form {
-            background: white;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-form-header {
-            padding: 20px;
-            background: #3b90d3;
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .modal-form-body {
-            padding: 20px;
-        }
-
-        .modal-form-actions {
-            padding: 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            border-top: 1px solid #dee2e6;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/users.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аднимистрирование</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
 </head>
 <body>
+
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
 <div class="user-creation-layout">
 
     <!-- Форма создания пользователя -->
@@ -193,36 +34,29 @@
                 <!-- ФИО -->
                 <div class="col-span-2">
                     <label for="lastName" class="form-label">Фамилия *</label>
-                    <input type="text" id="lastName" name="lastName"
-                           class="form-input-field" th:field="*{viewModel.lastName}" required />
-                    <span th:errors="*{viewModel.lastName}" class="text-danger"></span>
+                    <input type="text" id="lastName" name="lastName" class="form-input-field" required />
                 </div>
 
                 <div class="col-span-1">
                     <label for="firstName" class="form-label">Имя *</label>
-                    <input type="text" id="firstName" name="firstName"
-                           class="form-input-field" th:field="*{viewModel.firstName}" required />
-                    <span th:errors="*{viewModel.firstName}" class="text-danger"></span>
+                    <input type="text" id="firstName" name="firstName" class="form-input-field" required />
                 </div>
 
                 <div class="col-span-1">
                     <label for="middleName" class="form-label">Отчество</label>
-                    <input type="text" id="middleName" name="middleName"
-                           class="form-input-field" th:field="*{viewModel.middleName}" />
+                    <input type="text" id="middleName" name="middleName" class="form-input-field" />
                 </div>
 
                 <!-- Роль -->
                 <div class="col-span-2">
                     <label for="roleId" class="form-label">Роль *</label>
-                    <select id="roleId" name="roleId"
-                            class="form-select-field" th:field="*{viewModel.roleId}" required
-                            onchange="handleRoleChange()">
+                    <select id="roleId" name="roleId" class="form-select-field" required onchange="handleRoleChange()">
                         <option value="">-- Выберите роль --</option>
-                        <option th:each="item : ${viewModel.availableRoles}"
-                                th:value="${item.value}"
-                                th:text="${item.text}"></option>
+                        <option th:each="role : ${viewModel.availableRoles}"
+                                th:value="${role.key}"
+                                th:text="${role.value}">
+                        </option>
                     </select>
-                    <span th:errors="*{viewModel.roleId}" class="text-danger"></span>
                 </div>
 
                 <!-- Динамические поля (появляются в зависимости от роли) -->
@@ -231,27 +65,34 @@
                 <!-- Контактная информация -->
                 <div class="col-span-2">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" name="email"
-                           class="form-input-field" th:field="*{viewModel.email}" />
+                    <input type="email" id="email" name="email" class="form-input-field" />
                 </div>
 
                 <div class="col-span-1">
                     <label for="phone" class="form-label">Телефон</label>
-                    <input type="tel" id="phone" name="phone"
-                           class="form-input-field" th:field="*{viewModel.phone}" />
+                    <input type="tel" id="phone" name="phone" class="form-input-field" />
                 </div>
 
                 <div class="col-span-1">
                     <label for="birthDate" class="form-label">Дата рождения</label>
-                    <input type="date" id="birthDate" name="birthDate"
-                           class="form-input-field" th:field="*{viewModel.birthDate}" />
+                    <input type="date" id="birthDate" name="birthDate" class="form-input-field" />
                 </div>
 
                 <!-- Дополнительная информация -->
                 <div class="col-span-2">
                     <label for="info" class="form-label">Дополнительная информация</label>
-                    <textarea id="info" name="info" rows="3"
-                              class="form-input-field" th:field="*{viewModel.info}"></textarea>
+                    <textarea id="info" name="info" rows="3" class="form-input-field"></textarea>
+                </div>
+
+                <!-- Логин и пароль (опционально) -->
+                <div class="col-span-1">
+                    <label for="login" class="form-label">Логин (опционально)</label>
+                    <input type="text" id="login" name="login" class="form-input-field" placeholder="Будет сгенерирован автоматически" />
+                </div>
+
+                <div class="col-span-1">
+                    <label for="password" class="form-label">Пароль (опционально)</label>
+                    <input type="text" id="password" name="password" class="form-input-field" placeholder="Будет сгенерирован автоматически" />
                 </div>
             </div>
 
@@ -261,18 +102,15 @@
         </form>
     </div>
 
-    <!-- Панель администрирования -->
-    <div class="admin-tools-container">
+    <!-- Панель администрирования (доступна для ADMIN и DIRECTOR) -->
+    <div th:if="${#authorization.expression('hasRole(''DIRECTOR'')') or #authorization.expression('hasRole(''ADMIN'')')}" class="admin-tools-container">
         <h3 class="text-lg font-semibold mb-3 text-gray-700">
             <i class="fas fa-tools mr-2"></i> Дополнительные инструменты
         </h3>
-
         <p class="text-sm text-gray-600 mb-4">Управляйте классами и предметами школы.</p>
-
         <button type="button" id="openClassModal" class="btn-admin-tool">
             <i class="fas fa-school mr-2"></i> Управление классами
         </button>
-
         <button type="button" id="openSubjectModal" class="btn-admin-tool">
             <i class="fas fa-book-open mr-2"></i> Управление предметами
         </button>
@@ -313,57 +151,74 @@
     </div>
 </div>
 
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
 <script th:inline="javascript">
     /*<![CDATA[*/
-    $(document).ready(function() {
-        // Обработка динамических полей формы
-        function handleRoleChange() {
-            const roleSelect = $('#roleId');
-            const selectedRoleText = roleSelect.find('option:selected').text();
-            const dynamicFields = $('#dynamicFields');
+    // Данные для динамических полей (передаем из контроллера)
+    const schoolClasses = /*[[${viewModel.schoolClasses}]]*/ [];
+    const allStudents = /*[[${viewModel.allStudents}]]*/ [];
 
-            dynamicFields.empty();
+    function handleRoleChange() {
+        const roleSelect = $('#roleId');
+        const selectedRoleText = roleSelect.find('option:selected').text();
+        const dynamicFields = $('#dynamicFields');
 
-            if (selectedRoleText === 'Ученик') {
-                dynamicFields.html(`
-                    <div class="col-span-2">
-                        <label for="classId" class="form-label">Класс ученика *</label>
-                        <select id="classId" name="classId" class="form-select-field" required>
-                            <option value="">-- Выберите класс --</option>
-                            <option th:each="item : ${viewModel.schoolClasses}"
-                                    th:value="${item.value}"
-                                    th:text="${item.text}"></option>
-                        </select>
-                    </div>
-                `);
-            } else if (selectedRoleText === 'Родитель') {
-                dynamicFields.html(`
-                    <div class="col-span-2">
-                        <label for="studentIdForParent" class="form-label">Привязать к ученику *</label>
-                        <select id="studentIdForParent" name="studentIdForParent" class="form-select-field" required>
-                            <option value="">-- Выберите ученика --</option>
-                            <option th:each="item : ${viewModel.allStudents}"
-                                    th:value="${item.value}"
-                                    th:text="${item.text}"></option>
-                        </select>
-                    </div>
-                `);
-            }
+        dynamicFields.empty();
+
+        if (selectedRoleText === 'STUDENT' || selectedRoleText === 'Ученик') {
+            let options = '<option value="">-- Выберите класс --</option>';
+            schoolClasses.forEach(function(item) {
+                options += `<option value="${item.key}">${item.value}</option>`;
+            });
+            dynamicFields.html(`
+                <div class="col-span-2">
+                    <label for="classId" class="form-label">Класс ученика *</label>
+                    <select id="classId" name="classId" class="form-select-field" required>
+                        ${options}
+                    </select>
+                </div>
+            `);
+        } else if (selectedRoleText === 'PARENT' || selectedRoleText === 'Родитель') {
+            let options = '<option value="">-- Выберите ученика --</option>';
+            allStudents.forEach(function(item) {
+                options += `<option value="${item.key}">${item.value}</option>`;
+            });
+            dynamicFields.html(`
+                <div class="col-span-2">
+                    <label for="studentIdForParent" class="form-label">Привязать к ученику *</label>
+                    <select id="studentIdForParent" name="studentIdForParent" class="form-select-field" required>
+                        ${options}
+                    </select>
+                </div>
+            `);
         }
+    }
 
+    $(document).ready(function() {
         // Инициализация
         handleRoleChange();
 
-        // Обработчики модальных окон
+        // CSRF токен
+        const csrfToken = $('meta[name="_csrf"]').attr('content');
+        const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        // Настраиваем AJAX для всех POST запросов
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (settings.type === 'POST' || settings.type === 'PUT' || settings.type === 'DELETE') {
+                    if (csrfToken && csrfHeader) {
+                        xhr.setRequestHeader(csrfHeader, csrfToken);
+                    }
+                }
+            }
+        });
+
         const classModal = $('#classManagementModal');
         const subjectModal = $('#subjectManagementModal');
 
-        // Открытие модального окна классов
+        // Открытие модального окна классов (обновленный JavaScript)
         $('#openClassModal').on('click', function() {
-            classModal.removeClass('hidden').fadeIn(300);
+            classModal.css('display', 'flex').fadeIn(200);
             $('#classManagementContent').html('<p class="text-center py-4">Загрузка...</p>');
 
             $.ajax({
@@ -375,39 +230,177 @@
                         html += '<div class="space-y-2 mb-4">';
 
                         response.schoolClasses.forEach(function(cls) {
-                            html += `<div class="p-2 bg-gray-50 border rounded flex justify-between">
-                                        <span>${cls.className}</span>
-                                        <button class="text-red-500 delete-class" data-id="${cls.classId}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                     </div>`;
+                            html += `<div class="p-3 bg-gray-50 border rounded">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <div class="font-semibold">${cls.className}</div>
+                                                <div class="text-sm text-gray-600">Классный руководитель: ${cls.classTeacherName}</div>
+                                                <div class="text-sm text-gray-500">Учеников: ${cls.studentCount}</div>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button class="text-blue-500 edit-class hover:text-blue-700"
+                                                        data-id="${cls.classId}"
+                                                        data-number="${cls.classNumber}"
+                                                        data-letter="${cls.classLetter}"
+                                                        data-teacher="${cls.classTeacherId || ''}">
+                                                    <i class="fas fa-edit"></i> Редактировать
+                                                </button>
+                                                ${cls.canDelete ?
+                                                    `<button class="text-red-500 delete-class" data-id="${cls.classId}">
+                                                        <i class="fas fa-trash"></i> Удалить
+                                                    </button>` :
+                                                    `<button class="text-orange-500 move-students" data-id="${cls.classId}" data-name="${cls.className}">
+                                                        <i class="fas fa-users"></i> Переместить учеников
+                                                    </button>`
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>`;
                         });
 
                         html += '</div>';
+                        html += '<hr class="my-4">';
                         html += '<h4 class="font-semibold mb-3">Добавить новый класс</h4>';
                         html += '<form id="addClassForm" class="space-y-3">';
-                        html += '<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />';
-                        html += '<div><input type="number" name="classNumber" placeholder="Номер класса" class="form-input-field" required min="1" max="11" /></div>';
-                        html += '<div><input type="text" name="classLetter" placeholder="Буква класса" class="form-input-field" required maxlength="1" /></div>';
-                        html += '<div><select name="classTeacherId" class="form-select-field" required>';
-                        html += '<option value="">-- Выберите классного руководителя --</option>';
-
+                        html += '<div><input type="number" name="classNumber" placeholder="Номер класса (1-11)" class="form-input-field" required min="1" max="11" /></div>';
+                        html += '<div><input type="text" name="classLetter" placeholder="Буква класса (А, Б, В...)" class="form-input-field" required maxlength="1" /></div>';
+                        html += '<div><select name="classTeacherId" class="form-select-field">';
+                        html += '<option value="">-- Выберите классного руководителя (опционально) --</option>';
                         response.availableTeachers.forEach(function(teacher) {
                             html += `<option value="${teacher.value}">${teacher.text}</option>`;
                         });
-
                         html += '</select></div>';
                         html += '<button type="submit" class="btn-primary-blue">Добавить класс</button>';
                         html += '</form>';
                         html += '<p id="classMessage" class="mt-2 text-sm"></p>';
 
+                        // Форма для редактирования класса (скрыта по умолчанию)
+                        html += '<div id="editClassFormContainer" style="display: none;" class="mt-4">';
+                        html += '<hr class="my-4">';
+                        html += '<h4 class="font-semibold mb-3">Редактировать класс</h4>';
+                        html += '<form id="editClassForm" class="space-y-3">';
+                        html += '<input type="hidden" name="classId" id="editClassId" />';
+                        html += '<div><input type="number" name="classNumber" id="editClassNumber" placeholder="Номер класса" class="form-input-field" required min="1" max="11" /></div>';
+                        html += '<div><input type="text" name="classLetter" id="editClassLetter" placeholder="Буква класса" class="form-input-field" required maxlength="1" /></div>';
+                        html += '<div><select name="classTeacherId" id="editClassTeacherId" class="form-select-field">';
+                        html += '<option value="">-- Выберите классного руководителя --</option>';
+                        response.availableTeachers.forEach(function(teacher) {
+                            html += `<option value="${teacher.value}">${teacher.text}</option>`;
+                        });
+                        html += '</select></div>';
+                        html += '<button type="submit" class="btn-primary-blue">Сохранить изменения</button>';
+                        html += '<button type="button" id="cancelEditClass" class="btn-secondary-text">Отмена</button>';
+                        html += '</form>';
+                        html += '<p id="editClassMessage" class="mt-2 text-sm"></p>';
+                        html += '</div>';
+
+                        // Форма для перемещения учеников
+                        html += '<div id="moveStudentsFormContainer" style="display: none;" class="mt-4">';
+                        html += '<hr class="my-4">';
+                        html += '<h4 class="font-semibold mb-3">Переместить учеников</h4>';
+                        html += '<form id="moveStudentsForm" class="space-y-3">';
+                        html += '<input type="hidden" name="oldClassId" id="moveOldClassId" />';
+                        html += '<div><label class="form-label">Выберите новый класс:</label>';
+                        html += '<select name="newClassId" id="moveNewClassId" class="form-select-field" required>';
+                        html += '<option value="">-- Выберите класс --</option>';
+                        response.allClasses.forEach(function(cls) {
+                            html += `<option value="${cls.value}">${cls.text}</option>`;
+                        });
+                        html += '</select></div>';
+                        html += '<button type="submit" class="btn-primary-blue">Переместить всех учеников</button>';
+                        html += '<button type="button" id="cancelMoveStudents" class="btn-secondary-text">Отмена</button>';
+                        html += '</form>';
+                        html += '<p id="moveStudentsMessage" class="mt-2 text-sm"></p>';
+                        html += '</div>';
+
                         $('#classManagementContent').html(html);
+
+                        // Обработчики событий
+                        $('.edit-class').on('click', function() {
+                            const id = $(this).data('id');
+                            const number = $(this).data('number');
+                            const letter = $(this).data('letter');
+                            const teacherId = $(this).data('teacher');
+
+                            $('#editClassId').val(id);
+                            $('#editClassNumber').val(number);
+                            $('#editClassLetter').val(letter);
+                            $('#editClassTeacherId').val(teacherId);
+
+                            $('#editClassFormContainer').show();
+                            $('#moveStudentsFormContainer').hide();
+                        });
+
+                        $('.move-students').on('click', function() {
+                            const id = $(this).data('id');
+                            const name = $(this).data('name');
+
+                            $('#moveOldClassId').val(id);
+                            $('#moveStudentsFormContainer').show();
+                            $('#editClassFormContainer').hide();
+                            $('#moveStudentsMessage').text('Перемещение учеников из класса ' + name).css('color', 'blue');
+                        });
+
+                        $('#cancelEditClass').on('click', function() {
+                            $('#editClassFormContainer').hide();
+                        });
+
+                        $('#cancelMoveStudents').on('click', function() {
+                            $('#moveStudentsFormContainer').hide();
+                        });
                     } else {
                         $('#classManagementContent').html(`<p class="text-red-500">${response.message}</p>`);
                     }
                 },
-                error: function() {
+                error: function(xhr) {
+                    console.error(xhr);
                     $('#classManagementContent').html('<p class="text-red-500">Ошибка загрузки данных</p>');
+                }
+            });
+        });
+
+        // Редактирование класса
+        $(document).on('submit', '#editClassForm', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '/users/edit-class',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#editClassMessage').text(response.message).css('color', 'green');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        $('#editClassMessage').text(response.message).css('color', 'red');
+                    }
+                },
+                error: function() {
+                    $('#editClassMessage').text('Ошибка сети').css('color', 'red');
+                }
+            });
+        });
+
+        // Перемещение учеников
+        $(document).on('submit', '#moveStudentsForm', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '/users/move-students',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#moveStudentsMessage').text(response.message).css('color', 'green');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        $('#moveStudentsMessage').text(response.message).css('color', 'red');
+                    }
+                },
+                error: function() {
+                    $('#moveStudentsMessage').text('Ошибка сети').css('color', 'red');
                 }
             });
         });
@@ -431,13 +424,12 @@
                                         <button class="text-red-500 delete-subject" data-id="${subject.subjectId}">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                     </div>`;
+                                    </div>`;
                         });
 
                         html += '</div>';
                         html += '<h4 class="font-semibold mb-3">Добавить новый предмет</h4>';
                         html += '<form id="addSubjectForm" class="space-y-3">';
-                        html += '<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />';
                         html += '<div><input type="text" name="subjectName" placeholder="Название предмета" class="form-input-field" required /></div>';
                         html += '<button type="submit" class="btn-primary-blue">Добавить предмет</button>';
                         html += '</form>';
@@ -452,6 +444,98 @@
                     $('#subjectManagementContent').html('<p class="text-red-500">Ошибка загрузки данных</p>');
                 }
             });
+        });
+
+        // Добавление класса (делегирование)
+        $(document).on('submit', '#addClassForm', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '/users/add-class',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#classMessage').text(response.message).css('color', 'green');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        $('#classMessage').text(response.message).css('color', 'red');
+                    }
+                },
+                error: function() {
+                    $('#classMessage').text('Ошибка сети').css('color', 'red');
+                }
+            });
+        });
+
+        // Удаление класса
+        $(document).on('click', '.delete-class', function() {
+            const classId = $(this).data('id');
+            if (confirm('Вы уверены, что хотите удалить этот класс?')) {
+                $.ajax({
+                    url: '/users/delete-class',
+                    type: 'POST',
+                    data: { classId: classId },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Ошибка: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Ошибка сети');
+                    }
+                });
+            }
+        });
+
+        // Добавление предмета
+        $(document).on('submit', '#addSubjectForm', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '/users/add-subject',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#subjectMessage').text(response.message).css('color', 'green');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        $('#subjectMessage').text(response.message).css('color', 'red');
+                    }
+                },
+                error: function() {
+                    $('#subjectMessage').text('Ошибка сети').css('color', 'red');
+                }
+            });
+        });
+
+        // Удаление предмета
+        $(document).on('click', '.delete-subject', function() {
+            const subjectId = $(this).data('id');
+            if (confirm('Вы уверены, что хотите удалить этот предмет?')) {
+                $.ajax({
+                    url: '/users/delete-subject',
+                    type: 'POST',
+                    data: { subjectId: subjectId },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Ошибка: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Ошибка сети');
+                    }
+                });
+            }
         });
 
         // Закрытие модальных окон
