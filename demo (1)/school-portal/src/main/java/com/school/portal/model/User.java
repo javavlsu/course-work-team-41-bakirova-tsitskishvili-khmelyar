@@ -48,49 +48,49 @@ public class User {
     private Integer coins = 0;
 
     // Связи
-    @OneToMany(mappedBy = "teacher")
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Schedule> schedules;
 
-    @OneToMany(mappedBy = "teacher")
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ScheduleTemplate> scheduleTemplates;
 
-    @OneToMany(mappedBy = "teacher")
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassSubjectTeacher> classSubjectTeachers;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Homework> homeworks;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Grade> grades;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Remark> remarks;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Attendance> attendances;
 
-    @OneToMany(mappedBy = "fromUser")
+    @OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> sentMessages;
 
-    @OneToMany(mappedBy = "toUser")
+    @OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> receivedMessages;
 
-    @OneToMany(mappedBy = "classTeacher")
+    @OneToMany(mappedBy = "classTeacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SchoolClass> supervisedClasses;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StudentClass> studentClasses;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StudentParent> parentLinks;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StudentParent> studentLinks;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MerchRequest> merchRequests;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TransactionHistory> transactions;
 
     public Integer getUserId() { return userId; }

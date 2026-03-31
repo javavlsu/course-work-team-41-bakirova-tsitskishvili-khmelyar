@@ -159,9 +159,73 @@ public class UsersController {
             userData.put("phone", user.getPhone());
             userData.put("birthDate", user.getBirthDate() != null ? user.getBirthDate().toString() : "");
             userData.put("username", user.getLogin());
-            userData.put("password", isAdmin ? user.getPassword() : null);
             userData.put("info", user.getInfo());
-            userData.put("coins", user.getCoins());
+
+            // Монеты показываем только для учеников
+            if ("STUDENT".equals(user.getRole().getRoleName())) {
+                userData.put("coins", user.getCoins());
+            }
+
+            // Дополнительная информация в зависимости от роли
+            String roleName = user.getRole() != null ? user.getRole().getRoleName() : "";
+
+            // Для ученика - класс, классный руководитель, родители
+            if ("STUDENT".equals(roleName)) {
+                // Получаем класс ученика
+                Optional<SchoolClass> schoolClassOpt = classRepository.findClassByStudentId(userId);
+                if (schoolClassOpt.isPresent()) {
+                    SchoolClass schoolClass = schoolClassOpt.get();
+                    userData.put("className", schoolClass.getClassName());
+                    // Классный руководитель
+                    if (schoolClass.getClassTeacher() != null) {
+                        userData.put("classTeacherName", schoolClass.getClassTeacher().getFullName());
+                    } else {
+                        userData.put("classTeacherName", "Не назначен");
+                    }
+                } else {
+                    userData.put("className", "Не назначен");
+                    userData.put("classTeacherName", "Не назначен");
+                }
+
+                // Родители ученика
+                List<User> parents = studentParentRepository.findParentsByStudentId(userId);
+                List<String> parentNames = new ArrayList<>();
+                for (User parent : parents) {
+                    parentNames.add(parent.getFullName());
+                }
+                userData.put("parents", parentNames.isEmpty() ? "Не указаны" : String.join(", ", parentNames));
+            }
+
+            // Для родителя - его ученик, класс и классный руководитель ребенка
+            else if ("PARENT".equals(roleName)) {
+                List<User> students = studentParentRepository.findStudentsByParentId(userId);
+                List<String> studentDetails = new ArrayList<>();
+                for (User student : students) {
+                    // Получаем класс ученика
+                    Optional<SchoolClass> schoolClassOpt = classRepository.findClassByStudentId(student.getUserId());
+                    String className = "Класс не назначен";
+                    String teacherName = "Учитель не назначен";
+                    if (schoolClassOpt.isPresent()) {
+                        SchoolClass schoolClass = schoolClassOpt.get();
+                        className = schoolClass.getClassName();
+                        if (schoolClass.getClassTeacher() != null) {
+                            teacherName = schoolClass.getClassTeacher().getFullName();
+                        }
+                    }
+                    studentDetails.add(student.getFullName() + " (" + className + ", кл.рук. " + teacherName + ")");
+                }
+                userData.put("students", studentDetails.isEmpty() ? "Не указаны" : String.join("; ", studentDetails));
+            }
+
+            // Для учителя - классы, где он классный руководитель
+            else if ("TEACHER".equals(roleName)) {
+                List<SchoolClass> supervisedClasses = classRepository.findByClassTeacher(user);
+                List<String> classNames = new ArrayList<>();
+                for (SchoolClass schoolClass : supervisedClasses) {
+                    classNames.add(schoolClass.getClassName());
+                }
+                userData.put("supervisedClasses", classNames.isEmpty() ? "Нет классного руководства" : String.join(", ", classNames));
+            }
 
             response.put("success", true);
             response.put("user", userData);
@@ -272,17 +336,18 @@ public class UsersController {
         return response;
     }
 
+
     @GetMapping("/create")
     public String create(Model model) {
         Map<String, Object> viewModel = new HashMap<>();
 
-        // Список ролей
+        // Список ролей с русскими названиями
         List<Map<String, Object>> availableRoles = new ArrayList<>();
         List<Role> roles = roleRepository.findAll();
         for (Role role : roles) {
             Map<String, Object> roleMap = new HashMap<>();
             roleMap.put("key", role.getRoleId());
-            roleMap.put("value", role.getRoleName());
+            roleMap.put("value", getRussianRoleName(role.getRoleName()));
             availableRoles.add(roleMap);
         }
         viewModel.put("availableRoles", availableRoles);
@@ -310,11 +375,37 @@ public class UsersController {
         viewModel.put("allStudents", allStudents);
 
         model.addAttribute("viewModel", viewModel);
-        model.addAttribute("title", "Создание пользователя");
+        model.addAttribute("title", "Административное управление");
         model.addAttribute("activePage", "users");
         model.addAttribute("content", "users/create");
 
         return "layout";  // Возвращаем layout, который подключает create.html
+    }
+
+    // ========== AJAX: ПОЛУЧЕНИЕ ДЕТАЛЕЙ КЛАССА ДЛЯ РЕДАКТИРОВАНИЯ ==========
+    @GetMapping("/get-class-details")
+    @ResponseBody
+    public Map<String, Object> getClassDetails(@RequestParam("classId") Integer classId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            SchoolClass schoolClass = classRepository.findById(classId)
+                    .orElseThrow(() -> new RuntimeException("Класс не найден"));
+
+            Map<String, Object> classData = new HashMap<>();
+            classData.put("classId", schoolClass.getClassId());
+            classData.put("classNumber", schoolClass.getClassNumber());
+            classData.put("classLetter", schoolClass.getClassLetter());
+            classData.put("className", schoolClass.getClassName());
+            classData.put("classTeacherId", schoolClass.getClassTeacher() != null ? schoolClass.getClassTeacher().getUserId() : null);
+            classData.put("classTeacherName", schoolClass.getClassTeacher() != null ? schoolClass.getClassTeacher().getFullName() : "Не назначен");
+
+            response.put("success", true);
+            response.put("classData", classData);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        return response;
     }
 
     @PostMapping("/create")
@@ -381,17 +472,37 @@ public class UsersController {
     public Map<String, Object> addClass(@ModelAttribute ClassRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // Проверка, что учитель не является классным руководителем в другом классе
+            if (request.getClassTeacherId() != null && request.getClassTeacherId() > 0) {
+                if (isTeacherAlreadyClassTeacher(request.getClassTeacherId(), null)) {
+                    response.put("success", false);
+                    response.put("message", "Этот учитель уже является классным руководителем в другом классе. Учитель может быть классным руководителем только в одном классе.");
+                    return response;
+                }
+            }
+
             SchoolClass schoolClass = new SchoolClass();
             schoolClass.setClassNumber(request.getClassNumber());
             schoolClass.setClassLetter(request.getClassLetter().toUpperCase());
-            if (request.getClassTeacherId() != null) {
+
+            boolean hasClassTeacher = (request.getClassTeacherId() != null && request.getClassTeacherId() > 0);
+
+            if (hasClassTeacher) {
                 User teacher = userRepository.findById(request.getClassTeacherId()).orElse(null);
                 schoolClass.setClassTeacher(teacher);
             }
+
             classRepository.save(schoolClass);
 
-            response.put("success", true);
-            response.put("message", "Класс успешно добавлен");
+            // Предупреждение, если классный руководитель не выбран
+            if (!hasClassTeacher) {
+                response.put("success", true);
+                response.put("warning", true);
+                response.put("message", "Класс добавлен, но классный руководитель не выбран. Рекомендуется назначить классного руководителя.");
+            } else {
+                response.put("success", true);
+                response.put("message", "Класс успешно добавлен");
+            }
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Ошибка: " + e.getMessage());
@@ -496,16 +607,23 @@ public class UsersController {
     public Map<String, Object> deleteClass(@RequestParam("classId") Integer classId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Проверяем, есть ли ученики в классе
+            SchoolClass schoolClass = classRepository.findById(classId)
+                    .orElseThrow(() -> new RuntimeException("Класс не найден"));
+
+            // Проверяем, есть ли ученики в классе (хотя при каскадном удалении они удалятся)
             List<User> studentsInClass = studentClassRepository.findStudentsByClassId(classId);
 
             if (!studentsInClass.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Невозможно удалить класс, так как в нем есть ученики. Сначала переместите или удалите учеников.");
+                // Предупреждение, что ученики будут удалены
+                response.put("warning", true);
+                response.put("message", "В классе есть " + studentsInClass.size() + " ученик(ов). При удалении класса все связанные данные (ученики, расписание, объявления) будут также удалены. Продолжить?");
+                response.put("studentCount", studentsInClass.size());
                 return response;
             }
 
-            classRepository.deleteById(classId);
+            // Удаляем класс (каскадно удалятся все связанные данные)
+            classRepository.delete(schoolClass);
+
             response.put("success", true);
             response.put("message", "Класс успешно удален");
         } catch (Exception e) {
@@ -520,7 +638,35 @@ public class UsersController {
     public Map<String, Object> deleteSubject(@RequestParam("subjectId") Integer subjectId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            subjectRepository.deleteById(subjectId);
+            Subject subject = subjectRepository.findById(subjectId)
+                    .orElseThrow(() -> new RuntimeException("Предмет не найден"));
+
+            // Проверяем, есть ли связанные данные
+            boolean hasRelations = false;
+            StringBuilder relationsInfo = new StringBuilder();
+
+            if (subject.getClassSubjectTeachers() != null && !subject.getClassSubjectTeachers().isEmpty()) {
+                hasRelations = true;
+                relationsInfo.append("связей с классами и учителями (").append(subject.getClassSubjectTeachers().size()).append("), ");
+            }
+            if (subject.getScheduleTemplates() != null && !subject.getScheduleTemplates().isEmpty()) {
+                hasRelations = true;
+                relationsInfo.append("шаблонов расписания (").append(subject.getScheduleTemplates().size()).append("), ");
+            }
+            if (subject.getSchedules() != null && !subject.getSchedules().isEmpty()) {
+                hasRelations = true;
+                relationsInfo.append("записей в расписании (").append(subject.getSchedules().size()).append("), ");
+            }
+
+            if (hasRelations) {
+                response.put("warning", true);
+                response.put("message", "Предмет имеет " + relationsInfo.toString().replaceAll(", $", "") + ". При удалении все связанные данные будут также удалены. Продолжить?");
+                return response;
+            }
+
+            // Удаляем предмет (каскадно удалятся все связанные данные)
+            subjectRepository.delete(subject);
+
             response.put("success", true);
             response.put("message", "Предмет успешно удален");
         } catch (Exception e) {
@@ -538,12 +684,19 @@ public class UsersController {
             SchoolClass schoolClass = classRepository.findById(request.getClassId())
                     .orElseThrow(() -> new RuntimeException("Класс не найден"));
 
-            // Обновляем данные класса
+            // Проверка, что учитель не является классным руководителем в другом классе
+            if (request.getClassTeacherId() != null && request.getClassTeacherId() > 0) {
+                if (isTeacherAlreadyClassTeacher(request.getClassTeacherId(), request.getClassId())) {
+                    response.put("success", false);
+                    response.put("message", "Этот учитель уже является классным руководителем в другом классе. Учитель может быть классным руководителем только в одном классе.");
+                    return response;
+                }
+            }
+
             schoolClass.setClassNumber(request.getClassNumber());
             schoolClass.setClassLetter(request.getClassLetter().toUpperCase());
 
-            // Обновляем классного руководителя
-            if (request.getClassTeacherId() != null) {
+            if (request.getClassTeacherId() != null && request.getClassTeacherId() > 0) {
                 User teacher = userRepository.findById(request.getClassTeacherId()).orElse(null);
                 schoolClass.setClassTeacher(teacher);
             } else {
@@ -601,6 +754,50 @@ public class UsersController {
         return response;
     }
 
+    // ========== AJAX: ПОЛУЧЕНИЕ ДЕТАЛЕЙ ПРЕДМЕТА ДЛЯ РЕДАКТИРОВАНИЯ ==========
+    @GetMapping("/get-subject-details")
+    @ResponseBody
+    public Map<String, Object> getSubjectDetails(@RequestParam("subjectId") Integer subjectId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Subject subject = subjectRepository.findById(subjectId)
+                    .orElseThrow(() -> new RuntimeException("Предмет не найден"));
+
+            Map<String, Object> subjectData = new HashMap<>();
+            subjectData.put("subjectId", subject.getSubjectId());
+            subjectData.put("subjectName", subject.getSubjectName());
+
+            response.put("success", true);
+            response.put("subjectData", subjectData);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        return response;
+    }
+
+    // ========== AJAX: РЕДАКТИРОВАНИЕ ПРЕДМЕТА ==========
+    @PostMapping("/edit-subject")
+    @ResponseBody
+    public Map<String, Object> editSubject(@RequestParam("subjectId") Integer subjectId,
+                                           @RequestParam("subjectName") String subjectName) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Subject subject = subjectRepository.findById(subjectId)
+                    .orElseThrow(() -> new RuntimeException("Предмет не найден"));
+
+            subject.setSubjectName(subjectName);
+            subjectRepository.save(subject);
+
+            response.put("success", true);
+            response.put("message", "Предмет успешно обновлен");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Ошибка: " + e.getMessage());
+        }
+        return response;
+    }
+
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ==========
     private String generateLogin(String firstName, String lastName) {
@@ -628,6 +825,19 @@ public class UsersController {
         }
 
         return password.toString();
+    }
+
+    // Проверка, является ли учитель классным руководителем в другом классе
+    private boolean isTeacherAlreadyClassTeacher(Integer teacherId, Integer excludeClassId) {
+        List<SchoolClass> classes = classRepository.findAll();
+        for (SchoolClass c : classes) {
+            if (c.getClassTeacher() != null &&
+                    c.getClassTeacher().getUserId().equals(teacherId) &&
+                    (excludeClassId == null || !c.getClassId().equals(excludeClassId))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ========== ВСПОМОГАТЕЛЬНЫЙ КЛАСС ДЛЯ СОЗДАНИЯ ПОЛЬЗОВАТЕЛЯ ==========

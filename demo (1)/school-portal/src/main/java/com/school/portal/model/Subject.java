@@ -15,13 +15,13 @@ public class Subject {
     @Column(name = "SubjectName", nullable = false, unique = true, length = 100)
     private String subjectName;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassSubjectTeacher> classSubjectTeachers;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ScheduleTemplate> scheduleTemplates;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Schedule> schedules;
 
     public Subject() {}

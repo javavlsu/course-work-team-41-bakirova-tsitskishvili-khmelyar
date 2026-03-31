@@ -22,19 +22,19 @@ public class SchoolClass {
     @JoinColumn(name = "ClassTeacherId")
     private User classTeacher;
 
-    @OneToMany(mappedBy = "schoolClass")
+    @OneToMany(mappedBy = "schoolClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Announcement> announcements;
 
-    @OneToMany(mappedBy = "schoolClass")
+    @OneToMany(mappedBy = "schoolClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StudentClass> studentClasses;
 
-    @OneToMany(mappedBy = "schoolClass")
+    @OneToMany(mappedBy = "schoolClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassSubjectTeacher> classSubjectTeachers;
 
-    @OneToMany(mappedBy = "schoolClass")
+    @OneToMany(mappedBy = "schoolClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Schedule> schedules;
 
-    @OneToMany(mappedBy = "schoolClass")
+    @OneToMany(mappedBy = "schoolClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ScheduleTemplate> scheduleTemplates;
 
     public Integer getClassId() { return classId; }
