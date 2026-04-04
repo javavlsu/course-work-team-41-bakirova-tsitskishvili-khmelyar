@@ -1,7 +1,9 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
-import com.school.portal.model.dto.*;
+import com.school.portal.model.dto.HomeworkReviewItem;
+import com.school.portal.model.dto.HomeworkReviewRequest;
+import com.school.portal.model.dto.HomeworkReviewViewModel;
 import com.school.portal.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -38,9 +40,16 @@ public class HomeworkController {
     @Autowired
     private StudentClassRepository studentClassRepository;
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private ClassSubjectTeacherRepository classSubjectTeacherRepository;
+
     @GetMapping("/review")
     public String review(
             @RequestParam(value = "classId", required = false) Integer classId,
+            @RequestParam(value = "subjectId", required = false) Integer subjectId,
             Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -60,58 +69,149 @@ public class HomeworkController {
         model.addAttribute("title", "Проверка ДЗ");
         model.addAttribute("activePage", "homework");
 
-        // Доступные классы для учителя
-        List<SchoolClass> teacherClasses;
-        if (role.equals("ROLE_DIRECTOR")) {
-            teacherClasses = classRepository.findAll();
-        } else {
-            teacherClasses = classRepository.findClassesByTeacherId(currentUser.getUserId());
-        }
-
+        // ===== 1. Получаем ВСЕ классы, которые ведет учитель =====
         Map<Integer, String> availableClasses = new LinkedHashMap<>();
-        for (SchoolClass sc : teacherClasses) {
-            availableClasses.put(sc.getClassId(), sc.getClassName());
-        }
 
-        if (!availableClasses.isEmpty()) {
-            int selectedClassId = classId != null && availableClasses.containsKey(classId) ?
-                    classId : availableClasses.keySet().iterator().next();
-
-            // Получаем учеников класса
-            List<StudentClass> studentClasses = studentClassRepository.findBySchoolClassClassId(selectedClassId);
-            Set<Integer> studentIds = studentClasses.stream()
-                    .map(sc -> sc.getStudent().getUserId())
-                    .collect(Collectors.toSet());
-
-            // Получаем домашние задания для учеников этого класса
-            List<Homework> submissions = new ArrayList<>();
-            for (Integer studentId : studentIds) {
-                submissions.addAll(homeworkRepository.findByStudentUserId(studentId));
+        if (role.equals("ROLE_DIRECTOR")) {
+            List<SchoolClass> allClasses = classRepository.findAll();
+            for (SchoolClass sc : allClasses) {
+                availableClasses.put(sc.getClassId(), sc.getClassName());
+            }
+        } else {
+            // Получаем классы из ClassSubjectTeacher (основной источник)
+            List<ClassSubjectTeacher> teacherConnections = classSubjectTeacherRepository.findByTeacherUserId(currentUser.getUserId());
+            for (ClassSubjectTeacher conn : teacherConnections) {
+                if (conn.getSchoolClass() != null) {
+                    availableClasses.put(conn.getSchoolClass().getClassId(), conn.getSchoolClass().getClassName());
+                }
             }
 
-            // Преобразуем в ViewModel
-            List<HomeworkReviewItem> reviewItems = submissions.stream()
-                    .map(this::convertToReviewItem)
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparing(HomeworkReviewItem::getSubmissionDate).reversed())
-                    .collect(Collectors.toList());
+            // Дополняем классами из расписания (на случай если есть уроки без связей)
+            List<Schedule> teacherLessons = scheduleRepository.findByTeacherUserIdOrderByLessonDateTime(currentUser.getUserId());
+            for (Schedule lesson : teacherLessons) {
+                if (lesson.getSchoolClass() != null) {
+                    availableClasses.put(lesson.getSchoolClass().getClassId(), lesson.getSchoolClass().getClassName());
+                }
+            }
+        }
 
-            HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
-            viewModel.setSubmissions(reviewItems);
-            viewModel.setAvailableClasses(availableClasses);
-            viewModel.setSelectedClassId(selectedClassId);
-            viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
-
-            model.addAttribute("viewModel", viewModel);
-        } else {
+        // Если нет доступных классов
+        if (availableClasses.isEmpty()) {
             HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
             viewModel.setSubmissions(new ArrayList<>());
             viewModel.setAvailableClasses(new HashMap<>());
-            viewModel.setErrorMessage("Нет доступных классов для проверки домашнего задания.");
-
+            viewModel.setAvailableSubjects(new HashMap<>());
+            viewModel.setErrorMessage("У вас нет привязанных классов для проверки домашнего задания.");
             model.addAttribute("viewModel", viewModel);
+            model.addAttribute("content", "homework/review");
+            return "layout";
         }
 
+        // Устанавливаем выбранный класс
+        int selectedClassId = classId != null && availableClasses.containsKey(classId) ?
+                classId : availableClasses.keySet().iterator().next();
+
+        // ===== 2. Получаем ВСЕ предметы, которые учитель ведет в выбранном классе =====
+        Map<Integer, String> availableSubjects = new LinkedHashMap<>();
+
+        if (role.equals("ROLE_DIRECTOR")) {
+            List<Subject> allSubjects = subjectRepository.findAll();
+            for (Subject subj : allSubjects) {
+                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
+            }
+        } else {
+            // Источник 1: ClassSubjectTeacher - основные связи
+            List<ClassSubjectTeacher> connectionsForClass = classSubjectTeacherRepository.findBySchoolClassClassId(selectedClassId);
+            for (ClassSubjectTeacher conn : connectionsForClass) {
+                if (conn.getTeacher() != null &&
+                        conn.getTeacher().getUserId().equals(currentUser.getUserId()) &&
+                        conn.getSubject() != null) {
+                    availableSubjects.put(conn.getSubject().getSubjectId(), conn.getSubject().getSubjectName());
+                }
+            }
+
+            // Источник 2: Расписание - уроки, которые учитель ведет в этом классе
+            LocalDateTime startDate = LocalDateTime.now().minusYears(1);
+            LocalDateTime endDate = LocalDateTime.now().plusYears(1);
+            List<Schedule> lessonsInClass = scheduleRepository.findLessonsForClassBetween(selectedClassId, startDate, endDate);
+            for (Schedule lesson : lessonsInClass) {
+                if (lesson.getTeacher() != null &&
+                        lesson.getTeacher().getUserId().equals(currentUser.getUserId()) &&
+                        lesson.getSubject() != null) {
+                    availableSubjects.put(lesson.getSubject().getSubjectId(), lesson.getSubject().getSubjectName());
+                }
+            }
+        }
+
+        // Устанавливаем выбранный предмет
+        int selectedSubjectId = 0;
+        if (subjectId != null && availableSubjects.containsKey(subjectId)) {
+            selectedSubjectId = subjectId;
+        } else if (!availableSubjects.isEmpty()) {
+            selectedSubjectId = availableSubjects.keySet().iterator().next();
+        }
+
+        // ===== 3. Получаем ДЗ для отображения =====
+        List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
+        List<HomeworkReviewItem> reviewItems = new ArrayList<>();
+
+        for (User student : students) {
+            List<Homework> studentHomeworks = homeworkRepository.findByStudentUserId(student.getUserId());
+
+            for (Homework homework : studentHomeworks) {
+                Schedule lesson = homework.getLesson();
+                if (lesson == null) continue;
+
+                // Проверяем класс
+                if (lesson.getSchoolClass() == null || !lesson.getSchoolClass().getClassId().equals(selectedClassId)) {
+                    continue;
+                }
+
+                // Проверяем, что учитель имеет право проверять
+                boolean canReview = false;
+                if (role.equals("ROLE_DIRECTOR")) {
+                    canReview = true;
+                } else if (lesson.getTeacher() != null && lesson.getTeacher().getUserId().equals(currentUser.getUserId())) {
+                    canReview = true;
+                } else {
+                    // Проверка через ClassSubjectTeacher
+                    Optional<ClassSubjectTeacher> conn = classSubjectTeacherRepository
+                            .findBySchoolClassClassIdAndSubjectSubjectId(selectedClassId, lesson.getSubject().getSubjectId());
+                    if (conn.isPresent() && conn.get().getTeacher().getUserId().equals(currentUser.getUserId())) {
+                        canReview = true;
+                    }
+                }
+
+                if (!canReview) {
+                    continue;
+                }
+
+                // Фильтр по предмету
+                if (selectedSubjectId > 0 && lesson.getSubject() != null &&
+                        !lesson.getSubject().getSubjectId().equals(selectedSubjectId)) {
+                    continue;
+                }
+
+                HomeworkReviewItem item = convertToReviewItem(homework);
+                if (item != null) {
+                    reviewItems.add(item);
+                }
+            }
+        }
+
+        // Сортируем по дате сдачи
+        reviewItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
+
+        HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
+        viewModel.setSubmissions(reviewItems);
+        viewModel.setAvailableClasses(availableClasses);
+        viewModel.setAvailableSubjects(availableSubjects);
+        viewModel.setSelectedClassId(selectedClassId);
+        viewModel.setSelectedSubjectId(selectedSubjectId);
+        viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
+        viewModel.setSelectedSubjectName(selectedSubjectId > 0 ? availableSubjects.get(selectedSubjectId) : "Все предметы");
+
+        model.addAttribute("viewModel", viewModel);
         model.addAttribute("content", "homework/review");
         return "layout";
     }
@@ -125,29 +225,32 @@ public class HomeworkController {
             Homework homework = homeworkRepository.findById(request.getHomeworkId())
                     .orElseThrow(() -> new RuntimeException("Задание не найдено"));
 
-            homework.setStatus(2); // Проверено
+            homework.setStatus(2);
             homework.setTeacherComment(request.getComment());
             homeworkRepository.save(homework);
 
-            // Если есть оценка, создаем или обновляем
-            if (request.getGradeValue() != null) {
-                // Проверяем, есть ли уже оценка за это ДЗ
+            if (request.getGradeValue() != null && request.getGradeValue() > 0) {
                 Optional<Grade> existingGrade = homework.getGrades().stream().findFirst();
 
                 Grade grade;
                 if (existingGrade.isPresent()) {
                     grade = existingGrade.get();
+                    grade.setGradeValue(request.getGradeValue());
+                    grade.setComment(request.getComment());
                 } else {
                     grade = new Grade();
                     grade.setStudent(homework.getStudent());
                     grade.setLesson(homework.getLesson());
                     grade.setHomework(homework);
+                    grade.setGradeValue(request.getGradeValue());
+                    grade.setComment(request.getComment());
                     grade.setDate(LocalDateTime.now());
                 }
 
-                grade.setGradeValue(request.getGradeValue());
-                grade.setComment(request.getComment());
                 gradeRepository.save(grade);
+                response.put("gradeId", grade.getGradeId());
+            } else if (request.getGradeValue() == null && request.getExistingGradeId() != null) {
+                gradeRepository.deleteById(request.getExistingGradeId());
             }
 
             response.put("success", true);
@@ -155,57 +258,6 @@ public class HomeworkController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Ошибка сохранения: " + e.getMessage());
-        }
-
-        return response;
-    }
-
-    @PostMapping("/submit")
-    @ResponseBody
-    public Map<String, Object> submitHomework(
-            @RequestParam Integer lessonId,
-            @RequestParam String studentAnswer) {
-
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
-
-            User student = userRepository.findByLogin(username)
-                    .orElseThrow(() -> new RuntimeException("Ученик не найден"));
-
-            Schedule lesson = scheduleRepository.findById(lessonId)
-                    .orElseThrow(() -> new RuntimeException("Урок не найден"));
-
-            // Проверяем, не отправлял ли уже ученик ДЗ за этот урок
-            Optional<Homework> existingHomework = homeworkRepository.findByStudentUserId(student.getUserId())
-                    .stream()
-                    .filter(h -> h.getLesson() != null && h.getLesson().getLessonId() == lessonId)
-                    .findFirst();
-
-            Homework homework;
-            if (existingHomework.isPresent()) {
-                homework = existingHomework.get();
-                homework.setText(studentAnswer);
-                homework.setStatus(1); // Сдано
-                homework.setDate(LocalDateTime.now());
-            } else {
-                homework = new Homework();
-                homework.setStudent(student);
-                homework.setLesson(lesson);
-                homework.setText(studentAnswer);
-                homework.setDate(LocalDateTime.now());
-                homework.setStatus(1); // Сдано
-            }
-
-            homeworkRepository.save(homework);
-
-            response.put("success", true);
-            response.put("message", "Домашнее задание успешно отправлено!");
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Ошибка: " + e.getMessage());
         }
 
         return response;
@@ -222,24 +274,26 @@ public class HomeworkController {
         item.setStudentFullName(homework.getStudent().getFullName());
 
         if (homework.getLesson() != null) {
-            // Устанавливаем дату урока
-            item.setLessonDate(homework.getLesson().getLessonDateTime());
+            Schedule lesson = homework.getLesson();
 
-            // Определяем номер урока по времени
-            if (homework.getLesson().getLessonDateTime() != null) {
-                int lessonNumber = getLessonNumberByTime(homework.getLesson().getLessonDateTime().toLocalTime());
+            item.setLessonDate(lesson.getLessonDateTime());
+
+            if (lesson.getLessonDateTime() != null) {
+                int lessonNumber = getLessonNumberByTime(lesson.getLessonDateTime().toLocalTime());
                 item.setLessonNumber(lessonNumber);
             }
 
-            // Предмет
-            if (homework.getLesson().getSubject() != null) {
-                item.setSubjectName(homework.getLesson().getSubject().getSubjectName());
+            if (lesson.getSubject() != null) {
+                item.setSubjectId(lesson.getSubject().getSubjectId());
+                item.setSubjectName(lesson.getSubject().getSubjectName());
             }
 
-            // Класс
-            if (homework.getLesson().getSchoolClass() != null) {
-                item.setClassId(homework.getLesson().getSchoolClass().getClassId());
-                item.setClassName(homework.getLesson().getSchoolClass().getClassName());
+            item.setLessonTopic(lesson.getLessonTopic());
+            item.setHomeworkText(lesson.getHomeworkText());
+
+            if (lesson.getSchoolClass() != null) {
+                item.setClassId(lesson.getSchoolClass().getClassId());
+                item.setClassName(lesson.getSchoolClass().getClassName());
             }
         }
 
@@ -248,12 +302,12 @@ public class HomeworkController {
         item.setStatusId(homework.getStatus());
         item.setCurrentTeacherComment(homework.getTeacherComment());
 
-        // Проверяем наличие оценки
         if (homework.getGrades() != null && !homework.getGrades().isEmpty()) {
             Grade grade = homework.getGrades().iterator().next();
             if (grade != null) {
                 item.setGradeId(grade.getGradeId());
                 item.setCurrentGradeValue(grade.getGradeValue());
+                item.setCurrentGradeComment(grade.getComment());
             }
         }
 

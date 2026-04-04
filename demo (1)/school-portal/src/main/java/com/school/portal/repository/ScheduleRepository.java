@@ -1,6 +1,7 @@
 package com.school.portal.repository;
 
 import com.school.portal.model.Schedule;
+import com.school.portal.model.Subject;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +34,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     List<Schedule> findLessonsBetween(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    // Добавьте этот метод
+    @Query("SELECT DISTINCT s.subject FROM Schedule s WHERE s.teacher.userId = :teacherId AND s.schoolClass.classId = :classId")
+    List<Subject> findSubjectsByTeacherIdAndClassId(@Param("teacherId") Integer teacherId, @Param("classId") Integer classId);
 }
