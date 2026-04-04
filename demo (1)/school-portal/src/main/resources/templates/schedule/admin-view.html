@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="bg-white rounded-lg shadow p-4 mb-4">
+        <h1 class="h3 mb-0">
+            <span th:if="${isDirector}">Администрирование расписания</span>
+            <span th:unless="${isDirector}">Расписание учителя</span>
+        </h1>
+        <div th:if="${viewModel.selectedClassName != null}">
+            <p class="text-muted mb-0" th:text="${viewModel.selectedClassName}"></p>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="bg-white rounded-lg shadow p-4 mb-4">
+        <form id="filterForm" method="get" th:action="@{/schedule/index}" class="row g-3">
+            <input type="hidden" name="date" th:value="${viewModel.startOfWeek != null ? viewModel.startOfWeek.toString() : ''}" />
+
+            <div class="col-md-4">
+                <label for="filterType" class="form-label">Просмотр:</label>
+                <select name="filterType" id="filterType" onchange="this.form.submit()"
+                        class="form-select">
+                    <option value="Teacher" th:selected="${viewModel.filterType == 'Teacher'}">По преподавателю</option>
+                    <option value="Class" th:selected="${viewModel.filterType == 'Class'}">По классу</option>
+                </select>
+            </div>
+
+            <div class="col-md-4" th:if="${viewModel.filterType == 'Teacher'}">
+                <label for="selectedId" class="form-label">Учитель:</label>
+                <select name="selectedId" id="selectedId" onchange="this.form.submit()"
+                        class="form-select">
+                    <option th:each="teacher : ${viewModel.availableTeachers}"
+                            th:value="${teacher.userId}"
+                            th:text="${teacher.fullName}"
+                            th:selected="${viewModel.selectedTeacherId == teacher.userId}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-4" th:if="${viewModel.filterType == 'Class'}">
+                <label for="selectedId" class="form-label">Класс:</label>
+                <select name="selectedId" id="selectedId" onchange="this.form.submit()"
+                        class="form-select">
+                    <option th:each="schoolClass : ${viewModel.availableClasses}"
+                            th:value="${schoolClass.classId}"
+                            th:text="${schoolClass.className}"
+                            th:selected="${viewModel.selectedClassId == schoolClass.classId}"></option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Навигация по неделям -->
+    <div class="bg-white rounded-lg shadow p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.minusDays(7).toString()},
+                                         filterType=${viewModel.filterType},
+                                         selectedId=${viewModel.selectedTeacherId != null ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-chevron-left me-2"></i> Пред. неделя
+            </a>
+
+            <span class="h5 mb-0">
+                <span th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM.yyyy')}"></span> -
+                <span th:text="${#temporals.format(viewModel.startOfWeek.plusDays(6), 'dd.MM.yyyy')}"></span>
+            </span>
+
+            <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.plusDays(7).toString()},
+                                         filterType=${viewModel.filterType},
+                                         selectedId=${viewModel.selectedTeacherId != null ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+               class="btn btn-outline-secondary">
+                След. неделя <i class="fas fa-chevron-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Таблица расписания -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th class="text-nowrap">Время</th>
+                    <th class="text-nowrap">Понедельник</th>
+                    <th class="text-nowrap">Вторник</th>
+                    <th class="text-nowrap">Среда</th>
+                    <th class="text-nowrap">Четверг</th>
+                    <th class="text-nowrap">Пятница</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lessonNum : ${#numbers.sequence(1, 6)}">
+                    <td class="align-middle">
+                        <div class="fw-bold" th:text="'Урок ' + ${lessonNum}"></div>
+                        <div class="text-muted small" th:text="${lessonTimes[lessonNum]}"></div>
+                    </td>
+
+                    <!-- Понедельник -->
+                    <td class="align-middle">
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).MONDAY]}"
+                             th:if="${lesson.lessonNumber == lessonNum}">
+                            <div class="p-2 border rounded">
+                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
+                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
+                                <div class="text-muted small">
+                                    <i class="fas fa-door-open"></i>
+                                    <span th:text="'Каб. ' + ${lesson.classroom}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Вторник -->
+                    <td class="align-middle">
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).TUESDAY]}"
+                             th:if="${lesson.lessonNumber == lessonNum}">
+                            <div class="p-2 border rounded">
+                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
+                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Среда -->
+                    <td class="align-middle">
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).WEDNESDAY]}"
+                             th:if="${lesson.lessonNumber == lessonNum}">
+                            <div class="p-2 border rounded">
+                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
+                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Четверг -->
+                    <td class="align-middle">
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).THURSDAY]}"
+                             th:if="${lesson.lessonNumber == lessonNum}">
+                            <div class="p-2 border rounded">
+                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
+                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Пятница -->
+                    <td class="align-middle">
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).FRIDAY]}"
+                             th:if="${lesson.lessonNumber == lessonNum}">
+                            <div class="p-2 border rounded">
+                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
+                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Сообщение при отсутствии расписания -->
+        <div th:if="${viewModel.scheduleByDay == null || viewModel.scheduleByDay.isEmpty()}"
+             class="p-5 text-center">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Расписание пустое</h5>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Страница административного расписания загружена');
+    });
+    /*]]>*/
+</script>

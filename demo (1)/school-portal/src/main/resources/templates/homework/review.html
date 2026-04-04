@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка ДЗ</title>
+    <link rel="stylesheet" th:href="@{/css/homework.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<!-- Заголовок и фильтры -->
+<div class="homework-header">
+    <div class="header-title">
+        <h2><i class="fas fa-clipboard-list"></i> Проверка домашних заданий</h2>
+    </div>
+
+    <div class="filters-container">
+        <form id="filterForm" method="get" th:action="@{/homework/review}" class="filters-form">
+            <div class="filter-group">
+                <label for="classId"><i class="fas fa-school"></i> Класс:</label>
+                <select name="classId" id="classId" class="filter-select" onchange="this.form.submit()">
+                    <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
+                            th:value="${cls.key}"
+                            th:text="${cls.value}"
+                            th:selected="${cls.key == viewModel.selectedClassId}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="subjectId"><i class="fas fa-book"></i> Предмет:</label>
+                <select name="subjectId" id="subjectId" class="filter-select" onchange="this.form.submit()">
+                    <option th:each="subject : ${viewModel.availableSubjects.entrySet()}"
+                            th:value="${subject.key}"
+                            th:text="${subject.value}"
+                            th:selected="${subject.key == viewModel.selectedSubjectId}">
+                    </option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Сообщение об ошибке -->
+<div th:if="${viewModel.errorMessage != null}" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span th:text="${viewModel.errorMessage}"></span>
+</div>
+
+<!-- Информация о выбранных фильтрах -->
+<div class="info-panel">
+    <div class="info-item">
+        <span class="info-label">Класс:</span>
+        <span class="info-value" th:text="${viewModel.selectedClassName}">—</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Предмет:</span>
+        <span class="info-value" th:text="${viewModel.selectedSubjectName}">—</span>
+    </div>
+</div>
+
+<!-- Таблица с домашними заданиями -->
+<div th:if="${viewModel.submissions != null && !viewModel.submissions.isEmpty()}" class="submissions-table-container">
+    <table class="submissions-table">
+        <thead>
+        <tr>
+            <th>ФИО ученика</th>
+            <th>Урок</th>
+            <th>Домашнее задание</th>
+            <th>Дата сдачи</th>
+            <th>Ответ ученика</th>
+            <th>Оценка</th>
+            <th>Комментарий учителя</th>
+            <th>Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${viewModel.submissions}"
+            th:id="'row-' + ${item.homeworkId}"
+            th:class="${item.statusId == 1} ? 'submission-row pending' : 'submission-row reviewed'">
+
+            <!-- ФИО ученика -->
+            <td class="student-cell">
+                <div class="student-name" th:text="${item.studentFullName}">Иванов А.П.</div>
+                <div class="student-class" th:text="${item.className}">9 А</div>
+            </td>
+
+            <!-- Урок (номер, дата, тема) -->
+            <td class="lesson-cell">
+                <div class="lesson-number">Урок <span th:text="${item.lessonNumber}">1</span></div>
+                <div class="lesson-date" th:text="${item.formattedLessonDate}">01.12.2024</div>
+                <div class="lesson-topic" th:title="${item.lessonTopic}">
+                    <span th:text="${item.shortLessonTopic}">Тема урока</span>
+                </div>
+            </td>
+
+            <!-- Текст ДЗ -->
+            <td class="homework-cell">
+                <div class="homework-text" th:title="${item.homeworkText}">
+                    <span th:text="${item.shortHomeworkText}">Домашнее задание</span>
+                </div>
+            </td>
+
+            <!-- Дата сдачи -->
+            <td class="date-cell" th:text="${item.formattedSubmissionDate}">01.12.2024 14:30</td>
+
+            <!-- Ответ ученика -->
+            <td class="answer-cell">
+                <button type="button" class="btn-view-answer"
+                        th:attr="data-answer='${item.studentAnswer}'"
+                        th:data-student-name="${item.studentFullName}"
+                        onclick="viewStudentAnswer(this)">
+                    <i class="fas fa-eye"></i> Просмотреть
+                </button>
+            </td>
+
+            <!-- Оценка (выпадающий список) -->
+            <td class="grade-cell">
+                <select th:id="'grade-' + ${item.homeworkId}" class="grade-select">
+                    <option value="">— Выбрать —</option>
+                    <option value="5" th:selected="${item.currentGradeValue == 5}">5 (Отлично)</option>
+                    <option value="4" th:selected="${item.currentGradeValue == 4}">4 (Хорошо)</option>
+                    <option value="3" th:selected="${item.currentGradeValue == 3}">3 (Удовл.)</option>
+                    <option value="2" th:selected="${item.currentGradeValue == 2}">2 (Неуд.)</option>
+                    <option value="1" th:selected="${item.currentGradeValue == 1}">1 (Плохо)</option>
+                </select>
+                <input type="hidden" th:id="'gradeid-' + ${item.homeworkId}" th:value="${item.gradeId}">
+            </td>
+
+            <!-- Комментарий учителя -->
+            <td class="comment-cell">
+                    <textarea th:id="'comment-' + ${item.homeworkId}"
+                              class="comment-textarea"
+                              rows="2"
+                              placeholder="Введите комментарий..."></textarea>
+                <input type="hidden" th:id="'originalcomment-' + ${item.homeworkId}"
+                       th:value="${item.currentTeacherComment}">
+            </td>
+
+            <!-- Кнопка отправки -->
+            <td class="action-cell">
+                <button type="button" class="btn-save"
+                        th:attr="data-id=${item.homeworkId}"
+                        onclick="saveReview(this)">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Пустое состояние -->
+<div th:if="${(viewModel.submissions == null || viewModel.submissions.isEmpty()) && viewModel.errorMessage == null}"
+     class="empty-state">
+    <i class="fas fa-check-circle"></i>
+    <h3>Нет заданий на проверку</h3>
+    <p>Для выбранного класса и предмета нет отправленных домашних заданий.</p>
+</div>
+
+<!-- Модальное окно для просмотра ответа ученика -->
+<div id="answerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-alt"></i> Ответ ученика</h3>
+            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="student-info-modal">
+                <p><strong>Ученик:</strong> <span id="modalStudentName"></span></p>
+            </div>
+            <div class="answer-content">
+                <label><i class="fas fa-comment-dots"></i> Текст ответа:</label>
+                <div class="answer-text" id="modalAnswerText"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/homework.js}"></script>
+</body>
+</html>

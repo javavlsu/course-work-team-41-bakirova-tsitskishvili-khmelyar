@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Существующие стили остаются без изменений */
+        .global-tooltip {
+            position: fixed;
+            z-index: 99999;
+            background-color: #1f2937;
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            min-width: 320px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            pointer-events: none;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .global-tooltip.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .global-tooltip .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #1f2937;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .lesson-header:hover {
+            background-color: #4a9bdb !important;
+        }
+
+        .topic-preview {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .bg-ebf3f8 {
+            background-color: #EBF3F8;
+        }
+
+        .bg-dee9f1 {
+            background-color: #DEE9F1;
+        }
+
+        /* Стили для таблицы */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .journal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        .journal-table th {
+            background-color: #5aaae3;
+            color: white;
+            padding: 0.75rem;
+            border-right: 1px solid #4a9bdb;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .journal-table td {
+            padding: 0.75rem;
+            border-right: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        .journal-table tbody tr:nth-child(even) {
+            background-color: #EBF3F8;
+        }
+
+        .journal-table tbody tr:nth-child(odd) {
+            background-color: #DEE9F1;
+        }
+
+        .journal-table tbody tr:hover {
+            background-color: #e0f2fe;
+        }
+
+        /* Новые стили для ячеек с оценками */
+        .grade-cell {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+            height: 48px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .grade-cell:hover {
+            background-color: #e0f7fa !important;
+        }
+
+        .grade-cell.has-grade {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .grade-cell.absent {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .grade-cell.excused {
+            color: #ff9800;
+        }
+
+        .grade-cell.comment-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.7em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Сообщения -->
+    <div th:if="${param.success != null}" class="alert alert-success mb-3">
+        <i class="fas fa-check-circle me-2"></i> Данные успешно сохранены
+    </div>
+    <div th:if="${param.error != null}" class="alert alert-danger mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i> Произошла ошибка
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <!-- Информационное сообщение -->
+
+
+        <!-- ФОРМА ФИЛЬТРОВ -->
+        <form method="get" th:action="@{/journal/index}" class="d-flex flex-wrap align-items-center gap-2 bg-white p-3 rounded shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-muted">Класс</label>
+                <select name="classId" th:value="${viewModel.selectedClassId}"
+                        onchange="this.form.submit()"
+                        class="form-select form-select-sm" style="min-width: 120px;">
+                    <option th:each="cls : ${viewModel.classes.entrySet()}"
+                            th:value="${cls.key}"
+                            th:text="${cls.value}"
+                            th:selected="${cls.key == viewModel.selectedClassId}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-muted">Предмет</label>
+                <select name="subjectId" th:value="${viewModel.selectedSubjectId}"
+                        onchange="this.form.submit()"
+                        class="form-select form-select-sm" style="min-width: 150px;">
+                    <option th:each="subject : ${viewModel.subjects.entrySet()}"
+                            th:value="${subject.key}"
+                            th:text="${subject.value}"
+                            th:selected="${subject.key == viewModel.selectedSubjectId}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-muted">Неделя</label>
+                <select name="weekStart" th:value="${viewModel.weekStart}"
+                        onchange="this.form.submit()"
+                        class="form-select form-select-sm" style="min-width: 200px;">
+                    <option th:each="week : ${viewModel.weeks.entrySet()}"
+                            th:value="${week.key}"
+                            th:text="${week.value}"
+                            th:selected="${week.key == viewModel.weekStart.toString()}">
+                    </option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- ОСНОВНАЯ ТАБЛИЦА ЖУРНАЛА -->
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <div class="table-container">
+                <table class="journal-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 50px; text-align: center;">№</th>
+                        <th style="min-width: 250px;">ФИО</th>
+
+                        <th th:each="lesson : ${viewModel.lessonsForWeek}"
+                            style="min-width: 100px; text-align: center; cursor: pointer;"
+                            class="lesson-header"
+                            th:attr="onclick='openLessonModal(' + ${lesson.lessonId} + ')'"
+                            title="Нажмите для редактирования урока">
+                            <div class="font-bold" th:text="${lesson.formattedDate}">01.12</div>
+                            <div class="small text-light mt-1 truncate topic-preview"
+                                 th:attr="title=${lesson.lessonTopic}">
+                                <i th:if="${lesson.lessonTopic != null && !lesson.lessonTopic.isEmpty()}"
+                                   class="fas fa-check-circle text-success me-1"></i>
+                                <span th:if="${lesson.lessonTopic != null && !lesson.lessonTopic.isEmpty()}"
+                                      th:text="${lesson.shortLessonTopic}">тема</span>
+                                <span th:unless="${lesson.lessonTopic != null && !lesson.lessonTopic.isEmpty()}"
+                                      class="fst-italic text-warning">тема не указана</span>
+                            </div>
+                        </th>
+
+                        <th th:each="i : ${#numbers.sequence(1, 7 - viewModel.lessonsForWeek.size())}"
+                            style="min-width: 100px; background-color: #a3d5ff; opacity: 0.5;"></th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="row, stat : ${viewModel.rows}">
+                        <td style="text-align: center; font-weight: bold;" th:text="${stat.count}">1</td>
+                        <td style="font-weight: bold;" th:text="${row.student.fullName}">Иванов А.П.</td>
+
+                        <td th:each="lesson : ${viewModel.lessonsForWeek}"
+                            class="grade-cell"
+                            th:classappend="${row.cells[lesson.lessonId]?.attendance == true} ? 'absent' : 'has-grade'"
+                            th:attr="data-student-id=${row.student.userId},
+                                     data-lesson-id=${lesson.lessonId},
+                                     data-student-name=${row.student.fullName},
+                                     data-lesson-date=${lesson.formattedDate},
+                                     onclick='openGradeModal(this)'">
+
+                            <!-- Отображение оценки/посещаемости -->
+                            <div th:if="${row.cells[lesson.lessonId] != null}">
+                                <span th:if="${row.cells[lesson.lessonId].attendance}"
+                                      class="fw-medium attendance-badge"
+                                      th:text="${row.cells[lesson.lessonId].value}">Н</span>
+                                <span th:unless="${row.cells[lesson.lessonId].attendance}"
+                                      class="fw-bold"
+                                      th:text="${row.cells[lesson.lessonId].value}">5</span>
+
+                                <!-- Индикатор комментария -->
+                                <i th:if="${row.cells[lesson.lessonId].hasComment}"
+                                   class="fas fa-comment-dots text-muted position-absolute comment-indicator"
+                                   th:attr="data-comment=${row.cells[lesson.lessonId].comment}"></i>
+                            </div>
+                        </td>
+
+                        <td th:each="i : ${#numbers.sequence(1, 7 - viewModel.lessonsForWeek.size())}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${viewModel.rows == null || viewModel.rows.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <h5>В этом классе нет учеников или расписание не заполнено на эту неделю</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования оценок -->
+<div id="gradeModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Редактирование оценки
+                </h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeGradeModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <p><strong>Ученик:</strong> <span id="modalStudentName" class="text-primary"></span></p>
+                    <p><strong>Дата урока:</strong> <span id="modalLessonDate" class="text-muted"></span></p>
+                </div>
+
+                <form id="gradeForm" method="post" th:action="@{/journal/save-grade}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" id="modalStudentId" name="studentId" />
+                    <input type="hidden" id="modalLessonId" name="lessonId" />
+                    <input type="hidden" name="classId" th:value="${viewModel.selectedClassId}" />
+                    <input type="hidden" name="subjectId" th:value="${viewModel.selectedSubjectId}" />
+                    <input type="hidden" name="weekStart" th:value="${viewModel.weekStart}" />
+
+                    <!-- Оценка -->
+                    <div class="mb-4">
+                        <label for="gradeValue" class="form-label fw-bold">
+                            <i class="fas fa-star text-warning me-2"></i>Оценка:
+                        </label>
+                        <select id="gradeValue" name="gradeValue" class="form-select form-select-lg"
+                                style="font-size: 1.2rem;">
+                            <option value="">(не выбрано)</option>
+                            <option value="5">5 - Отлично</option>
+                            <option value="4">4 - Хорошо</option>
+                            <option value="3">3 - Удовлетворительно</option>
+                            <option value="2">2 - Неудовлетворительно</option>
+                        </select>
+                        <div class="form-text">Выберите оценку от 2 до 5</div>
+                    </div>
+
+                    <!-- Посещаемость -->
+                    <div class="mb-4">
+                        <label for="attendanceStatus" class="form-label fw-bold">
+                            <i class="fas fa-user-clock text-info me-2"></i>Посещаемость:
+                        </label>
+                        <select id="attendanceStatus" name="attendanceStatus" class="form-select">
+                            <option value="">Присутствовал(а)</option>
+                            <option value="Н">Н - Отсутствовал(а) (без уважительной причины)</option>
+                            <option value="У">У - Отсутствовал(а) (по уважительной причине)</option>
+                            <option value="Б">Б - Болел(а)</option>
+                        </select>
+                        <div class="form-text">При выборе отметки о посещаемости оценка будет сброшена</div>
+                    </div>
+
+                    <!-- Комментарий -->
+                    <div class="mb-4">
+                        <label for="comment" class="form-label fw-bold">
+                            <i class="fas fa-comment-dots text-success me-2"></i>Комментарий:
+                        </label>
+                        <textarea id="comment" name="comment" rows="3" class="form-control"
+                                  placeholder="Введите комментарий к оценке или посещаемости..."></textarea>
+                        <div class="form-text">Комментарий будет виден только учителю</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2 mt-4">
+                        <button type="button" class="btn btn-danger" onclick="clearGradeData()">
+                            <i class="fas fa-trash-alt me-2"></i>Очистить
+                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" onclick="closeGradeModal()">
+                                <i class="fas fa-times me-2"></i>Отмена
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования урока -->
+<div id="lessonModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div id="lessonModalContent">
+                <!-- Контент будет загружен через AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Модальные окна
+    const gradeModal = new bootstrap.Modal(document.getElementById('gradeModal'));
+    const lessonModal = new bootstrap.Modal(document.getElementById('lessonModal'));
+
+    // Переменные для хранения текущих данных
+    let currentCell = null;
+    let currentStudentId = null;
+    let currentLessonId = null;
+    let currentStudentName = '';
+    let currentLessonDate = '';
+
+    // Открытие модального окна для оценки
+    function openGradeModal(cell) {
+        currentCell = cell;
+
+        // Получение данных из data-атрибутов
+        currentStudentId = cell.getAttribute('data-student-id');
+        currentLessonId = cell.getAttribute('data-lesson-id');
+        currentStudentName = cell.getAttribute('data-student-name');
+        currentLessonDate = cell.getAttribute('data-lesson-date');
+
+        // Установка значений в форму
+        document.getElementById('modalStudentId').value = currentStudentId;
+        document.getElementById('modalLessonId').value = currentLessonId;
+        document.getElementById('modalStudentName').textContent = currentStudentName;
+        document.getElementById('modalLessonDate').textContent = currentLessonDate;
+
+        // Получение текущих данных из ячейки
+        const gradeSpan = cell.querySelector('.fw-bold');
+        const attendanceSpan = cell.querySelector('.attendance-badge');
+        const commentIcon = cell.querySelector('.fa-comment-dots');
+
+        // Сброс формы
+        document.getElementById('gradeValue').value = '';
+        document.getElementById('attendanceStatus').value = '';
+        document.getElementById('comment').value = '';
+
+        // Заполнение формы текущими данными
+        if (attendanceSpan) {
+            const attendanceValue = attendanceSpan.textContent.trim();
+            document.getElementById('attendanceStatus').value = attendanceValue;
+        } else if (gradeSpan) {
+            const gradeValue = gradeSpan.textContent.trim();
+            document.getElementById('gradeValue').value = gradeValue;
+        }
+
+        if (commentIcon && commentIcon.getAttribute('data-comment')) {
+            document.getElementById('comment').value = commentIcon.getAttribute('data-comment');
+        }
+
+        gradeModal.show();
+    }
+
+    // Закрытие модального окна оценки
+    function closeGradeModal() {
+        gradeModal.hide();
+        currentCell = null;
+    }
+
+    // Очистка данных оценки
+    function clearGradeData() {
+        if (confirm('Вы уверены, что хотите очистить оценку, посещаемость и комментарий?')) {
+            // Отправка запроса на очистку
+            const formData = new FormData();
+            formData.append('studentId', currentStudentId);
+            formData.append('lessonId', currentLessonId);
+            formData.append('_csrf', document.querySelector('input[name="_csrf"]').value);
+
+            fetch('/journal/clear-grade', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Обновление ячейки
+                    if (currentCell) {
+                        currentCell.innerHTML = '';
+                    }
+                    closeGradeModal();
+                    showNotification('Данные успешно очищены', 'success');
+                } else {
+                    showNotification('Ошибка при очистке данных', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка сети', 'error');
+            });
+        }
+    }
+
+    // Обработка отправки формы оценки
+    document.getElementById('gradeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Сохранение...';
+        submitBtn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Обновление ячейки с новыми данными
+                updateCellWithData(currentCell, formData);
+                closeGradeModal();
+                showNotification('Данные успешно сохранены', 'success');
+            } else {
+                showNotification('Ошибка: ' + result.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showNotification('Произошла ошибка сети', 'error');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // Функция обновления ячейки с данными
+    function updateCellWithData(cell, formData) {
+        const gradeValue = formData.get('gradeValue');
+        const attendanceStatus = formData.get('attendanceStatus');
+        const comment = formData.get('comment');
+
+        let content = '';
+
+        if (attendanceStatus) {
+            let attendanceClass = 'absent';
+            let attendanceText = attendanceStatus;
+
+            switch(attendanceStatus) {
+                case 'Н':
+                    attendanceText = 'Н';
+                    break;
+                case 'У':
+                    attendanceText = 'У';
+                    attendanceClass = 'excused';
+                    break;
+                case 'Б':
+                    attendanceText = 'Б';
+                    attendanceClass = 'excused';
+                    break;
+            }
+
+            content = `<span class="fw-medium ${attendanceClass}">${attendanceText}</span>`;
+        } else if (gradeValue) {
+            content = `<span class="fw-bold">${gradeValue}</span>`;
+        }
+
+        // Добавление иконки комментария если есть
+        if (comment && comment.trim() !== '') {
+            content += `<i class="fas fa-comment-dots text-muted position-absolute comment-indicator"
+                          data-comment="${comment}"
+                          style="top: 2px; right: 2px; font-size: 0.7em;"></i>`;
+        }
+
+        cell.innerHTML = content;
+    }
+
+    // Функция показа уведомлений
+    function showNotification(message, type) {
+        // Создание уведомления
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            min-width: 300px;
+        `;
+
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Автоматическое скрытие через 3 секунды
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+    }
+
+    // Модальное окно урока (существующий код)
+    function openLessonModal(lessonId) {
+        document.getElementById('lessonModalContent').innerHTML = `
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Загрузка...</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary mb-3"></div>
+                <p>Загрузка формы...</p>
+            </div>`;
+
+        lessonModal.show();
+
+        fetch('/journal/lesson-form?lessonId=' + lessonId)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('lessonModalContent').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки формы:', error);
+                document.getElementById('lessonModalContent').innerHTML = `
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Ошибка</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                        <p class="text-danger">Ошибка загрузки формы</p>
+                        <button class="btn btn-secondary" onclick="lessonModal.hide()">Закрыть</button>
+                    </div>`;
+            });
+    }
+
+    // Глобальная функция для закрытия урока
+    window.closeLessonModal = function() {
+        lessonModal.hide();
+    };
+
+    // Функция для отправки формы урока
+    window.submitLessonForm = function(form) {
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Сохранение...';
+        submitBtn.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showNotification('Данные урока успешно сохранены', 'success');
+                lessonModal.hide();
+                // Перезагрузка страницы для обновления данных
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Ошибка: ' + result.message, 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showNotification('Произошла ошибка сети', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+
+        return false;
+    };
+
+    // Обработчик клика по иконке комментария для показа tooltip
+    document.addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('fa-comment-dots')) {
+            const comment = event.target.getAttribute('data-comment');
+            if (comment) {
+                showTooltip(event, comment);
+            }
+        }
+    });
+
+    document.addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('fa-comment-dots')) {
+            hideTooltip();
+        }
+    });
+
+    function showTooltip(event, text) {
+        let tooltip = document.querySelector('.global-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.className = 'global-tooltip';
+            tooltip.innerHTML = '<div class="tooltip-arrow"></div>';
+            document.body.appendChild(tooltip);
+        }
+
+        tooltip.innerHTML = text + '<div class="tooltip-arrow"></div>';
+        tooltip.style.left = (event.pageX + 10) + 'px';
+        tooltip.style.top = (event.pageY - tooltip.offsetHeight - 10) + 'px';
+        tooltip.classList.add('show');
+    }
+
+    function hideTooltip() {
+        const tooltip = document.querySelector('.global-tooltip');
+        if (tooltip) {
+            tooltip.classList.remove('show');
+        }
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

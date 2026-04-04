@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">
+        <i class="fas fa-calendar-alt me-2"></i>Редактирование урока
+    </h5>
+    <button type="button" class="btn-close btn-close-white"
+            onclick="closeLessonModal()"></button>
+</div>
+
+<div class="modal-body">
+    <div class="alert alert-info mb-3">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong th:text="${schoolClass != null ? schoolClass.grade + ' ' + schoolClass.letter : 'Класс'}">9 А</strong>
+        |
+        <strong th:text="${subject != null ? subject.subjectName : 'Предмет'}">Математика</strong>
+        |
+        <strong th:if="${lesson != null}"
+                th:text="${#dates.format(lesson.date, 'dd.MM.yyyy')}">01.12.2023</strong>
+    </div>
+
+    <form method="post" th:action="@{/journal/save-lesson}"
+          onsubmit="return submitLessonForm(this)">
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="lessonId" th:value="${lesson.lessonId}" />
+
+        <!-- Тема урока -->
+        <div class="mb-4">
+            <label for="lessonTopic" class="form-label fw-bold">
+                <i class="fas fa-chalkboard-teacher me-1"></i>Тема урока
+            </label>
+            <textarea id="lessonTopic" name="lessonTopic" rows="3"
+                      class="form-control"
+                      placeholder="Введите тему урока..."
+                      th:text="${lesson.lessonTopic}"></textarea>
+        </div>
+
+        <!-- Домашнее задание -->
+        <div class="mb-4">
+            <label for="homeworkText" class="form-label fw-bold">
+                <i class="fas fa-book-open me-1"></i>Домашнее задание
+            </label>
+            <textarea id="homeworkText" name="homeworkText" rows="3"
+                      class="form-control"
+                      placeholder="Введите домашнее задание..."
+                      th:text="${lesson.homeworkText}"></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+            <button type="button" class="btn btn-secondary"
+                    onclick="closeLessonModal()">Отмена</button>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i>Сохранить
+            </button>
+        </div>
+    </form>
+</div>
