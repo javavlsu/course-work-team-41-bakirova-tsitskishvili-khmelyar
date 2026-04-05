@@ -1,9 +1,7 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
-import com.school.portal.model.dto.*;
 import com.school.portal.repository.*;
-import com.school.portal.service.GradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,258 +36,396 @@ public class GradesController {
     private StudentClassRepository studentClassRepository;
 
     @Autowired
-    private GradeService gradeService;
+    private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
     @GetMapping("/grades")
     public String index(
             @RequestParam(value = "classId", required = false) Integer classId,
             @RequestParam(value = "subjectId", required = false) Integer subjectId,
-            @RequestParam(value = "quarter", required = false, defaultValue = "I") String quarter,
+            @RequestParam(value = "quarter", required = false, defaultValue = "III") String quarter,
             Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
         User currentUser = userRepository.findByLogin(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        String role = getCurrentUserRole(auth);
+        String roleName = currentUser.getRole().getRoleName();
 
         model.addAttribute("title", "Успеваемость");
         model.addAttribute("activePage", "grades");
-
-        // Устанавливаем доступные четверти
-        List<String> availableQuarters = Arrays.asList("Итоговые оценки", "I", "II", "III", "IV");
-        model.addAttribute("availableQuarters", availableQuarters);
         model.addAttribute("selectedQuarter", quarter);
+        model.addAttribute("availableQuarters", Arrays.asList("I", "II", "III", "IV", "Итоговые оценки"));
 
         // Получаем даты четверти
-        LocalDateTime[] quarterDates = getQuarterDates(quarter);
-        LocalDateTime startDate = quarterDates[0];
-        LocalDateTime endDate = quarterDates[1];
+        LocalDateTime[] dates = getQuarterDates(quarter);
+        LocalDateTime startDate = dates[0];
+        LocalDateTime endDate = dates[1];
 
-        // Маршрутизация по ролям
-        if (role.equals("ROLE_PARENT")) {
-            return parentView(model, currentUser, quarter, startDate, endDate);
-        } else if (role.equals("ROLE_STUDENT")) {
-            return studentView(model, currentUser, quarter, startDate, endDate);
-        } else if (role.equals("ROLE_TEACHER") || role.equals("ROLE_DIRECTOR")) {
-            return teacherView(model, currentUser, classId, subjectId, quarter, startDate, endDate);
+        System.out.println("=== DEBUG ===");
+        System.out.println("User: " + username + ", Role: " + roleName);
+        System.out.println("Quarter: " + quarter + ", Date range: " + startDate + " - " + endDate);
+
+        if ("STUDENT".equals(roleName)) {
+            return buildStudentView(model, currentUser, startDate, endDate, quarter);
+        } else if ("PARENT".equals(roleName)) {
+            List<User> children = userRepository.findByRole_RoleName("STUDENT");
+            if (!children.isEmpty()) {
+                return buildStudentView(model, children.get(0), startDate, endDate, quarter);
+            }
+            model.addAttribute("errorMessage", "Ребенок не найден");
+            return "error";
+        } else if ("TEACHER".equals(roleName) || "DIRECTOR".equals(roleName)) {
+            return buildTeacherView(model, currentUser, classId, subjectId, startDate, endDate, quarter);
         }
 
         return "error";
     }
 
-    private String parentView(Model model, User parent, String quarter,
-                              LocalDateTime startDate, LocalDateTime endDate) {
-        // Находим детей родителя (упрощенно - первый найденный)
-        // В реальном проекте нужно через StudentParentRepository
-        User student = findStudentForParent(parent.getUserId());
-
-        if (student == null) {
-            model.addAttribute("errorMessage", "Не найден ребенок");
-            return "error";
-        }
-
-        return buildStudentGradesView(model, student, quarter, startDate, endDate, true);
-    }
-
-    private String studentView(Model model, User student, String quarter,
-                               LocalDateTime startDate, LocalDateTime endDate) {
-        return buildStudentGradesView(model, student, quarter, startDate, endDate, false);
-    }
-
-    private String buildStudentGradesView(Model model, User student, String quarter,
-                                          LocalDateTime startDate, LocalDateTime endDate, boolean isParentView) {
+    private String buildStudentView(Model model, User student, LocalDateTime startDate, LocalDateTime endDate, String quarter) {
+        System.out.println("=== BUILD STUDENT VIEW ===");
+        System.out.println("Student ID: " + student.getUserId());
 
         // Получаем класс ученика
+        String className = "Не определен";
         Optional<StudentClass> studentClassOpt = studentClassRepository.findByStudentUserId(student.getUserId());
-        String className = studentClassOpt.map(sc -> sc.getSchoolClass().getClassName()).orElse("Не определен");
+        if (studentClassOpt.isPresent()) {
+            SchoolClass schoolClass = studentClassOpt.get().getSchoolClass();
+            className = schoolClass.getClassNumber() + " \"" + schoolClass.getClassLetter() + "\"";
+        }
 
         // Получаем все предметы
         List<Subject> allSubjects = subjectRepository.findAll();
+        System.out.println("Total subjects: " + allSubjects.size());
 
-        List<StudentSubjectItem> subjectItems = new ArrayList<>();
+        List<Map<String, Object>> subjectsData = new ArrayList<>();
 
         for (Subject subject : allSubjects) {
+            Map<String, Object> subjectData = new HashMap<>();
+            subjectData.put("subjectName", subject.getSubjectName());
+
             // Получаем оценки по предмету за период
             List<Grade> grades = gradeRepository.findGradesForStudentBySubjectAndPeriod(
                     student.getUserId(), subject.getSubjectId(), startDate, endDate);
 
-            StudentSubjectItem item = new StudentSubjectItem();
-            item.setSubjectName(subject.getSubjectName());
+            System.out.println("Subject: " + subject.getSubjectName() + ", Grades found: " + grades.size());
 
             if (!grades.isEmpty()) {
-                // Средний балл
-                double avg = grades.stream()
-                        .filter(g -> g.getGradeValue() != null)
-                        .mapToInt(Grade::getGradeValue)
-                        .average()
-                        .orElse(0);
-                item.setAverageGrade(avg);
+                List<Integer> gradeValues = new ArrayList<>();
+                double sum = 0;
+                for (Grade grade : grades) {
+                    if (grade.getGradeValue() != null) {
+                        gradeValues.add(grade.getGradeValue());
+                        sum += grade.getGradeValue();
+                    }
+                }
 
-                // Все оценки
-                List<Integer> gradeValues = grades.stream()
-                        .filter(g -> g.getGradeValue() != null)
-                        .map(Grade::getGradeValue)
-                        .collect(Collectors.toList());
-                item.setAllGrades(gradeValues);
+                double avg = gradeValues.isEmpty() ? 0 : sum / gradeValues.size();
 
-                // Итоговая оценка (упрощенно - средняя)
-                item.setQuarterFinalGrade((int) Math.round(avg));
+                long count5 = gradeValues.stream().filter(g -> g == 5).count();
+                long count4 = gradeValues.stream().filter(g -> g == 4).count();
+                long count3 = gradeValues.stream().filter(g -> g == 3).count();
+                long count2 = gradeValues.stream().filter(g -> g == 2).count();
+
+                subjectData.put("averageGrade", avg);
+                subjectData.put("allGrades", gradeValues);
+                subjectData.put("quarterFinalGrade", (int) Math.round(avg));
+                subjectData.put("gradeCount", gradeValues.size());
+                subjectData.put("gradeCount5", count5);
+                subjectData.put("gradeCount4", count4);
+                subjectData.put("gradeCount3", count3);
+                subjectData.put("gradeCount2", count2);
+            } else {
+                subjectData.put("averageGrade", 0);
+                subjectData.put("allGrades", new ArrayList<>());
+                subjectData.put("quarterFinalGrade", 0);
+                subjectData.put("gradeCount", 0);
+                subjectData.put("gradeCount5", 0);
+                subjectData.put("gradeCount4", 0);
+                subjectData.put("gradeCount3", 0);
+                subjectData.put("gradeCount2", 0);
             }
 
-            // Пропуски (нужно через AttendanceRepository)
-            // item.setTotalAbsences(...);
+            // ========== ИСПРАВЛЕНО: считаем пропуски ПО КОНКРЕТНОМУ ПРЕДМЕТУ ==========
+            // Получаем все уроки по этому предмету за период
+            List<Schedule> lessonsForSubject = scheduleRepository.findLessonsForSubjectAndPeriod(
+                    subject.getSubjectId(), startDate, endDate);
 
-            subjectItems.add(item);
+            // Собираем ID уроков по этому предмету
+            Set<Integer> lessonIdsForSubject = lessonsForSubject.stream()
+                    .map(Schedule::getLessonId)
+                    .collect(Collectors.toSet());
+
+            // Получаем все пропуски ученика за период
+            List<Attendance> attendances = attendanceRepository.findAttendanceForStudentInPeriod(
+                    student.getUserId(), startDate, endDate);
+
+            // Считаем пропуски только по урокам этого предмета
+            long absentH = 0, absentU = 0, absentB = 0;
+            for (Attendance a : attendances) {
+                Integer lessonId = a.getLesson().getLessonId();
+                if (lessonIdsForSubject.contains(lessonId)) {
+                    String status = a.getStatus();
+                    if ("Н".equals(status)) {
+                        absentH++;
+                    } else if ("У".equals(status)) {
+                        absentU++;
+                    } else if ("Б".equals(status)) {
+                        absentB++;
+                    }
+                }
+            }
+
+            long totalAbsences = absentH + absentU + absentB;
+
+            System.out.println("Subject: " + subject.getSubjectName() +
+                    ", Lessons: " + lessonIdsForSubject.size() +
+                    ", Absences: " + totalAbsences +
+                    " (H:" + absentH + ", U:" + absentU + ", B:" + absentB + ")");
+
+            subjectData.put("totalAbsences", totalAbsences);
+            subjectData.put("absentTypeH", absentH);
+            subjectData.put("absentTypeU", absentU);
+            subjectData.put("absentTypeB", absentB);
+
+            subjectsData.add(subjectData);
         }
 
-        StudentGradesViewModel viewModel = new StudentGradesViewModel();
-        viewModel.setStudentFullName(student.getFullName());
-        viewModel.setClassName(className);
-        viewModel.setSubjects(subjectItems);
-        viewModel.setSelectedQuarter(quarter);
-        viewModel.setAvailableQuarters(Arrays.asList("Итоговые оценки", "I", "II", "III", "IV"));
-        viewModel.setParentView(isParentView);
-
-        model.addAttribute("viewModel", viewModel);
+        model.addAttribute("studentFullName", student.getFullName());
+        model.addAttribute("className", className);
+        model.addAttribute("subjects", subjectsData);
+        model.addAttribute("selectedQuarter", quarter);
+        model.addAttribute("availableQuarters", Arrays.asList("I", "II", "III", "IV", "Итоговые оценки"));
         model.addAttribute("content", "grades/student-view");
+
         return "layout";
     }
 
-    private String teacherView(Model model, User teacher, Integer classId, Integer subjectId,
-                               String quarter, LocalDateTime startDate, LocalDateTime endDate) {
+    private String buildTeacherView(Model model, User teacher, Integer classId, Integer subjectId,
+                                    LocalDateTime startDate, LocalDateTime endDate, String quarter) {
 
-        // Доступные классы для учителя
+        System.out.println("=== BUILD TEACHER VIEW ===");
+        System.out.println("Teacher ID: " + teacher.getUserId());
+        System.out.println("Teacher Name: " + teacher.getFullName());
+
+        // ========== 1. Классы, где учитель ведет уроки ==========
         List<SchoolClass> teacherClasses = classRepository.findClassesByTeacherId(teacher.getUserId());
+        System.out.println("Teacher classes (where teaches): " + teacherClasses.size());
+
+        // ========== 2. Классы, где учитель является классным руководителем ==========
+        List<SchoolClass> supervisedClasses = classRepository.findByClassTeacher(teacher);
+        System.out.println("Supervised classes (homeroom teacher): " + supervisedClasses.size());
+
+        // ========== 3. Объединяем классы (уникальные) ==========
         Map<Integer, String> availableClasses = new LinkedHashMap<>();
+
         for (SchoolClass sc : teacherClasses) {
             availableClasses.put(sc.getClassId(), sc.getClassName());
         }
-
-        // Доступные предметы для учителя
-        List<Subject> teacherSubjects = subjectRepository.findSubjectsByTeacherId(teacher.getUserId());
-        Map<Integer, String> availableSubjects = new LinkedHashMap<>();
-        for (Subject subj : teacherSubjects) {
-            availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
+        for (SchoolClass sc : supervisedClasses) {
+            availableClasses.put(sc.getClassId(), sc.getClassName());
         }
 
-        // Если списки пустые (директор), добавляем все
         if (availableClasses.isEmpty()) {
-            List<SchoolClass> allClasses = classRepository.findAll();
-            for (SchoolClass sc : allClasses) {
-                availableClasses.put(sc.getClassId(), sc.getClassName());
+            System.out.println("WARNING: No classes found for teacher!");
+            model.addAttribute("errorMessage", "У вас нет назначенных классов. Обратитесь к администратору.");
+            model.addAttribute("content", "grades/teacher-view");
+            return "layout";
+        }
+
+        // ========== 4. Выбранный класс ==========
+        Integer selectedClassId = classId;
+        if (selectedClassId == null || !availableClasses.containsKey(selectedClassId)) {
+            selectedClassId = availableClasses.keySet().iterator().next();
+        }
+
+        // ========== 5. Проверяем, является ли учитель классным руководителем выбранного класса ==========
+        boolean isHomeroomTeacher = false;
+        for (SchoolClass sc : supervisedClasses) {
+            if (sc.getClassId().equals(selectedClassId)) {
+                isHomeroomTeacher = true;
+                break;
             }
         }
 
-        if (availableSubjects.isEmpty()) {
+        System.out.println("Selected Class ID: " + selectedClassId);
+        System.out.println("Is homeroom teacher: " + isHomeroomTeacher);
+
+        // ========== 6. Формируем список предметов для выбора ==========
+        Map<Integer, String> availableSubjects = new LinkedHashMap<>();
+
+        if (isHomeroomTeacher) {
+            // КЛАССНЫЙ РУКОВОДИТЕЛЬ: видит ВСЕ предметы своего класса
+            System.out.println("Homeroom teacher - loading ALL subjects for class");
             List<Subject> allSubjects = subjectRepository.findAll();
             for (Subject subj : allSubjects) {
                 availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
             }
+        } else {
+            // ОБЫЧНЫЙ УЧИТЕЛЬ: видит только свои предметы
+            System.out.println("Regular teacher - loading only taught subjects");
+            List<Subject> teacherSubjects = subjectRepository.findSubjectsByTeacherId(teacher.getUserId());
+            for (Subject subj : teacherSubjects) {
+                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
+            }
         }
 
-        // Устанавливаем значения по умолчанию
-        int currentClassId = classId != null && availableClasses.containsKey(classId) ?
-                classId : availableClasses.keySet().iterator().next();
-        int currentSubjectId = subjectId != null && availableSubjects.containsKey(subjectId) ?
-                subjectId : availableSubjects.keySet().iterator().next();
+        if (availableSubjects.isEmpty()) {
+            System.out.println("WARNING: No subjects found!");
+            model.addAttribute("errorMessage", "Нет доступных предметов для отображения.");
+            model.addAttribute("availableClasses", availableClasses);
+            model.addAttribute("content", "grades/teacher-view");
+            return "layout";
+        }
 
-        // Получаем учеников класса
-        List<User> students = studentClassRepository.findStudentsByClassId(currentClassId)
-                .stream()
-                .map(obj -> (User) obj)
-                .collect(Collectors.toList());
+        // ========== 7. Выбранный предмет ==========
+        Integer selectedSubjectId = subjectId;
+        if (selectedSubjectId == null || !availableSubjects.containsKey(selectedSubjectId)) {
+            selectedSubjectId = availableSubjects.keySet().iterator().next();
+        }
 
-        List<TeacherStudentGradeItem> studentItems = new ArrayList<>();
+        System.out.println("Selected Subject ID: " + selectedSubjectId);
+        System.out.println("Available subjects: " + availableSubjects);
+
+        // ========== 8. Получаем учеников класса ==========
+        List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
+        System.out.println("Students in class: " + students.size());
+
+        List<Map<String, Object>> studentsData = new ArrayList<>();
 
         for (User student : students) {
-            List<Grade> grades = gradeRepository.findGradesForStudentBySubjectAndPeriod(
-                    student.getUserId(), currentSubjectId, startDate, endDate);
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("studentId", student.getUserId());
+            studentData.put("fullName", student.getFullName());
 
-            TeacherStudentGradeItem item = new TeacherStudentGradeItem();
-            item.setStudentId(student.getUserId());
-            item.setFullName(student.getFullName());
+            // Получаем оценки по выбранному предмету
+            List<Grade> grades = gradeRepository.findGradesForStudentBySubjectAndPeriod(
+                    student.getUserId(), selectedSubjectId, startDate, endDate);
 
             if (!grades.isEmpty()) {
-                double avg = grades.stream()
-                        .filter(g -> g.getGradeValue() != null)
-                        .mapToInt(Grade::getGradeValue)
-                        .average()
-                        .orElse(0);
-                item.setAverageGrade(avg);
+                List<Integer> gradeValues = new ArrayList<>();
+                double sum = 0;
+                for (Grade grade : grades) {
+                    if (grade.getGradeValue() != null) {
+                        gradeValues.add(grade.getGradeValue());
+                        sum += grade.getGradeValue();
+                    }
+                }
+                double avg = gradeValues.isEmpty() ? 0 : sum / gradeValues.size();
 
-                List<Integer> gradeValues = grades.stream()
-                        .filter(g -> g.getGradeValue() != null)
-                        .map(Grade::getGradeValue)
-                        .collect(Collectors.toList());
-                item.setAllGrades(gradeValues);
+                long count5 = gradeValues.stream().filter(g -> g == 5).count();
+                long count4 = gradeValues.stream().filter(g -> g == 4).count();
+                long count3 = gradeValues.stream().filter(g -> g == 3).count();
+                long count2 = gradeValues.stream().filter(g -> g == 2).count();
 
-                item.setQuarterFinalGrade((int) Math.round(avg));
+                studentData.put("averageGrade", avg);
+                studentData.put("allGrades", gradeValues);
+                studentData.put("quarterFinalGrade", (int) Math.round(avg));
+                studentData.put("gradeCount", gradeValues.size());
+                studentData.put("gradeCount5", count5);
+                studentData.put("gradeCount4", count4);
+                studentData.put("gradeCount3", count3);
+                studentData.put("gradeCount2", count2);
+            } else {
+                studentData.put("averageGrade", 0);
+                studentData.put("allGrades", new ArrayList<>());
+                studentData.put("quarterFinalGrade", 0);
+                studentData.put("gradeCount", 0);
+                studentData.put("gradeCount5", 0);
+                studentData.put("gradeCount4", 0);
+                studentData.put("gradeCount3", 0);
+                studentData.put("gradeCount2", 0);
             }
 
-            studentItems.add(item);
+            // Считаем пропуски по выбранному предмету
+            List<Schedule> lessonsForSubject = scheduleRepository.findLessonsForSubjectAndPeriod(
+                    selectedSubjectId, startDate, endDate);
+
+            Set<Integer> lessonIdsForSubject = lessonsForSubject.stream()
+                    .map(Schedule::getLessonId)
+                    .collect(Collectors.toSet());
+
+            List<Attendance> attendances = attendanceRepository.findAttendanceForStudentInPeriod(
+                    student.getUserId(), startDate, endDate);
+
+            long absentH = 0, absentU = 0, absentB = 0;
+            for (Attendance a : attendances) {
+                Integer lessonId = a.getLesson().getLessonId();
+                if (lessonIdsForSubject.contains(lessonId)) {
+                    String status = a.getStatus();
+                    if ("Н".equals(status)) {
+                        absentH++;
+                    } else if ("У".equals(status)) {
+                        absentU++;
+                    } else if ("Б".equals(status)) {
+                        absentB++;
+                    }
+                }
+            }
+
+            long totalAbsences = absentH + absentU + absentB;
+            studentData.put("totalAbsences", totalAbsences);
+            studentData.put("absentTypeH", absentH);
+            studentData.put("absentTypeU", absentU);
+            studentData.put("absentTypeB", absentB);
+
+            studentsData.add(studentData);
         }
 
-        TeacherClassGradesViewModel viewModel = new TeacherClassGradesViewModel();
-        viewModel.setStudents(studentItems);
-        viewModel.setAvailableClasses(availableClasses);
-        viewModel.setAvailableSubjects(availableSubjects);
-        viewModel.setAvailableQuarters(Arrays.asList("Итоговые оценки", "I", "II", "III", "IV"));
-        viewModel.setSelectedClassId(currentClassId);
-        viewModel.setSelectedSubjectId(currentSubjectId);
-        viewModel.setSelectedQuarter(quarter);
-        viewModel.setSelectedClassName(availableClasses.get(currentClassId));
-        viewModel.setSelectedSubjectName(availableSubjects.get(currentSubjectId));
+        // Сортируем учеников по фамилии
+        studentsData.sort(Comparator.comparing(s -> (String) s.get("fullName")));
 
-        model.addAttribute("viewModel", viewModel);
+        // ========== 9. Добавляем атрибуты в модель ==========
+        model.addAttribute("students", studentsData);
+        model.addAttribute("availableClasses", availableClasses);
+        model.addAttribute("availableSubjects", availableSubjects);
+        model.addAttribute("availableQuarters", Arrays.asList("I", "II", "III", "IV", "Итоговые оценки"));
+        model.addAttribute("selectedClassId", selectedClassId);
+        model.addAttribute("selectedSubjectId", selectedSubjectId);
+        model.addAttribute("selectedQuarter", quarter);
+        model.addAttribute("selectedClassName", availableClasses.get(selectedClassId));
+        model.addAttribute("selectedSubjectName", availableSubjects.get(selectedSubjectId));
+        model.addAttribute("isHomeroomTeacher", isHomeroomTeacher);
         model.addAttribute("content", "grades/teacher-view");
+
+        System.out.println("=== TEACHER VIEW BUILT SUCCESSFULLY ===");
+        System.out.println("Students count: " + studentsData.size());
+        System.out.println("Available classes: " + availableClasses);
+        System.out.println("Available subjects: " + availableSubjects);
+
         return "layout";
     }
 
     private LocalDateTime[] getQuarterDates(String quarter) {
-        int year = LocalDate.now().getYear();
+        int year = 2025;
         LocalDateTime startDate, endDate;
 
         switch (quarter) {
             case "I":
-                startDate = LocalDate.of(year, Month.SEPTEMBER, 1).atStartOfDay();
-                endDate = LocalDate.of(year, Month.OCTOBER, 31).atTime(23, 59, 59);
+                startDate = LocalDate.of(2025, Month.SEPTEMBER, 1).atStartOfDay();
+                endDate = LocalDate.of(2025, Month.OCTOBER, 31).atTime(23, 59, 59);
                 break;
             case "II":
-                startDate = LocalDate.of(year, Month.NOVEMBER, 1).atStartOfDay();
-                endDate = LocalDate.of(year, Month.DECEMBER, 31).atTime(23, 59, 59);
+                startDate = LocalDate.of(2025, Month.NOVEMBER, 1).atStartOfDay();
+                endDate = LocalDate.of(2025, Month.DECEMBER, 31).atTime(23, 59, 59);
                 break;
             case "III":
-                startDate = LocalDate.of(year + 1, Month.JANUARY, 15).atStartOfDay();
-                endDate = LocalDate.of(year + 1, Month.MARCH, 31).atTime(23, 59, 59);
+                startDate = LocalDate.of(2026, Month.JANUARY, 1).atStartOfDay();
+                endDate = LocalDate.of(2026, Month.MARCH, 31).atTime(23, 59, 59);
                 break;
             case "IV":
-                startDate = LocalDate.of(year + 1, Month.APRIL, 1).atStartOfDay();
-                endDate = LocalDate.of(year + 1, Month.MAY, 25).atTime(23, 59, 59);
+                startDate = LocalDate.of(2026, Month.APRIL, 1).atStartOfDay();
+                endDate = LocalDate.of(2026, Month.MAY, 31).atTime(23, 59, 59);
                 break;
-            default: // Итоговые оценки - весь год
-                startDate = LocalDate.of(year, Month.SEPTEMBER, 1).atStartOfDay();
-                endDate = LocalDate.of(year + 1, Month.JUNE, 30).atTime(23, 59, 59);
+            default:
+                startDate = LocalDate.of(2025, Month.SEPTEMBER, 1).atStartOfDay();
+                endDate = LocalDate.of(2026, Month.MAY, 31).atTime(23, 59, 59);
         }
 
         return new LocalDateTime[]{startDate, endDate};
-    }
-
-    private User findStudentForParent(int parentId) {
-        // Упрощенно - первый ученик
-        // В реальном проекте нужно через StudentParentRepository
-        return userRepository.findByRole_RoleName("STUDENT").stream().findFirst().orElse(null);
-    }
-
-    private String getCurrentUserRole(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return "ROLE_ANONYMOUS";
-        }
-        return auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_USER");
     }
 }

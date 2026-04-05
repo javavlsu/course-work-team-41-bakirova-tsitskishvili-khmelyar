@@ -3,7 +3,7 @@ package com.school.portal.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "StudentClass")
+@Table(name = "studentClass")
 public class StudentClass {
 
     @Id

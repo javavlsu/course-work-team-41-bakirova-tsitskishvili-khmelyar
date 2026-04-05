@@ -24,4 +24,12 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Integer>
             @Param("studentId") Integer studentId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT a FROM Attendance a WHERE a.student.userId = :studentId " +
+            "AND a.lesson.lessonDateTime BETWEEN :startDate AND :endDate")
+    List<Attendance> findAttendanceForStudentInPeriod(
+            @Param("studentId") Integer studentId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+
 }

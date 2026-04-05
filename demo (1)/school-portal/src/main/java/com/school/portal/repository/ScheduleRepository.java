@@ -38,4 +38,11 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     // Добавьте этот метод
     @Query("SELECT DISTINCT s.subject FROM Schedule s WHERE s.teacher.userId = :teacherId AND s.schoolClass.classId = :classId")
     List<Subject> findSubjectsByTeacherIdAndClassId(@Param("teacherId") Integer teacherId, @Param("classId") Integer classId);
+    @Query("SELECT s FROM Schedule s WHERE s.subject.subjectId = :subjectId " +
+            "AND s.lessonDateTime BETWEEN :startDate AND :endDate")
+    List<Schedule> findLessonsForSubjectAndPeriod(
+            @Param("subjectId") Integer subjectId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
 }
