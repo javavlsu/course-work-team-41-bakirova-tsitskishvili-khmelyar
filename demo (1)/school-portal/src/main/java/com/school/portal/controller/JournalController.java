@@ -78,7 +78,7 @@ public class JournalController {
             weekStart = currentMonday;
         }
 
-        // Генерация доступных недель (только прошедшие и текущая)
+        // Генерация доступных недель
         Map<String, String> availableWeeks = generateAvailableWeeks();
 
         // Получение доступных классов и предметов
@@ -86,19 +86,26 @@ public class JournalController {
         Map<Integer, String> availableSubjects = new LinkedHashMap<>();
 
         if (isDirectorOrAdmin) {
+            // Директор и админ видят все классы и предметы
             classRepository.findAll().forEach(cls -> availableClasses.put(cls.getClassId(), cls.getClassName()));
             subjectRepository.findAll().forEach(subj -> availableSubjects.put(subj.getSubjectId(), subj.getSubjectName()));
         } else if ("TEACHER".equals(role)) {
+            // Учитель видит классы, где он ведет уроки (через ClassSubjectTeacher)
             List<SchoolClass> teacherClasses = classRepository.findClassesByTeacherId(currentUser.getUserId());
-            teacherClasses.forEach(cls -> availableClasses.put(cls.getClassId(), cls.getClassName()));
+            for (SchoolClass cls : teacherClasses) {
+                availableClasses.put(cls.getClassId(), cls.getClassName());
+            }
 
+            // Учитель видит только предметы, которые он ведет
             List<Subject> teacherSubjects = subjectRepository.findSubjectsByTeacherId(currentUser.getUserId());
-            teacherSubjects.forEach(subj -> availableSubjects.put(subj.getSubjectId(), subj.getSubjectName()));
+            for (Subject subj : teacherSubjects) {
+                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
+            }
         }
 
         if (availableClasses.isEmpty()) {
-            model.addAttribute("errorMessage", "У вас нет назначенных классов");
-            model.addAttribute("title", "Электронный журнал");
+            model.addAttribute("errorMessage", "У вас нет назначенных классов для ведения уроков");
+            model.addAttribute("title", "Ведение журнала");
             model.addAttribute("activePage", "journal");
             model.addAttribute("content", "journal/index");
             return "layout";
@@ -106,7 +113,7 @@ public class JournalController {
 
         if (availableSubjects.isEmpty()) {
             model.addAttribute("errorMessage", "У вас нет назначенных предметов");
-            model.addAttribute("title", "Электронный журнал");
+            model.addAttribute("title", "Ведение журнала");
             model.addAttribute("activePage", "journal");
             model.addAttribute("content", "journal/index");
             return "layout";
@@ -121,8 +128,13 @@ public class JournalController {
         LocalDateTime startDateTime = weekStart.atStartOfDay();
         LocalDateTime endDateTime = weekStart.plusDays(7).atTime(23, 59, 59);
 
-        List<Schedule> lessonsForWeek = scheduleRepository.findLessonsForClassBetween(
+        List<Schedule> allLessonsForWeek = scheduleRepository.findLessonsForClassBetween(
                 selectedClassId, startDateTime, endDateTime);
+
+        // Фильтруем уроки по выбранному предмету
+        List<Schedule> lessonsForWeek = allLessonsForWeek.stream()
+                .filter(lesson -> lesson.getSubject() != null && lesson.getSubject().getSubjectId() == selectedSubjectId)
+                .collect(Collectors.toList());
 
         List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
         students.sort(Comparator.comparing(User::getLastName));
@@ -192,7 +204,7 @@ public class JournalController {
         viewModel.setSelectedSubjectName(availableSubjects.get(selectedSubjectId));
 
         model.addAttribute("viewModel", viewModel);
-        model.addAttribute("title", "Электронный журнал");
+        model.addAttribute("title", "Ведение журнала");
         model.addAttribute("activePage", "journal");
         model.addAttribute("content", "journal/index");
 

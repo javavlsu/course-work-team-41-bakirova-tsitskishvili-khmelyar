@@ -19,9 +19,8 @@ public interface SchoolClassRepository extends JpaRepository<SchoolClass, Intege
     @Query("SELECT sc FROM SchoolClass sc WHERE sc.classId IN " +
             "(SELECT sc2.schoolClass.classId FROM StudentClass sc2 WHERE sc2.student.userId = :studentId)")
     Optional<SchoolClass> findClassByStudentId(@Param("studentId") Integer studentId);
-    
-    @Query("SELECT DISTINCT sc FROM SchoolClass sc " +
-            "JOIN Schedule sch ON sc.classId = sch.schoolClass.classId " +
-            "WHERE sch.teacher.userId = :teacherId")
+
+    // ИСПРАВЛЕНО: используем ClassSubjectTeacher, а не Schedule
+    @Query("SELECT DISTINCT cst.schoolClass FROM ClassSubjectTeacher cst WHERE cst.teacher.userId = :teacherId")
     List<SchoolClass> findClassesByTeacherId(@Param("teacherId") Integer teacherId);
 }
