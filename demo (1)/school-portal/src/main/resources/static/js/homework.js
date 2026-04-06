@@ -1,19 +1,13 @@
 /**
  * Homework Review Page Scripts
- * Handles filtering, grade saving, answer viewing
  */
 
-// CSRF Token setup
+// Получаем CSRF токен из мета-тегов
 const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
-// Modal elements
-const modal = document.getElementById('answerModal');
-
 /**
  * Show notification message
- * @param {string} message - Message text
- * @param {string} type - 'success' or 'error'
  */
 function showNotification(message, type) {
     const notification = document.createElement('div');
@@ -33,7 +27,6 @@ function showNotification(message, type) {
 
 /**
  * Save review (grade and comment)
- * @param {HTMLElement} button - The save button element
  */
 async function saveReview(button) {
     const homeworkId = button.getAttribute('data-id');
@@ -51,12 +44,18 @@ async function saveReview(button) {
     button.disabled = true;
 
     try {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        // Добавляем CSRF заголовок, если он есть
+        if (csrfHeader && csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         const response = await fetch('/homework/save-review', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
+            headers: headers,
             body: JSON.stringify({
                 homeworkId: parseInt(homeworkId),
                 gradeValue: gradeValue,
@@ -65,22 +64,34 @@ async function saveReview(button) {
             })
         });
 
+        if (!response.ok) {
+            if (response.status === 403) {
+                throw new Error('Ошибка безопасности. Пожалуйста, обновите страницу.');
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const result = await response.json();
 
         if (result.success) {
-            // Update grade ID if new grade was created
             if (result.gradeId) {
                 gradeIdInput.value = result.gradeId;
+                updateTabCounts();
             }
+        function updateTabCounts() {
+            // Перезагружаем страницу для обновления счетчиков
+            // Или можно сделать AJAX запрос для получения новых чисел
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
 
-            // Update row status
             const row = document.getElementById(`row-${homeworkId}`);
             if (row) {
                 row.classList.remove('pending');
                 row.classList.add('reviewed');
             }
 
-            // Visual feedback
             button.style.backgroundColor = '#10b981';
             setTimeout(() => {
                 button.style.backgroundColor = '';
@@ -92,7 +103,7 @@ async function saveReview(button) {
         }
     } catch (error) {
         console.error('Save error:', error);
-        showNotification('Ошибка сети. Попробуйте позже.', 'error');
+        showNotification('Ошибка: ' + error.message, 'error');
     } finally {
         button.innerHTML = originalText;
         button.disabled = false;
@@ -101,12 +112,12 @@ async function saveReview(button) {
 
 /**
  * View student's answer in modal
- * @param {HTMLElement} button - The view button element
  */
 function viewStudentAnswer(button) {
     const answer = button.getAttribute('data-answer');
     const studentName = button.getAttribute('data-student-name');
 
+    const modal = document.getElementById('answerModal');
     if (!modal) return;
 
     document.getElementById('modalStudentName').textContent = studentName || 'Ученик';
@@ -120,6 +131,7 @@ function viewStudentAnswer(button) {
  * Close modal
  */
 function closeModal() {
+    const modal = document.getElementById('answerModal');
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
@@ -136,19 +148,6 @@ function loadOriginalComments() {
         const originalInput = document.getElementById(`originalcomment-${id}`);
         if (originalInput && originalInput.value) {
             textarea.value = originalInput.value;
-        }
-    });
-}
-
-/**
- * Initialize grade selects with current values
- */
-function initGradeSelects() {
-    const gradeSelects = document.querySelectorAll('.grade-select');
-    gradeSelects.forEach(select => {
-        const selectedValue = select.value;
-        if (selectedValue) {
-            select.style.borderColor = '#10b981';
         }
     });
 }
@@ -171,81 +170,38 @@ function initTextareaAutoResize() {
  */
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Escape key closes modal
-        if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+        if (e.key === 'Escape') {
             closeModal();
         }
     });
 }
 
-/**
- * Handle filter form submit - preserve scroll position
- */
-function initFilterHandlers() {
-    const filterForm = document.getElementById('filterForm');
-    if (filterForm) {
-        filterForm.addEventListener('submit', (e) => {
-            // Allow normal form submission
-            return true;
-        });
-    }
-}
-
-/**
- * Load saved data from localStorage (optional)
- */
-function loadSavedDrafts() {
-    const commentTextareas = document.querySelectorAll('.comment-textarea');
-    commentTextareas.forEach(textarea => {
-        const id = textarea.id;
-        const savedValue = localStorage.getItem(`homework_comment_${id}`);
-        if (savedValue && !textarea.value) {
-            textarea.value = savedValue;
-        }
-
-        textarea.addEventListener('input', () => {
-            localStorage.setItem(`homework_comment_${id}`, textarea.value);
-        });
-    });
-}
-
-/**
- * Clear drafts after successful save
- */
-function clearDraft(homeworkId) {
-    localStorage.removeItem(`homework_comment_comment-${homeworkId}`);
-}
-
-// Add slideOut animation to styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     loadOriginalComments();
-    initGradeSelects();
     initTextareaAutoResize();
     initKeyboardShortcuts();
-    initFilterHandlers();
 
     // Close modal when clicking outside
+    const modal = document.getElementById('answerModal');
     if (modal) {
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
             }
         });
+    }
+    /**
+     * View student's answer in modal
+     */
+    function viewStudentAnswer(answer, studentName) {
+        const modal = document.getElementById('answerModal');
+        if (!modal) return;
+
+        document.getElementById('modalStudentName').textContent = studentName || 'Ученик';
+        document.getElementById('modalAnswerText').textContent = answer || 'Ответ не указан';
+
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
     }
 });

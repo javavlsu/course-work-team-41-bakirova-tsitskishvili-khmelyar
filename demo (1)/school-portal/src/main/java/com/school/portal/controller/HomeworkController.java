@@ -50,6 +50,7 @@ public class HomeworkController {
     public String review(
             @RequestParam(value = "classId", required = false) Integer classId,
             @RequestParam(value = "subjectId", required = false) Integer subjectId,
+            @RequestParam(value = "tab", required = false, defaultValue = "pending") String tab,
             Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -69,7 +70,7 @@ public class HomeworkController {
         model.addAttribute("title", "Проверка ДЗ");
         model.addAttribute("activePage", "homework");
 
-        // ===== 1. Получаем ВСЕ классы, которые ведет учитель =====
+        // Получаем классы, которые ведет учитель
         Map<Integer, String> availableClasses = new LinkedHashMap<>();
 
         if (role.equals("ROLE_DIRECTOR")) {
@@ -78,15 +79,6 @@ public class HomeworkController {
                 availableClasses.put(sc.getClassId(), sc.getClassName());
             }
         } else {
-            // Получаем классы из ClassSubjectTeacher (основной источник)
-            List<ClassSubjectTeacher> teacherConnections = classSubjectTeacherRepository.findByTeacherUserId(currentUser.getUserId());
-            for (ClassSubjectTeacher conn : teacherConnections) {
-                if (conn.getSchoolClass() != null) {
-                    availableClasses.put(conn.getSchoolClass().getClassId(), conn.getSchoolClass().getClassName());
-                }
-            }
-
-            // Дополняем классами из расписания (на случай если есть уроки без связей)
             List<Schedule> teacherLessons = scheduleRepository.findByTeacherUserIdOrderByLessonDateTime(currentUser.getUserId());
             for (Schedule lesson : teacherLessons) {
                 if (lesson.getSchoolClass() != null) {
@@ -95,10 +87,10 @@ public class HomeworkController {
             }
         }
 
-        // Если нет доступных классов
         if (availableClasses.isEmpty()) {
             HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
-            viewModel.setSubmissions(new ArrayList<>());
+            viewModel.setPendingSubmissions(new ArrayList<>());
+            viewModel.setReviewedSubmissions(new ArrayList<>());
             viewModel.setAvailableClasses(new HashMap<>());
             viewModel.setAvailableSubjects(new HashMap<>());
             viewModel.setErrorMessage("У вас нет привязанных классов для проверки домашнего задания.");
@@ -107,11 +99,10 @@ public class HomeworkController {
             return "layout";
         }
 
-        // Устанавливаем выбранный класс
         int selectedClassId = classId != null && availableClasses.containsKey(classId) ?
                 classId : availableClasses.keySet().iterator().next();
 
-        // ===== 2. Получаем ВСЕ предметы, которые учитель ведет в выбранном классе =====
+        // Получаем предметы для выбранного класса
         Map<Integer, String> availableSubjects = new LinkedHashMap<>();
 
         if (role.equals("ROLE_DIRECTOR")) {
@@ -120,17 +111,6 @@ public class HomeworkController {
                 availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
             }
         } else {
-            // Источник 1: ClassSubjectTeacher - основные связи
-            List<ClassSubjectTeacher> connectionsForClass = classSubjectTeacherRepository.findBySchoolClassClassId(selectedClassId);
-            for (ClassSubjectTeacher conn : connectionsForClass) {
-                if (conn.getTeacher() != null &&
-                        conn.getTeacher().getUserId().equals(currentUser.getUserId()) &&
-                        conn.getSubject() != null) {
-                    availableSubjects.put(conn.getSubject().getSubjectId(), conn.getSubject().getSubjectName());
-                }
-            }
-
-            // Источник 2: Расписание - уроки, которые учитель ведет в этом классе
             LocalDateTime startDate = LocalDateTime.now().minusYears(1);
             LocalDateTime endDate = LocalDateTime.now().plusYears(1);
             List<Schedule> lessonsInClass = scheduleRepository.findLessonsForClassBetween(selectedClassId, startDate, endDate);
@@ -143,7 +123,6 @@ public class HomeworkController {
             }
         }
 
-        // Устанавливаем выбранный предмет
         int selectedSubjectId = 0;
         if (subjectId != null && availableSubjects.containsKey(subjectId)) {
             selectedSubjectId = subjectId;
@@ -151,9 +130,12 @@ public class HomeworkController {
             selectedSubjectId = availableSubjects.keySet().iterator().next();
         }
 
-        // ===== 3. Получаем ДЗ для отображения =====
+        // Получаем учеников класса
         List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
-        List<HomeworkReviewItem> reviewItems = new ArrayList<>();
+
+        // Получаем все ДЗ и разделяем по статусам
+        List<HomeworkReviewItem> pendingItems = new ArrayList<>();
+        List<HomeworkReviewItem> reviewedItems = new ArrayList<>();
 
         for (User student : students) {
             List<Homework> studentHomeworks = homeworkRepository.findByStudentUserId(student.getUserId());
@@ -162,31 +144,19 @@ public class HomeworkController {
                 Schedule lesson = homework.getLesson();
                 if (lesson == null) continue;
 
-                // Проверяем класс
                 if (lesson.getSchoolClass() == null || !lesson.getSchoolClass().getClassId().equals(selectedClassId)) {
                     continue;
                 }
 
-                // Проверяем, что учитель имеет право проверять
                 boolean canReview = false;
                 if (role.equals("ROLE_DIRECTOR")) {
                     canReview = true;
                 } else if (lesson.getTeacher() != null && lesson.getTeacher().getUserId().equals(currentUser.getUserId())) {
                     canReview = true;
-                } else {
-                    // Проверка через ClassSubjectTeacher
-                    Optional<ClassSubjectTeacher> conn = classSubjectTeacherRepository
-                            .findBySchoolClassClassIdAndSubjectSubjectId(selectedClassId, lesson.getSubject().getSubjectId());
-                    if (conn.isPresent() && conn.get().getTeacher().getUserId().equals(currentUser.getUserId())) {
-                        canReview = true;
-                    }
                 }
 
-                if (!canReview) {
-                    continue;
-                }
+                if (!canReview) continue;
 
-                // Фильтр по предмету
                 if (selectedSubjectId > 0 && lesson.getSubject() != null &&
                         !lesson.getSubject().getSubjectId().equals(selectedSubjectId)) {
                     continue;
@@ -194,22 +164,30 @@ public class HomeworkController {
 
                 HomeworkReviewItem item = convertToReviewItem(homework);
                 if (item != null) {
-                    reviewItems.add(item);
+                    // Разделяем по статусу: 1 - Сдано (на проверку), 2 - Проверено
+                    if (homework.getStatus() == 1) {
+                        pendingItems.add(item);
+                    } else if (homework.getStatus() == 2) {
+                        reviewedItems.add(item);
+                    }
                 }
             }
         }
 
-        // Сортируем по дате сдачи
-        reviewItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        // Сортируем по дате сдачи (новые сверху)
+        pendingItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        reviewedItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
 
         HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
-        viewModel.setSubmissions(reviewItems);
+        viewModel.setPendingSubmissions(pendingItems);
+        viewModel.setReviewedSubmissions(reviewedItems);
         viewModel.setAvailableClasses(availableClasses);
         viewModel.setAvailableSubjects(availableSubjects);
         viewModel.setSelectedClassId(selectedClassId);
         viewModel.setSelectedSubjectId(selectedSubjectId);
         viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
         viewModel.setSelectedSubjectName(selectedSubjectId > 0 ? availableSubjects.get(selectedSubjectId) : "Все предметы");
+        viewModel.setActiveTab(tab);
 
         model.addAttribute("viewModel", viewModel);
         model.addAttribute("content", "homework/review");
@@ -332,5 +310,23 @@ public class HomeworkController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_USER");
+    }
+    @GetMapping("/get-student-answer")
+    @ResponseBody
+    public Map<String, Object> getStudentAnswer(@RequestParam Integer homeworkId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Homework homework = homeworkRepository.findById(homeworkId)
+                    .orElseThrow(() -> new RuntimeException("Задание не найдено"));
+
+            response.put("success", true);
+            response.put("answer", homework.getText());
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("answer", "Ошибка: " + e.getMessage());
+        }
+
+        return response;
     }
 }
