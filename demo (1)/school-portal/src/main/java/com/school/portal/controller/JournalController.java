@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +45,7 @@ public class JournalController {
     private StudentClassRepository studentClassRepository;
 
     @Autowired
-    private ClassSubjectTeacherRepository classSubjectTeacherRepository;
+    private RemarkRepository remarkRepository;
 
     @GetMapping("/index")
     public String index(
@@ -60,101 +61,73 @@ public class JournalController {
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         String role = currentUser.getRole().getRoleName();
-        boolean isDirector = "DIRECTOR".equals(role);
+        boolean isDirectorOrAdmin = "DIRECTOR".equals(role) || "ADMIN".equals(role);
 
         LocalDate today = LocalDate.now();
         LocalDate currentMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        LocalDate weekStart = currentMonday;
+        // Определяем выбранную неделю
+        LocalDate weekStart;
         if (weekStartStr != null && !weekStartStr.isEmpty()) {
             try {
                 weekStart = LocalDate.parse(weekStartStr);
             } catch (Exception e) {
                 weekStart = currentMonday;
             }
+        } else {
+            weekStart = currentMonday;
         }
 
-        // Генерация доступных недель
-        LocalDate academicYearStart = LocalDate.of(
-                today.getMonthValue() >= 9 ? today.getYear() : today.getYear() - 1, 9, 1);
-        LocalDate firstAcademicMonday = academicYearStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // Генерация доступных недель (только прошедшие и текущая)
+        Map<String, String> availableWeeks = generateAvailableWeeks();
 
-        Map<String, String> availableWeeks = new LinkedHashMap<>();
-        LocalDate week = firstAcademicMonday;
-        int weekNumber = 1;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
-        while (!week.isAfter(currentMonday.plusWeeks(4))) {
-            LocalDate weekEnd = week.plusDays(6);
-            String weekLabel = weekNumber + " нед. (" + week.format(formatter) + " - " + weekEnd.format(formatter) + ")";
-            availableWeeks.put(week.toString(), weekLabel);
-            week = week.plusWeeks(1);
-            weekNumber++;
-        }
-
-        // Доступные классы
+        // Получение доступных классов и предметов
         Map<Integer, String> availableClasses = new LinkedHashMap<>();
-        // Доступные предметы
         Map<Integer, String> availableSubjects = new LinkedHashMap<>();
 
-        if (isDirector) {
-            // Для директора - все классы и предметы
-            List<SchoolClass> allClasses = classRepository.findAll();
-            for (SchoolClass cls : allClasses) {
-                availableClasses.put(cls.getClassId(), cls.getClassName());
-            }
-
-            List<Subject> allSubjects = subjectRepository.findAll();
-            for (Subject subj : allSubjects) {
-                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
-            }
-        } else {
-            // Для учителя - только его классы и предметы
+        if (isDirectorOrAdmin) {
+            classRepository.findAll().forEach(cls -> availableClasses.put(cls.getClassId(), cls.getClassName()));
+            subjectRepository.findAll().forEach(subj -> availableSubjects.put(subj.getSubjectId(), subj.getSubjectName()));
+        } else if ("TEACHER".equals(role)) {
             List<SchoolClass> teacherClasses = classRepository.findClassesByTeacherId(currentUser.getUserId());
-            for (SchoolClass cls : teacherClasses) {
-                availableClasses.put(cls.getClassId(), cls.getClassName());
-            }
+            teacherClasses.forEach(cls -> availableClasses.put(cls.getClassId(), cls.getClassName()));
 
             List<Subject> teacherSubjects = subjectRepository.findSubjectsByTeacherId(currentUser.getUserId());
-            for (Subject subj : teacherSubjects) {
-                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
-            }
+            teacherSubjects.forEach(subj -> availableSubjects.put(subj.getSubjectId(), subj.getSubjectName()));
         }
 
-        // Если списки пустые, добавляем заглушки для демо
         if (availableClasses.isEmpty()) {
-            availableClasses.put(1, "9 \"А\"");
-            availableClasses.put(2, "9 \"Б\"");
-            availableClasses.put(3, "10 \"А\"");
+            model.addAttribute("errorMessage", "У вас нет назначенных классов");
+            model.addAttribute("title", "Электронный журнал");
+            model.addAttribute("activePage", "journal");
+            model.addAttribute("content", "journal/index");
+            return "layout";
         }
 
         if (availableSubjects.isEmpty()) {
-            availableSubjects.put(1, "Математика");
-            availableSubjects.put(2, "Русский язык");
-            availableSubjects.put(3, "Физика");
+            model.addAttribute("errorMessage", "У вас нет назначенных предметов");
+            model.addAttribute("title", "Электронный журнал");
+            model.addAttribute("activePage", "journal");
+            model.addAttribute("content", "journal/index");
+            return "layout";
         }
 
-        int selectedClassId = classId != null && availableClasses.containsKey(classId) ?
-                classId : availableClasses.keySet().iterator().next();
-        int selectedSubjectId = subjectId != null && availableSubjects.containsKey(subjectId) ?
-                subjectId : availableSubjects.keySet().iterator().next();
+        int selectedClassId = (classId != null && availableClasses.containsKey(classId))
+                ? classId : availableClasses.keySet().iterator().next();
+        int selectedSubjectId = (subjectId != null && availableSubjects.containsKey(subjectId))
+                ? subjectId : availableSubjects.keySet().iterator().next();
 
-        // Получаем уроки для выбранного класса и недели
+        // Получаем расписание на неделю
         LocalDateTime startDateTime = weekStart.atStartOfDay();
         LocalDateTime endDateTime = weekStart.plusDays(7).atTime(23, 59, 59);
 
         List<Schedule> lessonsForWeek = scheduleRepository.findLessonsForClassBetween(
                 selectedClassId, startDateTime, endDateTime);
 
-        // Получаем учеников класса
-        List<StudentClass> studentClasses = studentClassRepository.findBySchoolClassClassId(selectedClassId);
-        List<User> students = studentClasses.stream()
-                .map(StudentClass::getStudent)
-                .sorted(Comparator.comparing(User::getLastName))
-                .collect(Collectors.toList());
+        List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
+        students.sort(Comparator.comparing(User::getLastName));
 
         List<JournalRow> rows = new ArrayList<>();
-
         for (User student : students) {
             JournalRow row = new JournalRow();
             row.setStudent(student);
@@ -162,7 +135,6 @@ public class JournalController {
             for (Schedule lesson : lessonsForWeek) {
                 CellData cell = new CellData();
 
-                // Проверяем оценку
                 Optional<Grade> gradeOpt = gradeRepository.findByStudentUserIdAndLessonLessonId(
                         student.getUserId(), lesson.getLessonId());
 
@@ -172,40 +144,55 @@ public class JournalController {
                         cell.setValue(String.valueOf(grade.getGradeValue()));
                         cell.setAttendance(false);
                     }
-
                     if (grade.getComment() != null && !grade.getComment().isEmpty()) {
                         cell.setHasComment(true);
                         cell.setComment(grade.getComment());
                     }
-                } else {
-                    // Если нет оценки, проверяем посещаемость
+                }
+
+                if (cell.getValue() == null) {
                     Optional<Attendance> attendanceOpt = attendanceRepository
                             .findByStudentUserIdAndLessonLessonId(student.getUserId(), lesson.getLessonId());
-
                     if (attendanceOpt.isPresent()) {
                         cell.setValue(attendanceOpt.get().getStatus());
                         cell.setAttendance(true);
                     }
                 }
 
+                Optional<Remark> remarkOpt = remarkRepository
+                        .findByStudentUserIdAndLessonLessonId(student.getUserId(), lesson.getLessonId());
+                if (remarkOpt.isPresent() && remarkOpt.get().getText() != null && !remarkOpt.get().getText().isEmpty()) {
+                    cell.setHasRemark(true);
+                    cell.setRemark(remarkOpt.get().getText());
+                }
+
                 row.getCells().put(lesson.getLessonId(), cell);
             }
-
             rows.add(row);
         }
+
+        // Получаем предыдущую и следующую недели для навигации
+        LocalDate prevWeekStart = weekStart.minusWeeks(1);
+        LocalDate nextWeekStart = weekStart.plusWeeks(1);
+        boolean nextWeekAvailable = !nextWeekStart.isAfter(currentMonday);
 
         JournalViewModel viewModel = new JournalViewModel();
         viewModel.setSelectedClassId(selectedClassId);
         viewModel.setSelectedSubjectId(selectedSubjectId);
         viewModel.setWeekStart(weekStart);
+        viewModel.setPrevWeekStart(prevWeekStart);
+        viewModel.setNextWeekStart(nextWeekStart);
+        viewModel.setNextWeekAvailable(nextWeekAvailable);
         viewModel.setClasses(availableClasses);
         viewModel.setSubjects(availableSubjects);
         viewModel.setWeeks(availableWeeks);
         viewModel.setLessonsForWeek(lessonsForWeek);
         viewModel.setRows(rows);
+        viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
+        viewModel.setSelectedSubjectName(availableSubjects.get(selectedSubjectId));
 
         model.addAttribute("viewModel", viewModel);
-        model.addAttribute("title", "Ведение журнала");
+        model.addAttribute("title", "Электронный журнал");
         model.addAttribute("activePage", "journal");
         model.addAttribute("content", "journal/index");
 
@@ -214,12 +201,14 @@ public class JournalController {
 
     @PostMapping("/save-grade")
     @ResponseBody
+    @Transactional
     public Map<String, Object> saveGrade(
             @RequestParam int studentId,
             @RequestParam int lessonId,
             @RequestParam(required = false) String gradeValue,
             @RequestParam(required = false) String attendanceStatus,
-            @RequestParam(required = false) String comment) {
+            @RequestParam(required = false) String comment,
+            @RequestParam(required = false) String remark) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -229,49 +218,72 @@ public class JournalController {
             Schedule lesson = scheduleRepository.findById(lessonId)
                     .orElseThrow(() -> new RuntimeException("Урок не найден"));
 
-            // Обработка оценки
-            if (gradeValue != null && !gradeValue.isEmpty()) {
-                // Проверяем существующую оценку
-                Optional<Grade> existingGrade = gradeRepository
-                        .findByStudentUserIdAndLessonLessonId(studentId, lessonId);
-
-                Grade grade;
-                if (existingGrade.isPresent()) {
-                    grade = existingGrade.get();
-                } else {
-                    grade = new Grade();
-                    grade.setStudent(student);
-                    grade.setLesson(lesson);
-                    grade.setDate(LocalDateTime.now());
-                }
-
-                grade.setGradeValue(Integer.parseInt(gradeValue));
-                grade.setComment(comment);
-                gradeRepository.save(grade);
-            }
-
-            // Обработка посещаемости (в отдельной таблице Attendance)
+            // Если выбрана посещаемость, удаляем оценку, комментарий и замечание
             if (attendanceStatus != null && !attendanceStatus.isEmpty()) {
-                Optional<Attendance> existingAttendance = attendanceRepository
-                        .findByStudentUserIdAndLessonLessonId(studentId, lessonId);
+                // Удаляем оценку
+                gradeRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                        .ifPresent(grade -> gradeRepository.delete(grade));
 
-                Attendance attendance;
-                if (existingAttendance.isPresent()) {
-                    attendance = existingAttendance.get();
-                } else {
-                    attendance = new Attendance();
-                    attendance.setStudent(student);
-                    attendance.setLesson(lesson);
-                }
+                // Удаляем замечание
+                remarkRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                        .ifPresent(remarkRepo -> remarkRepository.delete(remarkRepo));
+
+                // Сохраняем посещаемость
+                Attendance attendance = attendanceRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                        .orElseGet(() -> {
+                            Attendance newAttendance = new Attendance();
+                            newAttendance.setStudent(student);
+                            newAttendance.setLesson(lesson);
+                            return newAttendance;
+                        });
                 attendance.setStatus(attendanceStatus);
                 attendanceRepository.save(attendance);
+
+            } else {
+                // Если посещаемость не выбрана, удаляем запись о посещаемости
+                attendanceRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                        .ifPresent(attendance -> attendanceRepository.delete(attendance));
+
+                // Обработка оценки
+                if (gradeValue != null && !gradeValue.isEmpty()) {
+                    Grade grade = gradeRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                            .orElseGet(() -> {
+                                Grade newGrade = new Grade();
+                                newGrade.setStudent(student);
+                                newGrade.setLesson(lesson);
+                                newGrade.setDate(LocalDateTime.now());
+                                return newGrade;
+                            });
+                    grade.setGradeValue(Integer.parseInt(gradeValue));
+                    grade.setComment(comment);
+                    gradeRepository.save(grade);
+                } else {
+                    gradeRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                            .ifPresent(grade -> gradeRepository.delete(grade));
+                }
+
+                // Обработка замечания
+                if (remark != null && !remark.isEmpty()) {
+                    Remark remarkEntity = remarkRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                            .orElseGet(() -> {
+                                Remark newRemark = new Remark();
+                                newRemark.setStudent(student);
+                                newRemark.setLesson(lesson);
+                                return newRemark;
+                            });
+                    remarkEntity.setText(remark);
+                    remarkRepository.save(remarkEntity);
+                } else {
+                    remarkRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                            .ifPresent(remarkRepo -> remarkRepository.delete(remarkRepo));
+                }
             }
 
             response.put("success", true);
             response.put("message", "Данные успешно сохранены");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Ошибка сохранения: " + e.getMessage());
+            response.put("message", "Ошибка: " + e.getMessage());
         }
 
         return response;
@@ -279,6 +291,7 @@ public class JournalController {
 
     @PostMapping("/clear-grade")
     @ResponseBody
+    @Transactional
     public Map<String, Object> clearGrade(
             @RequestParam int studentId,
             @RequestParam int lessonId) {
@@ -286,16 +299,15 @@ public class JournalController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Удаляем оценку если есть
             gradeRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
                     .ifPresent(grade -> gradeRepository.delete(grade));
-
-            // Удаляем запись о посещаемости если есть
             attendanceRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
                     .ifPresent(attendance -> attendanceRepository.delete(attendance));
+            remarkRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
+                    .ifPresent(remark -> remarkRepository.delete(remark));
 
             response.put("success", true);
-            response.put("message", "Данные успешно очищены");
+            response.put("message", "Все данные успешно очищены");
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Ошибка очистки: " + e.getMessage());
@@ -306,14 +318,14 @@ public class JournalController {
 
     @GetMapping("/lesson-form")
     public String lessonForm(@RequestParam int lessonId, Model model) {
-        Schedule lesson = scheduleRepository.findById(lessonId)
-                .orElse(null);
+        Schedule lesson = scheduleRepository.findById(lessonId).orElse(null);
         model.addAttribute("lesson", lesson);
         return "journal/_lesson_form_partial";
     }
 
     @PostMapping("/save-lesson")
     @ResponseBody
+    @Transactional
     public Map<String, Object> saveLesson(
             @RequestParam int lessonId,
             @RequestParam(required = false) String lessonTopic,
@@ -324,18 +336,48 @@ public class JournalController {
         try {
             Schedule lesson = scheduleRepository.findById(lessonId)
                     .orElseThrow(() -> new RuntimeException("Урок не найден"));
-
             lesson.setLessonTopic(lessonTopic);
             lesson.setHomeworkText(homeworkText);
             scheduleRepository.save(lesson);
 
             response.put("success", true);
-            response.put("message", "Данные урока успешно сохранены");
+            response.put("message", "Данные урока сохранены");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Ошибка сохранения: " + e.getMessage());
+            response.put("message", "Ошибка: " + e.getMessage());
         }
 
         return response;
+    }
+
+    private Map<String, String> generateAvailableWeeks() {
+        Map<String, String> weeks = new LinkedHashMap<>();
+
+        LocalDate today = LocalDate.now();
+        LocalDate currentMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // Начинаем с 1 сентября текущего года
+        int year = today.getMonthValue() >= 9 ? today.getYear() : today.getYear() - 1;
+        LocalDate academicYearStart = LocalDate.of(year, 9, 1);
+        LocalDate start = academicYearStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // Заканчиваем текущей неделей
+        LocalDate end = currentMonday;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
+        int weekNum = 1;
+
+        LocalDate week = start;
+        while (!week.isAfter(end)) {
+            String key = week.toString();
+            String value = weekNum + " нед. (" + week.format(formatter) + " - " + week.plusDays(6).format(formatter) + ")";
+            weeks.put(key, value);
+            week = week.plusWeeks(1);
+            weekNum++;
+
+            if (weekNum > 52) break;
+        }
+
+        return weeks;
     }
 }

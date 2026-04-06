@@ -5,13 +5,10 @@ public class CellData {
     private boolean isAttendance;
     private boolean hasComment;
     private String comment;
+    private boolean hasRemark;
+    private String remark;
 
     public CellData() {}
-
-    public CellData(String value, boolean isAttendance) {
-        this.value = value;
-        this.isAttendance = isAttendance;
-    }
 
     public String getValue() { return value; }
     public void setValue(String value) { this.value = value; }
@@ -24,4 +21,10 @@ public class CellData {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+
+    public boolean isHasRemark() { return hasRemark; }
+    public void setHasRemark(boolean hasRemark) { this.hasRemark = hasRemark; }
+
+    public String getRemark() { return remark; }
+    public void setRemark(String remark) { this.remark = remark; }
 }
