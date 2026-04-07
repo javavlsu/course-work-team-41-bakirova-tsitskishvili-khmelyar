@@ -11,39 +11,122 @@
 
     // Инициализация тултипов
     function initTooltips() {
-        const triggers = document.querySelectorAll('.grade-trigger');
         const tooltip = document.getElementById('globalTooltip');
-
         if (!tooltip) return;
 
         let activeTrigger = null;
 
+        function buildGradesContent(element) {
+            const student = element.getAttribute('data-student') || '';
+            const subject = element.getAttribute('data-subject') || '';
+            const average = element.getAttribute('data-average') || '0';
+            const grade5 = element.getAttribute('data-grade5') || '0';
+            const grade4 = element.getAttribute('data-grade4') || '0';
+            const grade3 = element.getAttribute('data-grade3') || '0';
+            const grade2 = element.getAttribute('data-grade2') || '0';
+            const total = parseInt(grade5) + parseInt(grade4) + parseInt(grade3) + parseInt(grade2);
+
+            return `
+                <div class="tooltip-content">
+                    <div class="tooltip-title">📊 Детализация оценок</div>
+                    <div class="fw-bold mb-1">${escapeHtml(student || subject)}</div>
+                    <div class="grade-stat"><span>Отлично (5):</span> <span class="grade-5 fw-bold">${grade5}</span></div>
+                    <div class="grade-stat"><span>Хорошо (4):</span> <span class="grade-4 fw-bold">${grade4}</span></div>
+                    <div class="grade-stat"><span>Удовлетворительно (3):</span> <span class="grade-3 fw-bold">${grade3}</span></div>
+                    <div class="grade-stat"><span>Неудовлетворительно (2):</span> <span class="grade-2 fw-bold">${grade2}</span></div>
+                    <div class="grade-distribution"><span>📝 Всего оценок:</span> <strong>${total}</strong></div>
+                    <div class="tooltip-average"><span>📈 Средний балл:</span> <strong class="text-info">${average}</strong></div>
+                </div>
+            `;
+        }
+
+        function buildAbsencesContent(element) {
+            const student = element.getAttribute('data-student') || '';
+            const subject = element.getAttribute('data-subject') || '';
+            const total = element.getAttribute('data-total') || '0';
+            const absentH = element.getAttribute('data-h') || '0';
+            const absentU = element.getAttribute('data-u') || '0';
+            const absentB = element.getAttribute('data-b') || '0';
+
+            return `
+                <div class="tooltip-content">
+                    <div class="tooltip-title">📋 Детализация пропусков</div>
+                    <div class="fw-bold mb-1">${escapeHtml(student || subject)}</div>
+                    <div class="absence-type"><span class="text-danger">❌ Неуважительные (Н):</span> <span class="fw-bold">${absentH}</span></div>
+                    <div class="absence-type"><span class="text-warning">⚠️ Уважительные (У):</span> <span class="fw-bold">${absentU}</span></div>
+                    <div class="absence-type"><span class="text-success">🏥 Болезнь (Б):</span> <span class="fw-bold">${absentB}</span></div>
+                    <div class="absence-total"><span>📊 Всего пропусков:</span> <strong class="text-danger">${total}</strong></div>
+                </div>
+            `;
+        }
+
+        function positionTooltip(event) {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            const rect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // Позиционируем тултип чуть выше курсора
+            let left = mouseX + 15;
+            let top = mouseY - rect.height - 10;
+
+            // Проверяем выход за правый край
+            if (left + rect.width > viewportWidth - 10) {
+                left = mouseX - rect.width - 15;
+            }
+            if (left < 10) left = 10;
+
+            // Проверяем выход за верхний край
+            if (top < 10) {
+                top = mouseY + 20;
+            }
+
+            // Проверяем выход за нижний край
+            if (top + rect.height > viewportHeight - 10) {
+                top = mouseY - rect.height - 10;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            tooltip.style.right = 'auto';
+            tooltip.style.bottom = 'auto';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        const triggers = document.querySelectorAll('.tooltip-trigger');
+
         triggers.forEach(trigger => {
-            // Показ тултипа
             trigger.addEventListener('mouseenter', function(e) {
                 activeTrigger = this;
                 const type = this.getAttribute('data-type');
                 let content = '';
 
                 if (type === 'grades') {
-                    content = buildGradesTooltipContent(this);
+                    content = buildGradesContent(this);
                 } else if (type === 'absences') {
-                    content = buildAbsencesTooltipContent(this);
+                    content = buildAbsencesContent(this);
                 }
 
-                tooltip.innerHTML = content;
-                tooltip.classList.add('show');
-                positionTooltip(e, tooltip);
+                if (content) {
+                    tooltip.innerHTML = content;
+                    tooltip.classList.add('show');
+                    positionTooltip(e);
+                }
             });
 
-            // Движение мыши
             trigger.addEventListener('mousemove', function(e) {
-                if (activeTrigger === this) {
-                    positionTooltip(e, tooltip);
+                if (activeTrigger === this && tooltip.classList.contains('show')) {
+                    positionTooltip(e);
                 }
             });
 
-            // Скрытие тултипа
             trigger.addEventListener('mouseleave', function() {
                 if (activeTrigger === this) {
                     tooltip.classList.remove('show');
@@ -68,94 +151,9 @@
         });
     }
 
-    // Построение контента для тултипа с оценками
-    function buildGradesTooltipContent(element) {
-        const student = element.getAttribute('data-student') || '';
-        const subject = element.getAttribute('data-subject') || '';
-        const average = parseFloat(element.getAttribute('data-average') || 0).toFixed(2);
-        const gradesStr = element.getAttribute('data-grades') || '';
-        const grade5 = parseInt(element.getAttribute('data-grade5') || 0);
-        const grade4 = parseInt(element.getAttribute('data-grade4') || 0);
-        const grade3 = parseInt(element.getAttribute('data-grade3') || 0);
-        const grade2 = parseInt(element.getAttribute('data-grade2') || 0);
-        const total = grade5 + grade4 + grade3 + grade2;
-
-        const title = student ? `Детализация оценок: ${student}` : `Детализация оценок: ${subject}`;
-
-        return `
-            <div class="tooltip-content">
-                <div class="tooltip-title">${title}</div>
-                <div class="tooltip-grades-list">${gradesStr ? `Оценки: [${gradesStr}]` : 'Нет оценок'}</div>
-                <div class="tooltip-stats">
-                    <div>Всего оценок: ${total}</div>
-                    <div class="tooltip-grade-distribution">
-                        <span class="grade-5">5: ${grade5}</span>
-                        <span class="grade-4">4: ${grade4}</span>
-                        <span class="grade-3">3: ${grade3}</span>
-                        <span class="grade-2">2: ${grade2}</span>
-                    </div>
-                    <div class="tooltip-average">Средний балл: <strong>${average}</strong></div>
-                </div>
-            </div>
-            <div class="tooltip-arrow"></div>
-        `;
-    }
-
-    // Построение контента для тултипа с пропусками
-    function buildAbsencesTooltipContent(element) {
-        const student = element.getAttribute('data-student') || '';
-        const subject = element.getAttribute('data-subject') || '';
-        const total = parseInt(element.getAttribute('data-total') || 0);
-        const absentH = parseInt(element.getAttribute('data-h') || 0);
-        const absentU = parseInt(element.getAttribute('data-u') || 0);
-        const absentB = parseInt(element.getAttribute('data-b') || 0);
-
-        const title = student ? `Пропуски: ${student}` : `Пропуски: ${subject}`;
-
-        return `
-            <div class="tooltip-content">
-                <div class="tooltip-title">${title}</div>
-                <div class="tooltip-stats">
-                    <div class="absence-type"><span class="absence-h">Н (неуваж.):</span> ${absentH}</div>
-                    <div class="absence-type"><span class="absence-u">У (уваж.):</span> ${absentU}</div>
-                    <div class="absence-type"><span class="absence-b">Б (болезнь):</span> ${absentB}</div>
-                    <div class="absence-total">Всего пропусков: <strong>${total}</strong></div>
-                </div>
-            </div>
-            <div class="tooltip-arrow"></div>
-        `;
-    }
-
-    // Позиционирование тултипа
-    function positionTooltip(event, tooltip) {
-        const mouseX = event.clientX;
-        const mouseY = event.clientY;
-        const rect = tooltip.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        let left = mouseX + 15;
-        let top = mouseY + 15;
-
-        if (left + rect.width > viewportWidth - 10) {
-            left = mouseX - rect.width - 15;
-        }
-        if (left < 10) left = 10;
-
-        if (top + rect.height > viewportHeight - 10) {
-            top = mouseY - rect.height - 15;
-        }
-        if (top < 10) top = 10;
-
-        tooltip.style.left = left + 'px';
-        tooltip.style.top = top + 'px';
-        tooltip.style.right = 'auto';
-        tooltip.style.bottom = 'auto';
-    }
-
     // Автоматическая отправка формы при изменении фильтров
     function initAutoSubmit() {
-        const selects = document.querySelectorAll('#quarterForm select, #teacherFilterForm select');
+        const selects = document.querySelectorAll('#classId, #subjectId, #quarter');
 
         selects.forEach(select => {
             select.addEventListener('change', function() {

@@ -45,4 +45,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
+
 }

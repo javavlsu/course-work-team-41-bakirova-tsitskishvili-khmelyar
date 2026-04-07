@@ -6,96 +6,22 @@
     <title>Успеваемость</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        .global-tooltip {
-            position: fixed;
-            z-index: 99999;
-            background-color: #1f2937;
-            color: white;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            max-width: 350px;
-            white-space: normal;
-            word-wrap: break-word;
-            pointer-events: none;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        .global-tooltip.show {
-            visibility: visible;
-            opacity: 1;
-        }
-        .tooltip-trigger {
-            cursor: help;
-            border-bottom: 1px dashed #6c757d;
-            display: inline-block;
-        }
-        .grade-distribution {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #374151;
-        }
-        .grade-stat {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-        .grade-5 { color: #10b981; }
-        .grade-4 { color: #3b82f6; }
-        .grade-3 { color: #f59e0b; }
-        .grade-2 { color: #ef4444; }
-        .absence-h { color: #ef4444; }
-        .absence-u { color: #f59e0b; }
-        .absence-b { color: #10b981; }
-        .grade-high { color: #10b981; font-weight: bold; }
-        .grade-medium { color: #f59e0b; font-weight: bold; }
-        .grade-low { color: #ef4444; font-weight: bold; }
-        .grade-badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-right: 0.25rem;
-        }
-        .grade-badge-5 { background-color: #d1fae5; color: #065f46; }
-        .grade-badge-4 { background-color: #dbeafe; color: #1e40af; }
-        .grade-badge-3 { background-color: #fed7aa; color: #9a3412; }
-        .grade-badge-2 { background-color: #fee2e2; color: #991b1b; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/grades.css}">
 </head>
 <body>
 <div class="container mt-4">
-    <h2 class="mb-4">Успеваемость</h2>
-
-    <!-- Информация об ученике -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <small class="text-muted">Ученик</small>
-                    <h5 class="mb-0" th:text="${studentFullName}">Иванов Иван</h5>
-                </div>
-                <div class="col-md-6">
-                    <small class="text-muted">Класс</small>
-                    <h5 class="mb-0" th:text="${className}">9 "А"</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Скрытый заголовок -->
+    <h2 class="mb-4 page-title">Успеваемость</h2>
 
     <!-- Фильтр по четвертям -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <form th:action="@{/grades}" method="get" class="row g-3 align-items-center">
+            <form th:action="@{/grades}" method="get" class="row g-3 align-items-center justify-content-end">
                 <div class="col-auto">
                     <label for="quarter" class="form-label mb-0 fw-bold">Период:</label>
                 </div>
                 <div class="col-auto">
-                    <select name="quarter" id="quarter" class="form-select" onchange="this.form.submit()">
+                    <select name="quarter" id="quarter" class="form-select">
                         <option th:each="q : ${availableQuarters}"
                                 th:value="${q}"
                                 th:text="${q == 'Итоговые оценки' ? q : q + ' четверть'}"
@@ -126,6 +52,7 @@
                         <td class="text-center" th:text="${stat.count}">1</td>
                         <td th:text="${subject.subjectName}">Математика</td>
                         <td class="text-center">
+                            <span th:if="${subject.gradeCount > 0}">
                                 <span class="tooltip-trigger"
                                       th:classappend="${subject.averageGrade >= 4 ? 'grade-high' : (subject.averageGrade >= 3 ? 'grade-medium' : 'grade-low')}"
                                       th:text="${#numbers.formatDecimal(subject.averageGrade, 1, 2)}"
@@ -136,18 +63,24 @@
                                                data-grade4=${subject.gradeCount4},
                                                data-grade3=${subject.gradeCount3},
                                                data-grade2=${subject.gradeCount2}">0.00</span>
+                            </span>
+                            <span th:unless="${subject.gradeCount > 0}" class="dash-grade">—</span>
                         </td>
                         <td>
-                                <span th:each="grade : ${subject.allGrades}"
-                                      th:classappend="'grade-badge grade-badge-' + ${grade}"
-                                      th:text="${grade}"></span>
-                            <span th:if="${subject.allGrades.isEmpty()}" class="text-muted">—</span>
+                            <span th:each="grade : ${subject.allGrades}"
+                                  th:classappend="'grade-badge grade-badge-' + ${grade}"
+                                  th:text="${grade}"></span>
+                            <span th:if="${subject.allGrades.isEmpty()}" class="dash-grade">—</span>
                         </td>
                         <td class="text-center">
-                                <span th:classappend="${subject.quarterFinalGrade >= 4 ? 'grade-high' : (subject.quarterFinalGrade >= 3 ? 'grade-medium' : 'grade-low')}"
-                                      th:text="${subject.quarterFinalGrade > 0 ? subject.quarterFinalGrade : '—'}">—</span>
+                            <span th:if="${subject.quarterFinalGrade > 0}">
+                                <span th:classappend="${subject.quarterFinalGrade >= 4 ? 'final-grade-high' : 'final-grade-low'}"
+                                      th:text="${subject.quarterFinalGrade}">—</span>
+                            </span>
+                            <span th:unless="${subject.quarterFinalGrade > 0}" class="dash-grade">—</span>
                         </td>
                         <td class="text-center">
+                            <span th:if="${subject.totalAbsences > 0}">
                                 <span class="tooltip-trigger"
                                       th:classappend="${subject.totalAbsences > 0 ? 'text-danger fw-bold' : 'text-muted'}"
                                       th:text="${subject.totalAbsences}"
@@ -157,6 +90,8 @@
                                                data-h=${subject.absentTypeH},
                                                data-u=${subject.absentTypeU},
                                                data-b=${subject.absentTypeB}">0</span>
+                            </span>
+                            <span th:unless="${subject.totalAbsences > 0}" class="dash-grade">—</span>
                         </td>
                     </tr>
                     </tbody>
@@ -175,125 +110,7 @@
 <!-- Глобальный тултип -->
 <div id="globalTooltip" class="global-tooltip"></div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tooltip = document.getElementById('globalTooltip');
-        let activeTrigger = null;
-
-        function buildGradesContent(element) {
-            const subject = element.getAttribute('data-subject') || '';
-            const average = element.getAttribute('data-average') || '0';
-            const grade5 = element.getAttribute('data-grade5') || '0';
-            const grade4 = element.getAttribute('data-grade4') || '0';
-            const grade3 = element.getAttribute('data-grade3') || '0';
-            const grade2 = element.getAttribute('data-grade2') || '0';
-            const total = parseInt(grade5) + parseInt(grade4) + parseInt(grade3) + parseInt(grade2);
-
-            return `
-                <div class="fw-bold mb-2 border-bottom pb-1">Детализация оценок</div>
-                <div class="fw-bold mb-2">${subject}</div>
-                <div class="grade-stat"><span>Отлично (5):</span> <span class="grade-5 fw-bold">${grade5}</span></div>
-                <div class="grade-stat"><span>Хорошо (4):</span> <span class="grade-4 fw-bold">${grade4}</span></div>
-                <div class="grade-stat"><span>Удовлетворительно (3):</span> <span class="grade-3 fw-bold">${grade3}</span></div>
-                <div class="grade-stat"><span>Неудовлетворительно (2):</span> <span class="grade-2 fw-bold">${grade2}</span></div>
-                <div class="grade-distribution"><span>Всего оценок:</span> <strong>${total}</strong></div>
-                <div class="mt-2 pt-1"><span>Средний балл:</span> <strong class="text-info">${average}</strong></div>
-                <div class="tooltip-arrow"></div>
-            `;
-        }
-
-        function buildAbsencesContent(element) {
-            const subject = element.getAttribute('data-subject') || '';
-            const total = element.getAttribute('data-total') || '0';
-            const absentH = element.getAttribute('data-h') || '0';
-            const absentU = element.getAttribute('data-u') || '0';
-            const absentB = element.getAttribute('data-b') || '0';
-
-            return `
-                <div class="fw-bold mb-2 border-bottom pb-1">Детализация пропусков</div>
-                <div class="fw-bold mb-2">${subject}</div>
-                <div class="grade-stat"><span class="absence-h">Неуважительные (Н):</span> <span class="fw-bold">${absentH}</span></div>
-                <div class="grade-stat"><span class="absence-u">Уважительные (У):</span> <span class="fw-bold">${absentU}</span></div>
-                <div class="grade-stat"><span class="absence-b">Болезнь (Б):</span> <span class="fw-bold">${absentB}</span></div>
-                <div class="grade-distribution"><span>Всего пропусков:</span> <strong class="text-danger">${total}</strong></div>
-                <div class="tooltip-arrow"></div>
-            `;
-        }
-
-        function positionTooltip(event) {
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
-            const rect = tooltip.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-
-            let left = mouseX + 15;
-            let top = mouseY + 15;
-
-            if (left + rect.width > viewportWidth - 10) {
-                left = mouseX - rect.width - 15;
-            }
-            if (left < 10) left = 10;
-            if (top + rect.height > viewportHeight - 10) {
-                top = mouseY - rect.height - 15;
-            }
-            if (top < 10) top = 10;
-
-            tooltip.style.left = left + 'px';
-            tooltip.style.top = top + 'px';
-            tooltip.style.right = 'auto';
-            tooltip.style.bottom = 'auto';
-        }
-
-        const triggers = document.querySelectorAll('.tooltip-trigger');
-
-        triggers.forEach(trigger => {
-            trigger.addEventListener('mouseenter', function(e) {
-                activeTrigger = this;
-                const type = this.getAttribute('data-type');
-                let content = '';
-
-                if (type === 'grades') {
-                    content = buildGradesContent(this);
-                } else if (type === 'absences') {
-                    content = buildAbsencesContent(this);
-                }
-
-                tooltip.innerHTML = content;
-                tooltip.classList.add('show');
-                positionTooltip(e);
-            });
-
-            trigger.addEventListener('mousemove', function(e) {
-                if (activeTrigger === this) {
-                    positionTooltip(e);
-                }
-            });
-
-            trigger.addEventListener('mouseleave', function() {
-                if (activeTrigger === this) {
-                    tooltip.classList.remove('show');
-                    activeTrigger = null;
-                }
-            });
-        });
-
-        document.addEventListener('scroll', function() {
-            if (activeTrigger) {
-                tooltip.classList.remove('show');
-                activeTrigger = null;
-            }
-        });
-
-        window.addEventListener('resize', function() {
-            if (activeTrigger) {
-                tooltip.classList.remove('show');
-                activeTrigger = null;
-            }
-        });
-    });
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/grades.js}"></script>
 </body>
 </html>

@@ -54,7 +54,7 @@ public class GradesController {
         User currentUser = userRepository.findByLogin(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        String roleName = currentUser.getRole().getRoleName();
+        String roleName = getCurrentUserRole(auth);
 
         model.addAttribute("title", "Успеваемость");
         model.addAttribute("activePage", "grades");
@@ -70,20 +70,90 @@ public class GradesController {
         System.out.println("User: " + username + ", Role: " + roleName);
         System.out.println("Quarter: " + quarter + ", Date range: " + startDate + " - " + endDate);
 
-        if ("STUDENT".equals(roleName)) {
+        if ("ROLE_STUDENT".equals(roleName)) {
             return buildStudentView(model, currentUser, startDate, endDate, quarter);
-        } else if ("PARENT".equals(roleName)) {
+        } else if ("ROLE_PARENT".equals(roleName)) {
             List<User> children = userRepository.findByRole_RoleName("STUDENT");
             if (!children.isEmpty()) {
                 return buildStudentView(model, children.get(0), startDate, endDate, quarter);
             }
             model.addAttribute("errorMessage", "Ребенок не найден");
             return "error";
-        } else if ("TEACHER".equals(roleName) || "DIRECTOR".equals(roleName)) {
+        } else if ("ROLE_TEACHER".equals(roleName) || "ROLE_DIRECTOR".equals(roleName) || "ROLE_ADMIN".equals(roleName)) {
             return buildTeacherView(model, currentUser, classId, subjectId, startDate, endDate, quarter);
         }
 
         return "error";
+    }
+
+    private String getCurrentUserRole(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return "ROLE_ANONYMOUS";
+        }
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER");
+    }
+
+    /**
+     * Расчет итоговой оценки за четверть
+     */
+    private int calculateQuarterGrade(Integer studentId, Integer subjectId, String quarter) {
+        LocalDateTime[] dates = getQuarterDates(quarter);
+        LocalDateTime startDate = dates[0];
+        LocalDateTime endDate = dates[1];
+
+        List<Grade> grades = gradeRepository.findGradesForStudentBySubjectAndPeriod(
+                studentId, subjectId, startDate, endDate);
+
+        if (grades.isEmpty()) return 0;
+
+        double sum = 0;
+        int count = 0;
+        for (Grade grade : grades) {
+            if (grade.getGradeValue() != null) {
+                sum += grade.getGradeValue();
+                count++;
+            }
+        }
+
+        if (count == 0) return 0;
+        return (int) Math.round(sum / count);
+    }
+
+    /**
+     * Расчет годовой оценки как среднее арифметическое четвертных оценок
+     * Если в четверти нет оценок, эта четверть НЕ учитывается в расчете
+     */
+    private int calculateYearGrade(Integer studentId, Integer subjectId) {
+        List<Integer> quarterGrades = new ArrayList<>();
+
+        // I четверть
+        int grade1 = calculateQuarterGrade(studentId, subjectId, "I");
+        if (grade1 > 0) quarterGrades.add(grade1);
+
+        // II четверть
+        int grade2 = calculateQuarterGrade(studentId, subjectId, "II");
+        if (grade2 > 0) quarterGrades.add(grade2);
+
+        // III четверть
+        int grade3 = calculateQuarterGrade(studentId, subjectId, "III");
+        if (grade3 > 0) quarterGrades.add(grade3);
+
+        // IV четверть
+        int grade4 = calculateQuarterGrade(studentId, subjectId, "IV");
+        if (grade4 > 0) quarterGrades.add(grade4);
+
+        // Если нет ни одной четвертной оценки
+        if (quarterGrades.isEmpty()) return 0;
+
+        // Среднее арифметическое только тех четвертей, где есть оценки
+        double sum = 0;
+        for (Integer grade : quarterGrades) {
+            sum += grade;
+        }
+        return (int) Math.round(sum / quarterGrades.size());
     }
 
     private String buildStudentView(Model model, User student, LocalDateTime startDate, LocalDateTime endDate, String quarter) {
@@ -133,12 +203,24 @@ public class GradesController {
 
                 subjectData.put("averageGrade", avg);
                 subjectData.put("allGrades", gradeValues);
-                subjectData.put("quarterFinalGrade", (int) Math.round(avg));
                 subjectData.put("gradeCount", gradeValues.size());
                 subjectData.put("gradeCount5", count5);
                 subjectData.put("gradeCount4", count4);
                 subjectData.put("gradeCount3", count3);
                 subjectData.put("gradeCount2", count2);
+
+                // Определяем итоговую оценку
+                int finalGrade;
+                if ("Итоговые оценки".equals(quarter)) {
+                    // Годовая оценка - среднее арифметическое четвертных
+                    finalGrade = calculateYearGrade(student.getUserId(), subject.getSubjectId());
+                    System.out.println("Year grade for " + subject.getSubjectName() + ": " + finalGrade);
+                } else {
+                    // Четвертная оценка - среднее оценок за период
+                    finalGrade = (int) Math.round(avg);
+                }
+                subjectData.put("quarterFinalGrade", finalGrade);
+
             } else {
                 subjectData.put("averageGrade", 0);
                 subjectData.put("allGrades", new ArrayList<>());
@@ -150,21 +232,17 @@ public class GradesController {
                 subjectData.put("gradeCount2", 0);
             }
 
-            // ========== ИСПРАВЛЕНО: считаем пропуски ПО КОНКРЕТНОМУ ПРЕДМЕТУ ==========
-            // Получаем все уроки по этому предмету за период
+            // Считаем пропуски по конкретному предмету
             List<Schedule> lessonsForSubject = scheduleRepository.findLessonsForSubjectAndPeriod(
                     subject.getSubjectId(), startDate, endDate);
 
-            // Собираем ID уроков по этому предмету
             Set<Integer> lessonIdsForSubject = lessonsForSubject.stream()
                     .map(Schedule::getLessonId)
                     .collect(Collectors.toSet());
 
-            // Получаем все пропуски ученика за период
             List<Attendance> attendances = attendanceRepository.findAttendanceForStudentInPeriod(
                     student.getUserId(), startDate, endDate);
 
-            // Считаем пропуски только по урокам этого предмета
             long absentH = 0, absentU = 0, absentB = 0;
             for (Attendance a : attendances) {
                 Integer lessonId = a.getLesson().getLessonId();
@@ -211,23 +289,35 @@ public class GradesController {
         System.out.println("=== BUILD TEACHER VIEW ===");
         System.out.println("Teacher ID: " + teacher.getUserId());
         System.out.println("Teacher Name: " + teacher.getFullName());
+        System.out.println("Teacher Role: " + teacher.getRole().getRoleName());
 
-        // ========== 1. Классы, где учитель ведет уроки ==========
-        List<SchoolClass> teacherClasses = classRepository.findClassesByTeacherId(teacher.getUserId());
-        System.out.println("Teacher classes (where teaches): " + teacherClasses.size());
+        String roleName = teacher.getRole().getRoleName();
+        boolean isDirectorOrAdmin = "DIRECTOR".equals(roleName) || "ADMIN".equals(roleName);
 
-        // ========== 2. Классы, где учитель является классным руководителем ==========
-        List<SchoolClass> supervisedClasses = classRepository.findByClassTeacher(teacher);
-        System.out.println("Supervised classes (homeroom teacher): " + supervisedClasses.size());
-
-        // ========== 3. Объединяем классы (уникальные) ==========
         Map<Integer, String> availableClasses = new LinkedHashMap<>();
 
-        for (SchoolClass sc : teacherClasses) {
-            availableClasses.put(sc.getClassId(), sc.getClassName());
-        }
-        for (SchoolClass sc : supervisedClasses) {
-            availableClasses.put(sc.getClassId(), sc.getClassName());
+        if (isDirectorOrAdmin) {
+            // ДИРЕКТОР И АДМИН: видят ВСЕ классы
+            List<SchoolClass> allClasses = classRepository.findAll();
+            System.out.println("Director/Admin - loading ALL classes, found: " + allClasses.size());
+            for (SchoolClass sc : allClasses) {
+                availableClasses.put(sc.getClassId(), sc.getClassName());
+            }
+        } else {
+            // УЧИТЕЛЬ: классы, где ведет уроки
+            List<SchoolClass> teacherClasses = classRepository.findClassesByTeacherId(teacher.getUserId());
+            System.out.println("Teacher classes (where teaches): " + teacherClasses.size());
+
+            // + классы, где является классным руководителем
+            List<SchoolClass> supervisedClasses = classRepository.findByClassTeacher(teacher);
+            System.out.println("Supervised classes (homeroom teacher): " + supervisedClasses.size());
+
+            for (SchoolClass sc : teacherClasses) {
+                availableClasses.put(sc.getClassId(), sc.getClassName());
+            }
+            for (SchoolClass sc : supervisedClasses) {
+                availableClasses.put(sc.getClassId(), sc.getClassName());
+            }
         }
 
         if (availableClasses.isEmpty()) {
@@ -237,28 +327,38 @@ public class GradesController {
             return "layout";
         }
 
-        // ========== 4. Выбранный класс ==========
+        // Выбранный класс
         Integer selectedClassId = classId;
         if (selectedClassId == null || !availableClasses.containsKey(selectedClassId)) {
             selectedClassId = availableClasses.keySet().iterator().next();
         }
 
-        // ========== 5. Проверяем, является ли учитель классным руководителем выбранного класса ==========
+        // Проверяем, является ли учитель классным руководителем выбранного класса
         boolean isHomeroomTeacher = false;
-        for (SchoolClass sc : supervisedClasses) {
-            if (sc.getClassId().equals(selectedClassId)) {
-                isHomeroomTeacher = true;
-                break;
+        if (!isDirectorOrAdmin) {
+            List<SchoolClass> supervisedClasses = classRepository.findByClassTeacher(teacher);
+            for (SchoolClass sc : supervisedClasses) {
+                if (sc.getClassId().equals(selectedClassId)) {
+                    isHomeroomTeacher = true;
+                    break;
+                }
             }
         }
 
         System.out.println("Selected Class ID: " + selectedClassId);
         System.out.println("Is homeroom teacher: " + isHomeroomTeacher);
 
-        // ========== 6. Формируем список предметов для выбора ==========
+        // Формируем список предметов для выбора
         Map<Integer, String> availableSubjects = new LinkedHashMap<>();
 
-        if (isHomeroomTeacher) {
+        if (isDirectorOrAdmin) {
+            // ДИРЕКТОР И АДМИН: видят ВСЕ предметы
+            List<Subject> allSubjects = subjectRepository.findAll();
+            System.out.println("Director/Admin - loading ALL subjects, found: " + allSubjects.size());
+            for (Subject subj : allSubjects) {
+                availableSubjects.put(subj.getSubjectId(), subj.getSubjectName());
+            }
+        } else if (isHomeroomTeacher) {
             // КЛАССНЫЙ РУКОВОДИТЕЛЬ: видит ВСЕ предметы своего класса
             System.out.println("Homeroom teacher - loading ALL subjects for class");
             List<Subject> allSubjects = subjectRepository.findAll();
@@ -282,7 +382,7 @@ public class GradesController {
             return "layout";
         }
 
-        // ========== 7. Выбранный предмет ==========
+        // Выбранный предмет
         Integer selectedSubjectId = subjectId;
         if (selectedSubjectId == null || !availableSubjects.containsKey(selectedSubjectId)) {
             selectedSubjectId = availableSubjects.keySet().iterator().next();
@@ -291,7 +391,7 @@ public class GradesController {
         System.out.println("Selected Subject ID: " + selectedSubjectId);
         System.out.println("Available subjects: " + availableSubjects);
 
-        // ========== 8. Получаем учеников класса ==========
+        // Получаем учеников класса
         List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
         System.out.println("Students in class: " + students.size());
 
@@ -324,12 +424,23 @@ public class GradesController {
 
                 studentData.put("averageGrade", avg);
                 studentData.put("allGrades", gradeValues);
-                studentData.put("quarterFinalGrade", (int) Math.round(avg));
                 studentData.put("gradeCount", gradeValues.size());
                 studentData.put("gradeCount5", count5);
                 studentData.put("gradeCount4", count4);
                 studentData.put("gradeCount3", count3);
                 studentData.put("gradeCount2", count2);
+
+                // Определяем итоговую оценку
+                int finalGrade;
+                if ("Итоговые оценки".equals(quarter)) {
+                    // Годовая оценка - среднее арифметическое четвертных
+                    finalGrade = calculateYearGrade(student.getUserId(), selectedSubjectId);
+                } else {
+                    // Четвертная оценка - среднее оценок за период
+                    finalGrade = (int) Math.round(avg);
+                }
+                studentData.put("quarterFinalGrade", finalGrade);
+
             } else {
                 studentData.put("averageGrade", 0);
                 studentData.put("allGrades", new ArrayList<>());
@@ -379,7 +490,7 @@ public class GradesController {
         // Сортируем учеников по фамилии
         studentsData.sort(Comparator.comparing(s -> (String) s.get("fullName")));
 
-        // ========== 9. Добавляем атрибуты в модель ==========
+        // Добавляем атрибуты в модель
         model.addAttribute("students", studentsData);
         model.addAttribute("availableClasses", availableClasses);
         model.addAttribute("availableSubjects", availableSubjects);
@@ -390,6 +501,7 @@ public class GradesController {
         model.addAttribute("selectedClassName", availableClasses.get(selectedClassId));
         model.addAttribute("selectedSubjectName", availableSubjects.get(selectedSubjectId));
         model.addAttribute("isHomeroomTeacher", isHomeroomTeacher);
+        model.addAttribute("isDirectorOrAdmin", isDirectorOrAdmin);
         model.addAttribute("content", "grades/teacher-view");
 
         System.out.println("=== TEACHER VIEW BUILT SUCCESSFULLY ===");
