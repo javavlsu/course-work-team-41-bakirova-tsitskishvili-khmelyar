@@ -47,6 +47,9 @@ public class JournalController {
     @Autowired
     private RemarkRepository remarkRepository;
 
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
+
     @GetMapping("/index")
     public String index(
             @RequestParam(value = "classId", required = false) Integer classId,
@@ -269,6 +272,53 @@ public class JournalController {
                     grade.setGradeValue(Integer.parseInt(gradeValue));
                     grade.setComment(comment);
                     gradeRepository.save(grade);
+
+                    // БЛОК ВЕДЕНИЯ ИСТОРИИ ОЦЕНОК
+                    if (grade.getGradeValue() != null) {
+                        int coinDelta = 0;
+
+                        // Расценка: 5 -> +3, 4 -> +1, 3 -> 0, 2 -> -2
+                        switch (grade.getGradeValue()) {
+                            case 5: coinDelta = 3; break;
+                            case 4: coinDelta = 1; break;
+                            case 3: coinDelta = 0; break;
+                            case 2: coinDelta = -2; break;
+                        }
+
+                        if (coinDelta != 0) {
+                            int currentBalance = student.getCoins() != null ? student.getCoins() : 0;
+                            int newBalance = currentBalance + coinDelta;
+
+                            // Защита от ухода в минус (ученик не может задолжать школе)
+                            if (newBalance < 0) {
+                                newBalance = 0;
+                            }
+
+                            int actualDelta = newBalance - currentBalance;
+
+                            // Если баланс реально изменился
+                            if (actualDelta != 0) {
+                                // 1. Обновляем монеты ученика
+                                student.setCoins(newBalance);
+                                userRepository.save(student);
+
+                                // 2. Записываем в историю
+                                TransactionHistory tx = new TransactionHistory();
+                                tx.setStudent(student);
+                                tx.setAmount(actualDelta);
+
+                                if (actualDelta > 0) {
+                                    tx.setDescription("Начисление за оценку " + grade.getGradeValue());
+                                } else {
+                                    tx.setDescription("Списание за оценку " + grade.getGradeValue());
+                                }
+
+                                tx.setGrade(grade); // Привязываем транзакцию к конкретной оценке
+                                transactionHistoryRepository.save(tx);
+                            }
+                        }
+                    }
+                    
                 } else {
                     gradeRepository.findByStudentUserIdAndLessonLessonId(studentId, lessonId)
                             .ifPresent(grade -> gradeRepository.delete(grade));

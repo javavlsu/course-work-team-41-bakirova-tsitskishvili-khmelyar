@@ -9,4 +9,5 @@ import java.util.List;
 public interface MerchItemRepository extends JpaRepository<MerchItem, Integer> {
     List<MerchItem> findByOrderByPriceAsc();
     List<MerchItem> findByPriceLessThanEqual(Integer maxPrice);
+    List<MerchItem> findByIsArchivedFalseOrderByPriceAsc();
 }

@@ -55,116 +55,162 @@ public class ScheduleController {
     @GetMapping("/index")
     public String index(
             @RequestParam(value = "date", required = false) String dateStr,
+            @RequestParam(value = "filterType", required = false, defaultValue = "Class") String filterType,
+            @RequestParam(value = "selectedId", required = false) Integer selectedId,
             Model model) {
-
-        LocalDate selectedDate = LocalDate.now();
-        LocalDate startOfWeek = selectedDate;
 
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
-
-            User currentUser = userRepository.findByLogin(username)
+            User currentUser = userRepository.findByLogin(auth.getName())
                     .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-
             String role = getCurrentUserRole(auth);
 
-            model.addAttribute("title", "Расписание");
-            model.addAttribute("activePage", "schedule");
-            model.addAttribute("content", "schedule/personal-view");
-
-            // Определение выбранной даты
+            // Определение дат
+            LocalDate selectedDate = LocalDate.now();
             if (dateStr != null && !dateStr.isEmpty()) {
-                try {
-                    selectedDate = LocalDate.parse(dateStr);
-                } catch (Exception e) {
-                    selectedDate = LocalDate.now();
-                }
+                try { selectedDate = LocalDate.parse(dateStr); } catch (Exception ignored) {}
             }
-
-            startOfWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate startOfWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             LocalDateTime weekStart = startOfWeek.atStartOfDay();
             LocalDateTime weekEnd = startOfWeek.plusDays(7).atTime(LocalTime.MAX);
 
-            boolean isParent = "ROLE_PARENT".equals(role);
-            List<Schedule> lessons;
-
-            if (isParent) {
-                // Для родителя - показываем расписание ребенка (упрощенно - первого)
-                User student = findStudentForParent(currentUser.getUserId());
-                if (student != null) {
-                    Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(student.getUserId());
-                    if (sc.isPresent()) {
-                        lessons = scheduleRepository.findLessonsForClassBetween(
-                                sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
-
-                        model.addAttribute("studentName", student.getFullName());
-                        model.addAttribute("className", sc.get().getSchoolClass().getClassName());
-                        model.addAttribute("classTeacher",
-                                sc.get().getSchoolClass().getClassTeacher() != null ?
-                                        sc.get().getSchoolClass().getClassTeacher().getFullName() : "Не назначен");
-                    } else {
-                        lessons = new ArrayList<>();
-                    }
-                } else {
-                    lessons = new ArrayList<>();
-                }
-            } else if ("ROLE_STUDENT".equals(role)) {
-                // Для ученика - его класс
-                Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(currentUser.getUserId());
-                if (sc.isPresent()) {
-                    lessons = scheduleRepository.findLessonsForClassBetween(
-                            sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
-
-                    model.addAttribute("studentName", currentUser.getFullName());
-                    model.addAttribute("className", sc.get().getSchoolClass().getClassName());
-                    model.addAttribute("classTeacher",
-                            sc.get().getSchoolClass().getClassTeacher() != null ?
-                                    sc.get().getSchoolClass().getClassTeacher().getFullName() : "Не назначен");
-                } else {
-                    lessons = new ArrayList<>();
-                }
-            } else if ("ROLE_TEACHER".equals(role)) {
-                // Для учителя - его уроки
-                lessons = scheduleRepository.findLessonsForTeacherBetween(
-                        currentUser.getUserId(), weekStart, weekEnd);
+            // МАРШРУТИЗАЦИЯ В ЗАВИСИМОСТИ ОТ РОЛИ
+            if ("ROLE_DIRECTOR".equals(role) || "ROLE_ADMIN".equals(role)) {
+                return buildDirectorView(model, weekStart, weekEnd, selectedDate, startOfWeek, filterType, selectedId);
             } else {
-                // Для директора - все уроки
-                lessons = scheduleRepository.findLessonsBetween(weekStart, weekEnd);
+                return buildPersonalView(model, currentUser, role, weekStart, weekEnd, selectedDate, startOfWeek);
             }
-
-            // Преобразуем в ViewModel
-            List<ScheduleItemViewModel> lessonViewModels = lessons.stream()
-                    .map(this::convertToScheduleItem)
-                    .collect(Collectors.toList());
-
-            Map<DayOfWeek, List<ScheduleItemViewModel>> scheduleByDay = groupLessonsByDay(lessonViewModels);
-
-            ScheduleViewModel viewModel = new ScheduleViewModel();
-            viewModel.setScheduleByDay(scheduleByDay);
-            viewModel.setSelectedDate(selectedDate);
-            viewModel.setStartOfWeek(startOfWeek);
-            viewModel.setPersonalView(!isParent);
-            viewModel.setAdminView("ROLE_DIRECTOR".equals(role));
-
-            model.addAttribute("viewModel", viewModel);
-            model.addAttribute("isParent", isParent);
-            model.addAttribute("lessonTimes", LESSON_TIME_MAP);
-            model.addAttribute("currentDate", LocalDate.now().format(DATE_FORMATTER));
 
         } catch (Exception ex) {
             ex.printStackTrace();
             model.addAttribute("errorMessage", "Произошла ошибка при загрузке расписания.");
+            return "layout";
         }
+    }
+
+    // ========================================================================
+    // МЕТОД ДЛЯ ДИРЕКТОРА (ПОЛНОЕ РАСПИСАНИЕ С ФИЛЬТРАМИ)
+    // ========================================================================
+    private String buildDirectorView(Model model, LocalDateTime weekStart, LocalDateTime weekEnd,
+                                     LocalDate selectedDate, LocalDate startOfWeek,
+                                     String filterType, Integer selectedId) {
+
+        ScheduleViewModel viewModel = new ScheduleViewModel();
+        viewModel.setSelectedDate(selectedDate);
+        viewModel.setStartOfWeek(startOfWeek);
+        viewModel.setAdminView(true);
+        viewModel.setPersonalView(false);
+        viewModel.setFilterType(filterType);
+
+        List<User> teachers = userRepository.findByRole_RoleName("TEACHER");
+        List<SchoolClass> classes = classRepository.findAll();
+        viewModel.setAvailableTeachers(teachers);
+        viewModel.setAvailableClasses(classes);
+
+        List<Schedule> lessons = new ArrayList<>();
+
+        if ("Teacher".equals(filterType)) {
+            if (selectedId == null && !teachers.isEmpty()) {
+                selectedId = teachers.get(0).getUserId();
+            }
+            viewModel.setSelectedTeacherId(selectedId);
+
+            if (selectedId != null) {
+                lessons = scheduleRepository.findLessonsForTeacherBetween(selectedId, weekStart, weekEnd);
+                User selectedTeacher = userRepository.findById(selectedId).orElse(null);
+                if (selectedTeacher != null) {
+                    viewModel.setSelectedClassName("Учитель: " + selectedTeacher.getFullName());
+                }
+            }
+        } else {
+            if (selectedId == null && !classes.isEmpty()) {
+                selectedId = classes.get(0).getClassId();
+            }
+            viewModel.setSelectedClassId(selectedId);
+
+            if (selectedId != null) {
+                lessons = scheduleRepository.findLessonsForClassBetween(selectedId, weekStart, weekEnd);
+                SchoolClass selectedClass = classRepository.findById(selectedId).orElse(null);
+                if (selectedClass != null) {
+                    viewModel.setSelectedClassName("Класс: " + selectedClass.getClassName());
+                }
+            }
+        }
+
+        List<ScheduleItemViewModel> lessonViewModels = lessons.stream()
+                .map(this::convertToScheduleItem)
+                .collect(Collectors.toList());
+
+        viewModel.setScheduleByDay(groupLessonsByDay(lessonViewModels));
+
+        model.addAttribute("viewModel", viewModel);
+        model.addAttribute("lessonTimes", LESSON_TIME_MAP);
+        model.addAttribute("title", "Администрирование расписания");
+        model.addAttribute("activePage", "schedule");
+        model.addAttribute("content", "schedule/director-view");
 
         return "layout";
     }
+
+    // ========================================================================
+    // МЕТОД ДЛЯ УЧЕНИКОВ, РОДИТЕЛЕЙ И УЧИТЕЛЕЙ (ЛИЧНОЕ РАСПИСАНИЕ)
+    // ========================================================================
+    private String buildPersonalView(Model model, User currentUser, String role,
+                                     LocalDateTime weekStart, LocalDateTime weekEnd,
+                                     LocalDate selectedDate, LocalDate startOfWeek) {
+
+        boolean isParent = "ROLE_PARENT".equals(role);
+        List<Schedule> lessons = new ArrayList<>();
+
+        if (isParent) {
+            User student = userRepository.findByRole_RoleName("STUDENT").stream().findFirst().orElse(null);
+            if (student != null) {
+                Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(student.getUserId());
+                if (sc.isPresent()) {
+                    lessons = scheduleRepository.findLessonsForClassBetween(
+                            sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
+                }
+            }
+        } else if ("ROLE_STUDENT".equals(role)) {
+            Optional<StudentClass> sc = studentClassRepository.findByStudentUserId(currentUser.getUserId());
+            if (sc.isPresent()) {
+                lessons = scheduleRepository.findLessonsForClassBetween(
+                        sc.get().getSchoolClass().getClassId(), weekStart, weekEnd);
+            }
+        } else if ("ROLE_TEACHER".equals(role)) {
+            lessons = scheduleRepository.findLessonsForTeacherBetween(currentUser.getUserId(), weekStart, weekEnd);
+        }
+
+        List<ScheduleItemViewModel> lessonViewModels = lessons.stream()
+                .map(this::convertToScheduleItem)
+                .collect(Collectors.toList());
+
+        ScheduleViewModel viewModel = new ScheduleViewModel();
+        viewModel.setScheduleByDay(groupLessonsByDay(lessonViewModels));
+        viewModel.setSelectedDate(selectedDate);
+        viewModel.setStartOfWeek(startOfWeek);
+        viewModel.setPersonalView(!isParent);
+        viewModel.setAdminView(false);
+
+        model.addAttribute("viewModel", viewModel);
+        model.addAttribute("isParent", isParent);
+        model.addAttribute("lessonTimes", LESSON_TIME_MAP);
+        model.addAttribute("currentDate", LocalDate.now().format(DATE_FORMATTER));
+        model.addAttribute("title", "Расписание");
+        model.addAttribute("activePage", "schedule");
+        model.addAttribute("content", "schedule/personal-view");
+
+        return "layout";
+    }
+
+    // ========================================================================
+    // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+    // ========================================================================
 
     @GetMapping("/get-lesson-details")
     @ResponseBody
     public Map<String, Object> getLessonDetails(@RequestParam Integer lessonId) {
         Map<String, Object> response = new HashMap<>();
-
         try {
             Schedule lesson = scheduleRepository.findById(lessonId)
                     .orElseThrow(() -> new RuntimeException("Урок не найден"));
@@ -185,7 +231,6 @@ public class ScheduleController {
             response.put("success", false);
             response.put("message", "Ошибка: " + e.getMessage());
         }
-
         return response;
     }
 
@@ -208,12 +253,13 @@ public class ScheduleController {
 
         if (schedule.getSchoolClass() != null) {
             item.setClassroom(schedule.getRoom());
+            // НОВОЕ ПОЛЕ: Название класса (чтобы работало в director-view)
+            item.setClassName(schedule.getSchoolClass().getClassName());
         }
 
         item.setLessonTopic(schedule.getLessonTopic());
         item.setHomeworkText(schedule.getHomeworkText());
 
-        // Проверяем оценку для текущего ученика (упрощенно)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated()) {
             userRepository.findByLogin(auth.getName()).ifPresent(user -> {
@@ -226,7 +272,6 @@ public class ScheduleController {
                 }
             });
         }
-
         return item;
     }
 
@@ -241,34 +286,23 @@ public class ScheduleController {
 
     private Map<DayOfWeek, List<ScheduleItemViewModel>> groupLessonsByDay(List<ScheduleItemViewModel> lessons) {
         Map<DayOfWeek, List<ScheduleItemViewModel>> scheduleByDay = new EnumMap<>(DayOfWeek.class);
-
         for (DayOfWeek day : DayOfWeek.values()) {
             scheduleByDay.put(day, new ArrayList<>());
         }
-
         for (ScheduleItemViewModel lesson : lessons) {
             if (lesson.getDate() != null) {
                 DayOfWeek day = lesson.getDate().getDayOfWeek();
                 scheduleByDay.get(day).add(lesson);
             }
         }
-
         for (List<ScheduleItemViewModel> dayLessons : scheduleByDay.values()) {
             dayLessons.sort(Comparator.comparingInt(ScheduleItemViewModel::getLessonNumber));
         }
-
         return scheduleByDay;
     }
 
-    private User findStudentForParent(int parentId) {
-        // Упрощенно - первый ученик
-        return userRepository.findByRole_RoleName("STUDENT").stream().findFirst().orElse(null);
-    }
-
     private String getCurrentUserRole(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return "ROLE_ANONYMOUS";
-        }
+        if (auth == null || !auth.isAuthenticated()) return "ROLE_ANONYMOUS";
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()

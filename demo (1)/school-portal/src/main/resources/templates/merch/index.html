@@ -1,216 +1,561 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        .merch-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-            padding: 20px 0;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            /* Сетка товаров */
+            .merch-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 24px;
+                padding: 20px 0;
+            }
 
-        .merch-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s;
-        }
+            .merch-card {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                transition: transform 0.2s;
+                position: relative;
+            }
 
-        .merch-card:hover {
-            transform: translateY(-5px);
-        }
+            .merch-card.archived {
+                opacity: 0.6;
+                filter: grayscale(100%);
+            }
 
-        .merch-image {
-            height: 300px;
-            background-color: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #adb5bd;
-            border-bottom: 1px solid #eee;
-        }
+            .archived-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: #dc3545;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: bold;
+                z-index: 10;
+            }
 
-        .merch-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+            .merch-card:hover {
+                transform: translateY(-5px);
+            }
 
-        .merch-info {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
+            .merch-image {
+                height: 300px;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #adb5bd;
+                border-bottom: 1px solid #eee;
+            }
 
-        .merch-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #2b3445;
-            margin-bottom: 10px;
-        }
+            .merch-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
 
-        .merch-desc {
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 15px;
-            flex-grow: 1;
-        }
+            .merch-info {
+                padding: 20px;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
 
-        .merch-price-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
+            .merch-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #2b3445;
+                margin-bottom: 10px;
+            }
 
-        .merch-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #f59e0b; /* Золотой цвет для монет */
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+            .merch-desc {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 15px;
+                flex-grow: 1;
+            }
 
-        .btn-buy {
-            background-color: #3b90d3;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+            .merch-price-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: auto;
+            }
 
-        .btn-buy:hover:not(:disabled) {
-            background-color: #2a7cbb;
-        }
+            .merch-price {
+                font-size: 20px;
+                font-weight: bold;
+                color: #f59e0b;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
 
-        .btn-buy:disabled {
-            background-color: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-        }
-    </style>
-</head>
-<body>
+            /* Кнопки покупки */
+            .btn-buy {
+                background-color: #3b90d3;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.2s;
+            }
 
-<!-- Токен для безопасности AJAX -->
-<meta name="_csrf" th:content="${_csrf.token}"/>
-<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+            .btn-buy:hover:not(:disabled) { background-color: #2a7cbb; }
+            .btn-buy:disabled { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
 
-<div>
-    <div class="alert alert-info d-flex align-items-center mb-4">
-        <i class="fas fa-info-circle fa-2x me-3 text-primary"></i>
-        <div>
-            <strong>Как это работает?</strong><br>
-            Здесь вы можете обменять заработанные за хорошую учебу монеты на фирменный мерч школы. Выберите товар и нажмите "Купить". Заявка отправится директору.
-        </div>
-    </div>
+            /* Админские кнопки (используем ваши стили) */
+            .admin-actions {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                gap: 8px;
+            }
 
-    <!-- Если магазин пуст -->
-    <div th:if="${items.isEmpty()}" class="text-center py-5">
-        <i class="fas fa-store-slash fa-4x text-muted mb-3"></i>
-        <h4>Магазин пока пуст</h4>
-        <p class="text-muted">Скоро здесь появятся классные товары!</p>
-    </div>
+             /* Кнопки действий (Изменить / В архив) */
+            .btn-action {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .btn-edit { background-color: #fff3cd; color: #856404; }
+            .btn-edit:hover { background-color: #ffeaa7; }
+            .btn-delete { background-color: #f8d7da; color: #721c24; }
+            .btn-delete:hover { background-color: #f5c6cb; }
+            .btn-details { background-color: #e3f2fd; color: #1976d2; }
+            .btn-details:hover { background-color: #bbdefb; }
 
-    <!-- Сетка товаров -->
-    <div class="merch-grid">
-        <div th:each="item : ${items}" class="merch-card">
-            <div class="merch-image">
-                <!-- Если картинки нет, показываем иконку -->
-                <img th:if="${item.imageUrl != null && !item.imageUrl.isEmpty()}" th:src="${item.imageUrl}" alt="Товар">
-                <i th:unless="${item.imageUrl != null && !item.imageUrl.isEmpty()}" class="fas fa-gift fa-4x"></i>
+            /* Модальное окно */
+            .modal-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                backdrop-filter: blur(2px);
+            }
+            .modal-content-form {
+                background: white;
+                border-radius: 16px;
+                width: 90%;
+                max-width: 550px;
+                box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+            }
+            .modal-form-header {
+                padding: 20px 25px;
+                background: #3b90d3;
+                color: white;
+                font-size: 18px;
+                font-weight: 700;
+                border-radius: 16px 16px 0 0;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .modal-form-body {
+                padding: 25px;
+            }
+            .modal-form-actions {
+                padding: 20px 25px;
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                border-top: 1px solid #e5e7eb;
+                background: #f9fafb;
+                border-radius: 0 0 16px 16px;
+            }
+
+            /* Поля ввода в модалке */
+            .form-group { margin-bottom: 18px; }
+            .form-group label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 500;
+                color: #374151;
+                font-size: 14px;
+            }
+            .form-control {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1.5px solid #e5e7eb;
+                border-radius: 8px;
+                font-size: 14px;
+                transition: all 0.2s;
+                box-sizing: border-box;
+            }
+            .form-control:focus {
+                outline: none;
+                border-color: #3b90d3;
+                box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.1);
+            }
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            /* Кнопки Сохранить / Отмена */
+            .btn-secondary-text {
+                padding: 10px 20px;
+                background: #ffffff;
+                color: #6b7280;
+                border: 1.5px solid #d1d5db;
+                border-radius: 8px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-secondary-text:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+            .btn-primary-blue {
+                padding: 10px 24px;
+                background: #3b90d3;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-primary-blue:hover { background: #2a7cbb; transform: translateY(-1px); }
+
+            .btn-filter-apply {
+                padding: 10px 20px;
+                background: linear-gradient(135deg, #3b90d3 0%, #2a7cbb 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+            .btn-filter-apply:hover {
+                background: linear-gradient(135deg, #2a7cbb 0%, #1e6b9e 100%);
+                transform: translateY(-1px);
+            }
+
+            .empty-list-message {
+                text-align: center;
+                padding: 40px;
+                color: #6c757d;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+        <div class="admin-page-content">
+
+            <!-- Админская панель управления -->
+            <div sec:authorize="hasRole('ADMIN')" class="admin-header-bar mb-4">
+                <button type="button" class="btn-filter-apply" id="openCreateModalBtn">
+                    <i class="fas fa-plus me-2"></i> Добавить новый товар
+                </button>
             </div>
 
-            <div class="merch-info">
-                <div class="merch-title" th:text="${item.name}">Название товара</div>
-                <div class="merch-desc" th:text="${item.text}">Описание товара будет здесь</div>
-
-                <div class="merch-price-row">
-                    <div class="merch-price">
-                        <i class="fas fa-coins"></i> <span th:text="${item.price}">100</span>
-                    </div>
-
-                    <!-- Кнопка покупки -->
-                    <!-- Если это не ученик - скрываем кнопку -->
-                    <div sec:authorize="hasRole('STUDENT')">
-                        <!-- Если монет не хватает - делаем кнопку disabled -->
-                        <button class="btn-buy js-buy-btn"
-                                th:attr="data-id=${item.merchId}, data-name=${item.name}"
-                                th:disabled="${currentUser.coins < item.price}">
-                            <i class="fas fa-shopping-cart me-1"></i> Купить
-                        </button>
-                    </div>
-                    <div sec:authorize="!hasRole('STUDENT')" class="text-muted small">
-                        Только для учеников
+            <!-- Инфо-блок для учеников -->
+            <div sec:authorize="hasRole('STUDENT')" class="alert alert-info d-flex align-items-center mb-4" style="background-color: #e0f2fe; border-color: #bae6fd; color: #0284c7;">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div>
+                    <strong>Как это работает?</strong><br>
+                    Здесь вы можете обменять заработанные за хорошую учебу монеты на фирменный мерч школы. Выберите товар и нажмите "Купить".
+                    <div>
+                        Изменение баланса за полученные оценки:
+                        <ul>
+                            <li><b>5:</b> +3 монеты</li>
+                            <li><b>4:</b> +1 монета</li>
+                            <li><b>3:</b> +0 монет</li>
+                            <li><b>2:</b> -2 монеты</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
 
-                <!-- Подсказка, если не хватает монет -->
-                <div sec:authorize="hasRole('STUDENT')"
-                     th:if="${currentUser.coins < item.price}"
-                     class="text-danger small mt-2 text-end">
-                    Не хватает <span th:text="${item.price - currentUser.coins}"></span> монет
+            <!-- Кнопка истории для ученика -->
+            <div sec:authorize="hasRole('STUDENT')" class="d-flex justify-content-end mb-4">
+                <a th:href="@{/merch/history}" class="btn btn-light border shadow-sm" style="font-weight: 500; border-radius: 8px;">
+                    <i class="fas fa-history me-2"></i> История операций
+                </a>
+            </div>
+
+            <!-- Кнопка запросов выдачи для директора -->
+            <div sec:authorize="hasRole('DIRECTOR')" class="d-flex justify-content-end mb-4">
+                <a th:href="@{/merch/requests}" class="btn btn-light border shadow-sm" style="font-weight: 500; border-radius: 8px;">
+                    <i class="fas fa-clipboard-list me-2"></i> Заявки на мерч
+                </a>
+            </div>
+
+            <!-- Если магазин пуст -->
+            <div th:if="${items.isEmpty()}" class="empty-list-message">
+                <i class="fas fa-store-slash fa-4x mb-3"></i><br>
+                Магазин пока пуст.
+            </div>
+
+            <!-- Сетка товаров -->
+            <div class="merch-grid">
+                <div th:each="item : ${items}" class="merch-card" th:classappend="${item.isArchived} ? 'archived' : ''">
+
+                    <div th:if="${item.isArchived}" class="archived-badge">В архиве</div>
+
+                    <div class="merch-image">
+                        <img th:if="${item.imageUrl != null && !item.imageUrl.isEmpty()}" th:src="${item.imageUrl}" alt="Товар">
+                        <i th:unless="${item.imageUrl != null && !item.imageUrl.isEmpty()}" class="fas fa-gift fa-4x"></i>
+                    </div>
+
+                    <div class="merch-info">
+                        <div class="merch-title" th:text="${item.name}">Название</div>
+                        <div class="merch-desc" th:text="${item.text}">Описание</div>
+
+                        <div class="merch-price-row">
+                            <div class="merch-price">
+                                <i class="fas fa-coins"></i> <span th:text="${item.price}">100</span>
+                            </div>
+
+                            <!-- Кнопка покупки (Только для учеников и только для неархивных товаров) -->
+                            <div sec:authorize="hasRole('STUDENT')" th:if="${!item.isArchived}">
+                                <button class="btn-buy js-buy-btn"
+                                        th:attr="data-id=${item.merchId}, data-name=${item.name}"
+                                        th:disabled="${currentUser.coins < item.price}">
+                                    <i class="fas fa-shopping-cart me-1"></i> Купить
+                                </button>
+                            </div>
+
+                            <div sec:authorize="!hasRole('STUDENT')" class="text-muted small">
+                                Только для учеников
+                            </div>
+                        </div>
+
+                        <!-- Подсказка, если не хватает монет -->
+                        <div sec:authorize="hasRole('STUDENT')"
+                             th:if="${currentUser.coins < item.price}"
+                             class="text-danger small mt-2 text-end">
+                            Не хватает <span th:text="${item.price - currentUser.coins}"></span> монет
+                        </div>
+
+                        <!-- Админские действия (Только Админ) -->
+                        <div sec:authorize="hasRole('ADMIN')" class="admin-actions">
+                            <button class="btn-action btn-edit js-edit-merch" th:attr="data-id=${item.merchId}">
+                                <i class="fas fa-edit"></i> Изменить
+                            </button>
+
+                            <!-- Кнопка архивации меняется в зависимости от статуса -->
+                            <button th:if="${!item.isArchived}" class="btn-action btn-delete js-archive-merch"
+                                    th:attr="data-id=${item.merchId}, data-name=${item.name}">
+                                <i class="fas fa-box-archive"></i> В архив
+                            </button>
+                            <button th:if="${item.isArchived}" class="btn-action btn-details js-archive-merch"
+                                    th:attr="data-id=${item.merchId}, data-name=${item.name}">
+                                <i class="fas fa-box-open"></i> Вернуть
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Получаем CSRF токены
-        const csrfToken = $('meta[name="_csrf"]').attr('content');
-        const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+        <!-- МОДАЛЬНОЕ ОКНО: ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ТОВАРА -->
+        <div id="merchModal" class="modal-overlay hidden">
+            <div class="modal-content-form">
+                <div class="modal-form-header" id="modalTitle">
+                    <i class="fas fa-box"></i> <span>Добавить товар</span>
+                </div>
 
-        $('.js-buy-btn').on('click', function() {
-            const merchId = $(this).data('id');
-            const merchName = $(this).data('name');
-            const btn = $(this);
+                <div class="modal-form-body">
+                    <form id="merchForm">
+                        <input type="hidden" id="merchId" name="merchId" />
 
-            if (confirm(`Вы действительно хотите потратить монеты на "${merchName}"?`)) {
-                // Блокируем кнопку, чтобы не нажали дважды
-                const originalText = btn.html();
-                btn.html('<i class="fas fa-spinner fa-spin"></i> Обработка...');
-                btn.prop('disabled', true);
+                        <div class="form-group">
+                            <label>Название товара *</label>
+                            <input type="text" id="merchName" name="name" class="form-control" required />
+                        </div>
 
-                $.ajax({
-                    url: '/merch/buy',
-                    type: 'POST',
-                    data: { merchId: merchId },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader(csrfHeader, csrfToken);
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            // Обновляем страницу, чтобы пересчитать монеты
-                            location.reload();
-                        } else {
-                            alert('Ошибка: ' + response.message);
-                            btn.html(originalText);
-                            btn.prop('disabled', false);
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Цена (в монетах) *</label>
+                                <input type="number" id="merchPrice" name="price" class="form-control" min="1" required />
+                            </div>
+                            <div class="form-group">
+                                <label>URL картинки (опционально)</label>
+                                <input type="text" id="merchImageUrl" name="imageUrl" class="form-control" placeholder="Ссылка https://... или путь img/..." />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea id="merchText" name="text" class="form-control" rows="4"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-form-actions">
+                    <button type="button" id="closeMerchModal" class="btn-secondary-text">Отмена</button>
+                    <button type="button" id="saveMerchBtn" class="btn-primary-blue">Сохранить</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                const csrfToken = $('meta[name="_csrf"]').attr('content');
+                const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+                // Открытие модалки для СОЗДАНИЯ
+                $('#openCreateModalBtn').on('click', function() {
+                    $('#merchForm')[0].reset();
+                    $('#merchId').val(''); // Очищаем ID (значит режим создания)
+                    $('#modalTitle span').text('Добавить новый товар');
+                    $('#merchModal').removeClass('hidden').css('display', 'flex');
+                });
+
+                // Открытие модалки для РЕДАКТИРОВАНИЯ
+                $('.js-edit-merch').on('click', function() {
+                    const id = $(this).data('id');
+
+                    $.ajax({
+                        url: '/merch/get/' + id,
+                        type: 'GET',
+                        success: function(response) {
+                            if (response.success) {
+                                $('#merchId').val(response.item.merchId);
+                                $('#merchName').val(response.item.name);
+                                $('#merchPrice').val(response.item.price);
+                                $('#merchImageUrl').val(response.item.imageUrl);
+                                $('#merchText').val(response.item.text);
+
+                                $('#modalTitle span').text('Редактировать товар');
+                                $('#merchModal').removeClass('hidden').css('display', 'flex');
+                            } else {
+                                alert(response.message);
+                            }
                         }
-                    },
-                    error: function() {
-                        alert('Произошла ошибка сети. Попробуйте позже.');
-                        btn.html(originalText);
-                        btn.prop('disabled', false);
+                    });
+                });
+
+                // Закрытие модалки
+                $('#closeMerchModal').on('click', function() {
+                    $('#merchModal').addClass('hidden').hide();
+                });
+
+                // СОХРАНЕНИЕ (Создание или Обновление)
+                $('#saveMerchBtn').on('click', function() {
+                    const form = $('#merchForm');
+                    if (!form[0].checkValidity()) {
+                        form[0].reportValidity();
+                        return;
+                    }
+
+                    const id = $('#merchId').val();
+                    const url = id ? '/merch/edit' : '/merch/create'; // Выбираем эндпоинт
+                    const btn = $(this);
+                    const originalText = btn.text();
+
+                    btn.text('Сохранение...').prop('disabled', true);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: form.serialize(),
+                        beforeSend: function(xhr) { xhr.setRequestHeader(csrfHeader, csrfToken); },
+                        success: function(response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                alert(response.message);
+                                btn.text(originalText).prop('disabled', false);
+                            }
+                        },
+                        error: function() {
+                            alert('Ошибка сети');
+                            btn.text(originalText).prop('disabled', false);
+                        }
+                    });
+                });
+
+                // АРХИВИРОВАНИЕ / ВОССТАНОВЛЕНИЕ
+                $('.js-archive-merch').on('click', function() {
+                    const id = $(this).data('id');
+                    const name = $(this).data('name');
+                    const isArchiving = $(this).hasClass('btn-delete'); // Если красная кнопка - значит архивируем
+
+                    const actionText = isArchiving ? 'перенести в архив' : 'восстановить из архива';
+
+                    if (confirm(`Вы уверены, что хотите ${actionText} товар "${name}"?`)) {
+                        $.ajax({
+                            url: '/merch/toggle-archive',
+                            type: 'POST',
+                            data: { merchId: id },
+                            beforeSend: function(xhr) { xhr.setRequestHeader(csrfHeader, csrfToken); },
+                            success: function(response) {
+                                if (response.success) {
+                                    location.reload();
+                                } else {
+                                    alert(response.message);
+                                }
+                            }
+                        });
                     }
                 });
-            }
-        });
-    });
-</script>
-</body>
+
+                // ПОКУПКА (старый код оставляем)
+                $('.js-buy-btn').on('click', function() {
+                    const merchId = $(this).data('id');
+                    const merchName = $(this).data('name');
+                    const btn = $(this);
+
+                    if (confirm(`Вы действительно хотите потратить монеты на "${merchName}"?`)) {
+                        const originalText = btn.html();
+                        btn.html('<i class="fas fa-spinner fa-spin"></i> Обработка...');
+                        btn.prop('disabled', true);
+
+                        $.ajax({
+                            url: '/merch/buy',
+                            type: 'POST',
+                            data: { merchId: merchId },
+                            beforeSend: function(xhr) { xhr.setRequestHeader(csrfHeader, csrfToken); },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    alert('Ошибка: ' + response.message);
+                                    btn.html(originalText);
+                                    btn.prop('disabled', false);
+                                }
+                            },
+                            error: function() {
+                                alert('Произошла ошибка сети. Попробуйте позже.');
+                                btn.html(originalText);
+                                btn.prop('disabled', false);
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    </body>
 </html>

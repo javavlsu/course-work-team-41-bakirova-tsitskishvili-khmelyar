@@ -24,6 +24,9 @@ public class MerchItem {
     @Column(name = "Price", nullable = false)
     private Integer price;
 
+    @Column(name = "IsArchived", nullable = false)
+    private Boolean isArchived = false;
+
     @OneToMany(mappedBy = "merchItem")
     private Set<MerchRequest> merchRequests;
 
@@ -41,6 +44,9 @@ public class MerchItem {
 
     public Integer getPrice() { return price; }
     public void setPrice(Integer price) { this.price = price; }
+
+    public Boolean getIsArchived() { return isArchived; }
+    public void setIsArchived(Boolean isArchived) { this.isArchived = isArchived; }
 
     public Set<MerchRequest> getMerchRequests() { return merchRequests; }
     public void setMerchRequests(Set<MerchRequest> merchRequests) { this.merchRequests = merchRequests; }

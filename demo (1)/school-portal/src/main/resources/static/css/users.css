@@ -41,7 +41,7 @@
 
 .modal-content-details {
     background: white;
-    border-radius: 12px;
+    border-radius: 20px;
     width: 90%;
     max-width: 600px;
     max-height: 90vh;
@@ -717,11 +717,6 @@
     font-size: 14px;
     margin-top: 5px;
     display: block;
-}
-
-.text-muted {
-    color: #6c757d;
-    font-size: 12px;
 }
 
 .text-center {

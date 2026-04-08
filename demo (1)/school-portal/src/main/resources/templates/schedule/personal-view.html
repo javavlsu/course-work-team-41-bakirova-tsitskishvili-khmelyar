@@ -133,15 +133,6 @@
             border-radius: 12px 12px 0 0;
         }
 
-        /* Подсказка о прокрутке */
-        .scroll-hint {
-            background: linear-gradient(90deg, rgba(13,110,253,0.1) 0%, rgba(13,110,253,0.05) 100%);
-            border-left: 4px solid #0d6efd;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            border-radius: 0 8px 8px 0;
-        }
-
         /* Кнопки навигации по неделям улучшены */
         .week-nav-btn {
             min-width: 140px;
@@ -246,18 +237,6 @@
 
 <!-- Таблица расписания -->
 <div class="card shadow-lg border-0">
-    <div class="card-body p-0 position-relative">
-        <!-- Подсказка о горизонтальной прокрутке -->
-        <div class="scroll-hint d-flex align-items-center d-md-none">
-            <i class="fas fa-arrow-left-right me-2 text-primary"></i>
-            <span class="small">Листайте вбок для просмотра всех дней →</span>
-        </div>
-
-        <!-- Индикатор прокрутки (только для десктопов) -->
-        <div class="scroll-indicator d-none d-md-block">
-            <i class="fas fa-chevron-right text-primary"></i>
-        </div>
-
         <div class="schedule-scroll-container">
             <table class="table table-hover mb-0">
                 <thead class="table-primary">

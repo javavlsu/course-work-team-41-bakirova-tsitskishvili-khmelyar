@@ -16,6 +16,7 @@ public class ScheduleItemViewModel {
     private String homeworkText;
     private Integer grade;
     private String gradeComment;
+    private String className;
 
     public Integer getScheduleId() { return scheduleId; }
     public void setScheduleId(Integer scheduleId) { this.scheduleId = scheduleId; }
@@ -55,4 +56,7 @@ public class ScheduleItemViewModel {
 
     public String getGradeComment() { return gradeComment; }
     public void setGradeComment(String gradeComment) { this.gradeComment = gradeComment; }
+
+    public String getClassName() { return className; }
+    public void setClassName(String className) { this.className = className; }
 }
