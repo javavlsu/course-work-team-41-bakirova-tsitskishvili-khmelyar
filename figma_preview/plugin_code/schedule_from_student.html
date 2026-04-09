@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+
+<!-- This code was generated using AnimaApp.com. 
+This code is a high-fidelity prototype.
+Get developer-friendly React or HTML/CSS code for this project at: https://projects.animaapp.com?utm_source=hosted-code 
+01/12/2025 01:48:41 -->
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1918, maximum-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="https://animaproject.s3.amazonaws.com/home/favicon.png"
+    />
+    <meta name="og:type" content="website" />
+    <meta name="twitter:card" content="photo" />
+    <script id="anima-load-script" src="load.js"></script>
+    <script id="anima-hotspots-script" src="hotspots.js"></script>
+    <script id="anima-overrides-script" src="overrides.js"></script>
+    <script src="https://animaapp.s3.amazonaws.com/js/timeline.js"></script>
+    <style>
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+      @import url("https://fonts.googleapis.com/css?family=Montserrat:700,600,400,800");
+
+      /* The following line is used to measure usage of this code. You can remove it if you want. */
+      @import url("https://px.animaapp.com/677d1ab5f73ac86ffcf1e2fa.677d1ab6f73ac86ffcf1e2fd.3JImHu2.hch.png");
+
+      .screen textarea:focus,
+      .screen input:focus {
+        outline: none;
+      }
+
+      .screen * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+      }
+
+      .screen div {
+        -webkit-text-size-adjust: none;
+      }
+
+      .component-wrapper a {
+        display: contents;
+        pointer-events: auto;
+        text-decoration: none;
+      }
+
+      .component-wrapper * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+        pointer-events: none;
+      }
+
+      .component-wrapper a *,
+      .component-wrapper input,
+      .component-wrapper video,
+      .component-wrapper iframe {
+        pointer-events: auto;
+      }
+
+      .component-wrapper.not-ready,
+      .component-wrapper.not-ready * {
+        visibility: hidden !important;
+      }
+
+      .screen a {
+        display: contents;
+        text-decoration: none;
+      }
+
+      .full-width-a {
+        width: 100%;
+      }
+
+      .full-height-a {
+        height: 100%;
+      }
+
+      .container-center-vertical {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .container-center-vertical > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .container-center-horizontal {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        pointer-events: none;
+        width: 100%;
+      }
+
+      .container-center-horizontal > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .auto-animated div {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated input {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated .container-center-vertical,
+      .auto-animated .container-center-horizontal {
+        opacity: 1;
+      }
+
+      .overlay-base {
+        display: none;
+        height: 100%;
+        opacity: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+
+      .overlay-base.animate-appear {
+        align-items: center;
+        animation: reveal 0.3s ease-in-out 1 normal forwards;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .overlay-base.animate-disappear {
+        animation: reveal 0.3s ease-in-out 1 reverse forwards;
+        display: block;
+        opacity: 1;
+        pointer-events: none;
+      }
+
+      .overlay-base.animate-disappear * {
+        pointer-events: none;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-nodelay {
+        animation-delay: 0s;
+      }
+
+      .align-self-flex-start {
+        align-self: flex-start;
+      }
+
+      .align-self-flex-end {
+        align-self: flex-end;
+      }
+
+      .align-self-flex-center {
+        align-self: flex-center;
+      }
+
+      .valign-text-middle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .valign-text-bottom {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      input:focus {
+        outline: none;
+      }
+
+      .listeners-active,
+      .listeners-active * {
+        pointer-events: auto;
+      }
+
+      .hidden,
+      .hidden * {
+        pointer-events: none;
+        visibility: hidden;
+      }
+
+      .smart-layers-pointers,
+      .smart-layers-pointers * {
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      .listeners-active-click,
+      .listeners-active-click * {
+        cursor: pointer;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        --black: #000000;
+        --granite-gray: #666666;
+        --gray: #7f7f7f;
+        --mercury: #e6e6e6;
+        --pigeon-post: #adc8d8;
+        --spindle: #b6d3e4;
+        --spindle-2: #b7d4e5;
+        --tropical-blue: #c3e1f4;
+        --white: #ffffff;
+        --x--1: #43a8e4;
+        --x--2: #51819d;
+        --x--3: #0e5681;
+        --x--4: #7bc7f4;
+
+        --font-size-l: 20px;
+        --font-size-m: 18px;
+        --font-size-s: 16px;
+
+        --font-family-montserrat: "Montserrat", Helvetica;
+      }
+      .montserrat-semi-bold-granite-gray-18px {
+        color: var(--granite-gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      .montserrat-extra-bold-white-20px {
+        color: var(--white);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-l);
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      .montserrat-extra-bold-gray-20px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-l);
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      .montserrat-semi-bold-gray-16px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      /* screen - schedule-student */
+
+      .schedule-student {
+        align-items: flex-start;
+        background-color: #e6ecf2;
+        display: flex;
+        left: 0px;
+        min-height: 100vh;
+        overflow: hidden;
+        overflow-x: hidden;
+        position: relative;
+        top: 0px;
+      }
+
+      .schedule-student .left-panel-scroll-D05Uz0 {
+        align-self: stretch;
+        background-color: var(--white);
+        box-shadow: 0px 0px 8px #00000040;
+        overflow: hidden;
+        position: relative;
+        width: 250px;
+      }
+
+      .schedule-student .left-panel-frame-4j3IpQ {
+        background-color: transparent;
+        height: 1024px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        width: 263px;
+      }
+
+      .schedule-student .left-panel-elements-1mqHMh {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        left: 0px;
+        position: relative;
+        top: 0px;
+        width: 250px;
+      }
+
+      .schedule-student .logo-1MKoNT {
+        background-color: transparent;
+        height: 79px;
+        position: relative;
+        width: 250px;
+      }
+
+      .schedule-student .logo-background-PxalNK {
+        background-color: var(--x--1);
+        height: 79px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        transform: rotate(180deg);
+        width: 250px;
+      }
+
+      .schedule-student .logo-text-PxalNK {
+        background-color: transparent;
+        height: 79px;
+        left: 29px;
+        position: absolute;
+        top: 0px;
+        width: 192px;
+      }
+
+      .schedule-student .left-panel-buttons-1MKoNT {
+        align-items: flex-start;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .home-button-director-RAJ5dW {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .home-icon-6yzvbD {
+        background-color: transparent;
+        height: 18.3427734375px;
+        position: relative;
+        width: 18px;
+      }
+
+      .schedule-student .text_label-zWq57O {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .journal-button-director-RAJ5dW {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .journal-icon-P3KLDq {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 20px;
+      }
+
+      .schedule-student .text_label-ScMcnZ {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .messages-button-director-RAJ5dW {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .messages-icon-TggvTa {
+        background-color: transparent;
+        height: 18.91943359375px;
+        position: relative;
+        width: 20px;
+      }
+
+      .schedule-student .text_label-A06Trn {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .schedule-button-director-RAJ5dW {
+        align-items: center;
+        background-color: var(--x--1);
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .schedule-icon-Hnzk7T {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 18px;
+      }
+
+      .schedule-student .text_label-TtaFHb {
+        align-self: stretch;
+        color: var(--white);
+        flex: 1;
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .vector-gN1pSl {
+        height: 18px;
+        width: 20px;
+      }
+
+      .schedule-student .text_label-a6Uyvn {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .vector-ingY2h {
+        height: 20px;
+        width: 16px;
+      }
+
+      .schedule-student .text_label-jOP1Ok {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .profile-button-4j3IpQ {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 976px;
+        width: 200px;
+      }
+
+      .schedule-student .vector-JhjxTx {
+        height: 20px;
+        width: 20px;
+      }
+
+      .schedule-student .text_label-9eReGu {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .log-out-button-4j3IpQ {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 1021px;
+        width: 200px;
+      }
+
+      .schedule-student .log-out-icon-abuY01 {
+        background-color: transparent;
+        height: 18px;
+        position: relative;
+        width: 18px;
+      }
+
+      .schedule-student .text_label-I2mjl0 {
+        align-self: stretch;
+        flex: 1;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .schedule-student .home-elements-D05Uz0 {
+        align-items: flex-end;
+        background-color: transparent;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 24px;
+        padding: 56px 153px;
+        position: relative;
+      }
+
+      .schedule-student .frame-18-YoilHs {
+        background-color: var(--white);
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 32px;
+        padding: 6px;
+      }
+
+      .schedule-student .frame-19-rrMMPQ {
+        align-items: center;
+        background-color: transparent;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 10px;
+        position: relative;
+      }
+
+      .schedule-student .image-piMvxZ {
+        background-color: transparent;
+        height: 14.7421875px;
+        position: relative;
+        width: 69.28515625px;
+      }
+
+      .schedule-student .date-time-start-field-piMvxZ {
+        align-items: center;
+        background-color: var(--mercury);
+        border-radius: 8px;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 6px;
+        height: 27px;
+        padding: 7px 5px 7px 6px;
+        position: relative;
+      }
+
+      .schedule-student .x1-01092025-07092025-wc0NE4 {
+        background-color: transparent;
+        color: var(--black);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 400;
+        letter-spacing: 0px;
+        line-height: 18px;
+        margin-top: -1px;
+        position: relative;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .login-icon-borderline-wc0NE4 {
+        background-color: transparent;
+        height: 30px;
+        margin-bottom: -8.5px;
+        margin-top: -8.5px;
+        position: relative;
+        width: 2px;
+      }
+
+      .schedule-student .date-time-icon-frame-wc0NE4 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 20px;
+        justify-content: center;
+        margin-bottom: -3.5px;
+        margin-top: -3.5px;
+        position: relative;
+        width: 18px;
+      }
+
+      .schedule-student .vector-GFgSSv {
+        height: 8px;
+        width: 14px;
+      }
+
+      .schedule-student .days-list-YoilHs {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 12px;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .monday-OT7iqL {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .upper-row-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-qxSX1z {
+        align-self: stretch;
+        background-color: var(--x--3);
+        border-radius: 8px 8px 0px 0px;
+        height: 36px;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-aQo033 {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-54-qxSX1z {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-14-7MxwSu {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 151px;
+      }
+
+      .schedule-student .text_label-jLlK48 {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-7MxwSu {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-7sFhAS {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-15-7MxwSu {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .text_label-fSIUTX {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-7MxwSu {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .schedule-student .text_label-56cTof {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-16-7MxwSu {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-JmVLu3 {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-11-7MxwSu {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .text_label-onO3Q0 {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-17-7MxwSu {
+        background-color: var(--x--1);
+        width: 201px;
+      }
+
+      .schedule-student .text_label-M1xlUZ {
+        align-self: stretch;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .schedule-student .leeson-1-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-GWOLhh {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x1-0800-dixl0a {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-GWOLhh {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-fqgzuu {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-GWOLhh {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-GWOLhh {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-dVBd8a {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-GWOLhh {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .schedule-student .frame-16-GWOLhh {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .text_label-2TNf3V {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-11-GWOLhh {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-2-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-kkbQkD {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x2-0850-mc2p9X {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-kkbQkD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-eeSyA1 {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-kkbQkD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .x38-eu5tIv {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .frame-15-kkbQkD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-4esqms {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-kkbQkD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .schedule-student .x80-1-4-3vlu4l {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .frame-16-kkbQkD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-kkbQkD {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-3-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-EdRizb {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x3-0940-pctppC {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-j1TUAc {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-pxo4va {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .schedule-student .text_label-EvlYtM {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-16-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .x2-6Pni1u {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .frame-11-EdRizb {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .text_label-jsXaGh {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .leeson-4-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-PEBh5E {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x4-1030-LXySKb {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-PEBh5E {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-cxu78p {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-PEBh5E {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-PEBh5E {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-wysbRt {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-PEBh5E {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .schedule-student .text_label-ss6T59 {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-16-PEBh5E {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-PEBh5E {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-5-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-p7No3U {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x5-1120-hiJlJc {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-p7No3U {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-6Iq3MA {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-p7No3U {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-p7No3U {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-s0JR0T {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-p7No3U {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .schedule-student .x142-2-3-143-6-7-pPo2us {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .frame-16-p7No3U {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .x4-939giE {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .frame-11-p7No3U {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-6-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-uyGfHY {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x6-1210-4ob0x0 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-uyGfHY {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-09F6NV {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-9-uyGfHY {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-uyGfHY {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .text_label-Wq8csm {
+        align-self: stretch;
+        line-height: 18px;
+        text-align: center;
+      }
+
+      .schedule-student .frame-10-uyGfHY {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .schedule-student .frame-16-uyGfHY {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-uyGfHY {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-7-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-BDj9oe {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x7-1300-4IyNsm {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-BDj9oe {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-BDj9oe {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-BDj9oe {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-BDj9oe {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .schedule-student .frame-16-BDj9oe {
+        align-self: stretch;
+        background-color: var(--spindle);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-BDj9oe {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-8-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-Izajv1 {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x8-1350-cWvijr {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-Izajv1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-Izajv1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-Izajv1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-Izajv1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .schedule-student .frame-16-Izajv1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-Izajv1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-9-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-tx6ix4 {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x9-1440-sMXx0s {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .schedule-student .frame-16-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--spindle);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-tx6ix4 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-10-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-WriWBx {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x10-1530-rx6rK1 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-WriWBx {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-WriWBx {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-WriWBx {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-WriWBx {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .schedule-student .frame-16-WriWBx {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-WriWBx {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-11-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-QTJHzL {
+        background-color: var(--white);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x11-1620-pnU0tZ {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-QTJHzL {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-QTJHzL {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-QTJHzL {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-QTJHzL {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .schedule-student .frame-16-QTJHzL {
+        align-self: stretch;
+        background-color: var(--spindle);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-QTJHzL {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-12-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-xJ55Z1 {
+        background-color: var(--mercury);
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x12-1710-za8IuY {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .schedule-student .frame-16-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-xJ55Z1 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .leeson-13-SPFvMv {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .frame-12-FBuVkK {
+        background-color: var(--white);
+        border-radius: 0px 0px 0px 8px;
+        height: 80px;
+        width: 151px;
+      }
+
+      .schedule-student .x13-1800-QWbPD8 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-FBuVkK {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-9-FBuVkK {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        position: relative;
+        width: 116px;
+      }
+
+      .schedule-student .frame-15-FBuVkK {
+        align-self: stretch;
+        background-color: var(--spindle);
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-10-FBuVkK {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .schedule-student .frame-16-FBuVkK {
+        align-self: stretch;
+        background-color: var(--spindle);
+        position: relative;
+        width: 127px;
+      }
+
+      .schedule-student .frame-11-FBuVkK {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        border-radius: 0px 0px 8px 0px;
+        position: relative;
+        width: 201px;
+      }
+
+      .schedule-student .frame-13-OT7iqL {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--x--2);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-CxAIBT {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-14-OT7iqL {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--x--2);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-QLU03B {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-15-OT7iqL {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--x--2);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-sxxesW {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-16-OT7iqL {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--x--2);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-hIjE5r {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-17-OT7iqL {
+        align-self: stretch;
+        background-color: var(--x--2);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-rmHy1D {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-18-OT7iqL {
+        align-self: stretch;
+        background-color: var(--x--2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        width: 100%;
+      }
+
+      .schedule-student .text_label-QktvJU {
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .schedule-student .frame-10 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .schedule-student .frame-12 {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .frame-17 {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .frame-18 {
+        align-items: center;
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        justify-content: center;
+        position: relative;
+      }
+
+      .schedule-student .home-icon-frame {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 20px;
+        justify-content: center;
+        position: relative;
+        width: 20px;
+      }
+
+      .schedule-student .text_label {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+      }
+
+      .schedule-student .vector {
+        background-color: transparent;
+        position: relative;
+      }
+
+      .schedule-student .view {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .schedule-student .x23 {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .x41 {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+
+      .schedule-student .x5 {
+        align-items: center;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 18px;
+        position: relative;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body style="margin: 0; background: #e6ecf2">
+    <input type="hidden" id="anPageName" name="page" value="schedule-student" />
+    <div class="schedule-student screen" data-id="352:893">
+      <div class="left-panel-scroll-D05Uz0" data-id="352:894">
+        <div class="left-panel-frame-4j3IpQ" data-id="352:895">
+          <div class="left-panel-elements-1mqHMh" data-id="352:896">
+            <div class="logo-1MKoNT" data-id="352:897">
+              <div class="logo-background-PxalNK" data-id="352:898"></div>
+              <img
+                class="logo-text-PxalNK"
+                data-id="352:899"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/692cc3891ffbd74db677188c/img/logo-text.svg"
+                alt="Logo text"
+              />
+            </div>
+            <div class="left-panel-buttons-1MKoNT" data-id="352:900">
+              <div class="home-button-director-RAJ5dW" data-id="352:901">
+                <div class="home-icon-frame" data-id="I352:901;104:118">
+                  <img
+                    class="home-icon-6yzvbD"
+                    data-id="I352:901;104:119"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/home-icon.svg"
+                    alt="Home icon"
+                  />
+                </div>
+                <div
+                  class="text_label-zWq57O text_label montserrat-semi-bold-gray-16px"
+                  data-id="I352:901;104:120"
+                >
+                  Главная
+                </div>
+              </div>
+              <div class="journal-button-director-RAJ5dW" data-id="352:902">
+                <div class="home-icon-frame" data-id="I352:902;104:239">
+                  <img
+                    class="journal-icon-P3KLDq"
+                    data-id="I352:902;65:15"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/journal-icon-1.svg"
+                    alt="Journal icon"
+                  />
+                </div>
+                <div
+                  class="text_label-ScMcnZ text_label montserrat-semi-bold-gray-16px"
+                  data-id="I352:902;104:241"
+                >
+                  Ведение журнала
+                </div>
+              </div>
+              <div class="messages-button-director-RAJ5dW" data-id="352:903">
+                <div class="home-icon-frame" data-id="I352:903;104:267">
+                  <img
+                    class="messages-icon-TggvTa"
+                    data-id="I352:903;65:34"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/messages-icon-1.svg"
+                    alt="Messages icon"
+                  />
+                </div>
+                <div
+                  class="text_label-A06Trn text_label montserrat-semi-bold-gray-16px"
+                  data-id="I352:903;104:269"
+                >
+                  Сообщения
+                </div>
+              </div>
+              <div class="schedule-button-director-RAJ5dW" data-id="352:904">
+                <div class="home-icon-frame" data-id="I352:904;104:296">
+                  <img
+                    class="schedule-icon-Hnzk7T"
+                    data-id="I352:904;104:305"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/schedule-icon.svg"
+                    alt="Schedule icon"
+                  />
+                </div>
+                <div
+                  class="text_label-TtaFHb text_label"
+                  data-id="I352:904;104:298"
+                >
+                  Расписание
+                </div>
+              </div>
+              <div class="view" data-id="352:905">
+                <div class="home-icon-frame" data-id="I352:905;271:262">
+                  <img
+                    class="vector-gN1pSl vector"
+                    data-id="I352:905;270:266"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-a6Uyvn text_label montserrat-semi-bold-gray-16px"
+                  data-id="I352:905;271:264"
+                >
+                  Успеваемость
+                </div>
+              </div>
+              <div class="view" data-id="352:906">
+                <div class="home-icon-frame" data-id="I352:906;271:279">
+                  <img
+                    class="vector-ingY2h vector"
+                    data-id="I352:906;270:271"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-1.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-jOP1Ok text_label montserrat-semi-bold-gray-16px"
+                  data-id="I352:906;271:281"
+                >
+                  Домашние задания
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-button-4j3IpQ" data-id="352:907">
+          <div class="home-icon-frame" data-id="I352:907;221:241">
+            <img
+              class="vector-JhjxTx vector"
+              data-id="I352:907;221:254"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/vector-1.svg"
+              alt="Vector"
+            />
+          </div>
+          <div
+            class="text_label-9eReGu text_label montserrat-semi-bold-gray-16px"
+            data-id="I352:907;221:243"
+          >
+            Профиль
+          </div>
+        </div>
+        <div class="log-out-button-4j3IpQ" data-id="352:908">
+          <div class="home-icon-frame" data-id="I352:908;209:171">
+            <img
+              class="log-out-icon-abuY01"
+              data-id="I352:908;209:164"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/log-out-icon-1.svg"
+              alt="Log out icon"
+            />
+          </div>
+          <div
+            class="text_label-I2mjl0 text_label montserrat-semi-bold-gray-16px"
+            data-id="I352:908;209:173"
+          >
+            Выйти
+          </div>
+        </div>
+      </div>
+      <div class="home-elements-D05Uz0" data-id="353:1875">
+        <div class="frame-18-YoilHs frame-18" data-id="353:1876">
+          <div class="frame-19-rrMMPQ" data-id="353:1877">
+            <img
+              class="image-piMvxZ"
+              data-id="353:1878"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/------.png"
+              alt="image"
+            />
+            <div class="date-time-start-field-piMvxZ" data-id="353:1879">
+              <div class="x1-01092025-07092025-wc0NE4" data-id="353:1880">
+                1 нед. (01.09.2025-07.09.2025)
+              </div>
+              <img
+                class="login-icon-borderline-wc0NE4"
+                data-id="353:1881"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69090533625e2c6d37270583/img/login-icon-borderline.svg"
+                alt="Login icon borderline"
+              />
+              <div class="date-time-icon-frame-wc0NE4" data-id="353:1882">
+                <img
+                  class="vector-GFgSSv vector"
+                  data-id="353:1883"
+                  src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                  anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-3.svg"
+                  alt="Vector"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="days-list-YoilHs" data-id="353:1884">
+          <div class="monday-OT7iqL" data-id="352:922">
+            <div class="upper-row-SPFvMv" data-id="352:923">
+              <div class="frame-12-qxSX1z frame-12" data-id="352:924">
+                <div
+                  class="text_label-aQo033 text_label montserrat-extra-bold-white-20px"
+                  data-id="352:925"
+                >
+                  Понедельник
+                </div>
+              </div>
+              <div class="frame-54-qxSX1z" data-id="353:1111">
+                <div class="frame-14-7MxwSu" data-id="352:926">
+                  <div
+                    class="text_label-jLlK48 text_label montserrat-extra-bold-white-20px"
+                    data-id="352:927"
+                  >
+                    Урок
+                  </div>
+                </div>
+                <div class="frame-9-7MxwSu" data-id="352:928">
+                  <div
+                    class="text_label-7sFhAS text_label montserrat-extra-bold-white-20px"
+                    data-id="352:929"
+                  >
+                    Предмет
+                  </div>
+                </div>
+                <div class="frame-15-7MxwSu" data-id="352:930">
+                  <div
+                    class="text_label-fSIUTX text_label montserrat-extra-bold-white-20px"
+                    data-id="352:931"
+                  >
+                    Кабинет
+                  </div>
+                </div>
+                <div class="frame-10-7MxwSu frame-10" data-id="352:932">
+                  <div
+                    class="text_label-56cTof text_label montserrat-extra-bold-white-20px"
+                    data-id="352:933"
+                  >
+                    Учитель
+                  </div>
+                </div>
+                <div class="frame-16-7MxwSu" data-id="352:934">
+                  <div
+                    class="text_label-JmVLu3 text_label montserrat-extra-bold-white-20px"
+                    data-id="352:935"
+                  >
+                    Домашнее задание
+                  </div>
+                </div>
+                <div class="frame-11-7MxwSu" data-id="352:936">
+                  <div
+                    class="text_label-onO3Q0 text_label montserrat-extra-bold-white-20px"
+                    data-id="352:937"
+                  >
+                    Отметка
+                  </div>
+                </div>
+                <div class="frame-17-7MxwSu frame-17" data-id="352:938">
+                  <div
+                    class="text_label-M1xlUZ text_label montserrat-extra-bold-white-20px"
+                    data-id="352:939"
+                  >
+                    Комментарий
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="leeson-1-SPFvMv" data-id="352:940">
+              <div class="frame-12-GWOLhh frame-12" data-id="352:941">
+                <div
+                  class="x1-0800-dixl0a montserrat-extra-bold-gray-20px"
+                  data-id="352:942"
+                >
+                  1 урок<br />08:00-08:40
+                </div>
+              </div>
+              <div class="frame-14-GWOLhh" data-id="352:943">
+                <div
+                  class="text_label-fqgzuu text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:944"
+                >
+                  Классный час
+                </div>
+              </div>
+              <div class="frame-9-GWOLhh" data-id="352:945">
+                <div
+                  class="x23 montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1619"
+                >
+                  23
+                </div>
+              </div>
+              <div class="frame-15-GWOLhh" data-id="352:946">
+                <div
+                  class="text_label-dVBd8a text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1623"
+                >
+                  Кондратьев Арсений Петрович
+                </div>
+              </div>
+              <div class="frame-10-GWOLhh frame-10" data-id="352:947"></div>
+              <div class="frame-16-GWOLhh" data-id="352:948">
+                <div
+                  class="text_label-2TNf3V text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1634"
+                >
+                  Н
+                </div>
+              </div>
+              <div class="frame-11-GWOLhh" data-id="352:950"></div>
+            </div>
+            <div class="leeson-2-SPFvMv" data-id="352:952">
+              <div class="frame-12-kkbQkD frame-12" data-id="352:953">
+                <div
+                  class="x2-0850-mc2p9X montserrat-extra-bold-gray-20px"
+                  data-id="352:954"
+                >
+                  2 урок<br />08:50-09:30
+                </div>
+              </div>
+              <div class="frame-14-kkbQkD" data-id="352:955">
+                <div
+                  class="text_label-eeSyA1 text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:956"
+                >
+                  Английский язык
+                </div>
+              </div>
+              <div class="frame-9-kkbQkD" data-id="352:957">
+                <div
+                  class="x38-eu5tIv montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:958"
+                >
+                  38
+                </div>
+              </div>
+              <div class="frame-15-kkbQkD" data-id="352:959">
+                <div
+                  class="text_label-4esqms text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1628"
+                >
+                  Павлова Анастасия Ивановна
+                </div>
+              </div>
+              <div class="frame-10-kkbQkD frame-10" data-id="352:960">
+                <div
+                  class="x80-1-4-3vlu4l montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:961"
+                >
+                  с. 80 №1-4
+                </div>
+              </div>
+              <div class="frame-16-kkbQkD" data-id="352:962">
+                <div
+                  class="x5 montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:963"
+                >
+                  5
+                </div>
+              </div>
+              <div class="frame-11-kkbQkD" data-id="352:964"></div>
+            </div>
+            <div class="leeson-3-SPFvMv" data-id="352:966">
+              <div class="frame-12-EdRizb frame-12" data-id="352:967">
+                <div
+                  class="x3-0940-pctppC montserrat-extra-bold-gray-20px"
+                  data-id="352:968"
+                >
+                  3 урок<br />09:40-10:20
+                </div>
+              </div>
+              <div class="frame-14-EdRizb" data-id="352:969">
+                <div
+                  class="text_label-j1TUAc text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:970"
+                >
+                  История
+                </div>
+              </div>
+              <div class="frame-9-EdRizb" data-id="352:971">
+                <div
+                  class="x23 montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:972"
+                >
+                  23
+                </div>
+              </div>
+              <div class="frame-15-EdRizb" data-id="352:973">
+                <div
+                  class="text_label-pxo4va text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1626"
+                >
+                  Петрова Олеся Андреевна
+                </div>
+              </div>
+              <div class="frame-10-EdRizb frame-10" data-id="352:975">
+                <div
+                  class="text_label-EvlYtM text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:976"
+                >
+                  Подготовка к контрольной
+                </div>
+              </div>
+              <div class="frame-16-EdRizb" data-id="352:977">
+                <div
+                  class="x2-6Pni1u montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1631"
+                >
+                  2
+                </div>
+              </div>
+              <div class="frame-11-EdRizb" data-id="352:978">
+                <div
+                  class="text_label-jsXaGh text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1633"
+                >
+                  Не готов
+                </div>
+              </div>
+            </div>
+            <div class="leeson-4-SPFvMv" data-id="352:980">
+              <div class="frame-12-PEBh5E frame-12" data-id="352:981">
+                <div
+                  class="x4-1030-LXySKb montserrat-extra-bold-gray-20px"
+                  data-id="352:982"
+                >
+                  4 урок<br />10:30-11:10
+                </div>
+              </div>
+              <div class="frame-14-PEBh5E" data-id="352:983">
+                <div
+                  class="text_label-cxu78p text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1622"
+                >
+                  Обществознание
+                </div>
+              </div>
+              <div class="frame-9-PEBh5E" data-id="352:984">
+                <div
+                  class="x23 montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1621"
+                >
+                  23
+                </div>
+              </div>
+              <div class="frame-15-PEBh5E" data-id="352:986">
+                <div
+                  class="text_label-wysbRt text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1627"
+                >
+                  Петрова Олеся Андреевна
+                </div>
+              </div>
+              <div class="frame-10-PEBh5E frame-10" data-id="352:988">
+                <div
+                  class="text_label-ss6T59 text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:989"
+                >
+                  Доклады
+                </div>
+              </div>
+              <div class="frame-16-PEBh5E" data-id="352:990">
+                <div
+                  class="x5 montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1632"
+                >
+                  5
+                </div>
+              </div>
+              <div class="frame-11-PEBh5E" data-id="352:991"></div>
+            </div>
+            <div class="leeson-5-SPFvMv" data-id="352:993">
+              <div class="frame-12-p7No3U frame-12" data-id="352:994">
+                <div
+                  class="x5-1120-hiJlJc montserrat-extra-bold-gray-20px"
+                  data-id="352:995"
+                >
+                  5 урок<br />11:20-12:00
+                </div>
+              </div>
+              <div class="frame-14-p7No3U" data-id="352:996">
+                <div
+                  class="text_label-6Iq3MA text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:997"
+                >
+                  Геометрия
+                </div>
+              </div>
+              <div class="frame-9-p7No3U" data-id="352:998">
+                <div
+                  class="x41 montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1620"
+                >
+                  41
+                </div>
+              </div>
+              <div class="frame-15-p7No3U" data-id="352:999">
+                <div
+                  class="text_label-s0JR0T text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1624"
+                >
+                  Кондратьев Арсений Петрович
+                </div>
+              </div>
+              <div class="frame-10-p7No3U frame-10" data-id="352:1000">
+                <p
+                  class="x142-2-3-143-6-7-pPo2us montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1630"
+                >
+                  с. 142 №2-3, с.143 №6-7
+                </p>
+              </div>
+              <div class="frame-16-p7No3U" data-id="352:1001">
+                <div
+                  class="x4-939giE montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:1002"
+                >
+                  4
+                </div>
+              </div>
+              <div class="frame-11-p7No3U" data-id="352:1003"></div>
+            </div>
+            <div class="leeson-6-SPFvMv" data-id="352:1005">
+              <div class="frame-12-uyGfHY frame-12" data-id="352:1006">
+                <div
+                  class="x6-1210-4ob0x0 montserrat-extra-bold-gray-20px"
+                  data-id="352:1007"
+                >
+                  6 урок<br />12:10-12:50
+                </div>
+              </div>
+              <div class="frame-14-uyGfHY" data-id="352:1008">
+                <div
+                  class="text_label-09F6NV text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:1009"
+                >
+                  Геометрия
+                </div>
+              </div>
+              <div class="frame-9-uyGfHY" data-id="352:1010">
+                <div
+                  class="x41 montserrat-semi-bold-granite-gray-18px"
+                  data-id="352:1011"
+                >
+                  41
+                </div>
+              </div>
+              <div class="frame-15-uyGfHY" data-id="352:1012">
+                <div
+                  class="text_label-Wq8csm text_label montserrat-semi-bold-granite-gray-18px"
+                  data-id="353:1625"
+                >
+                  Кондратьев Арсений Петрович
+                </div>
+              </div>
+              <div class="frame-10-uyGfHY frame-10" data-id="352:1013"></div>
+              <div class="frame-16-uyGfHY" data-id="352:1014"></div>
+              <div class="frame-11-uyGfHY" data-id="352:1015"></div>
+            </div>
+            <div class="leeson-7-SPFvMv" data-id="352:1017">
+              <div class="frame-12-BDj9oe frame-12" data-id="352:1018">
+                <div
+                  class="x7-1300-4IyNsm montserrat-extra-bold-gray-20px"
+                  data-id="352:1019"
+                >
+                  7 урок<br />13:00-13:40
+                </div>
+              </div>
+              <div class="frame-14-BDj9oe" data-id="352:1020"></div>
+              <div class="frame-9-BDj9oe" data-id="352:1021"></div>
+              <div class="frame-15-BDj9oe" data-id="352:1022"></div>
+              <div class="frame-10-BDj9oe frame-10" data-id="352:1023"></div>
+              <div class="frame-16-BDj9oe" data-id="352:1024"></div>
+              <div class="frame-11-BDj9oe" data-id="352:1025"></div>
+            </div>
+            <div class="leeson-8-SPFvMv" data-id="352:1027">
+              <div class="frame-12-Izajv1 frame-12" data-id="352:1028">
+                <div
+                  class="x8-1350-cWvijr montserrat-extra-bold-gray-20px"
+                  data-id="352:1029"
+                >
+                  8 урок<br />13:50-14:30
+                </div>
+              </div>
+              <div class="frame-14-Izajv1" data-id="352:1030"></div>
+              <div class="frame-9-Izajv1" data-id="352:1031"></div>
+              <div class="frame-15-Izajv1" data-id="352:1032"></div>
+              <div class="frame-10-Izajv1 frame-10" data-id="352:1033"></div>
+              <div class="frame-16-Izajv1" data-id="352:1034"></div>
+              <div class="frame-11-Izajv1" data-id="352:1035"></div>
+            </div>
+            <div class="leeson-9-SPFvMv" data-id="352:1037">
+              <div class="frame-12-tx6ix4 frame-12" data-id="352:1038">
+                <div
+                  class="x9-1440-sMXx0s montserrat-extra-bold-gray-20px"
+                  data-id="352:1039"
+                >
+                  9 урок<br />14:40-15:20
+                </div>
+              </div>
+              <div class="frame-14-tx6ix4" data-id="352:1040"></div>
+              <div class="frame-9-tx6ix4" data-id="352:1041"></div>
+              <div class="frame-15-tx6ix4" data-id="352:1042"></div>
+              <div class="frame-10-tx6ix4 frame-10" data-id="352:1043"></div>
+              <div class="frame-16-tx6ix4" data-id="352:1044"></div>
+              <div class="frame-11-tx6ix4" data-id="352:1045"></div>
+            </div>
+            <div class="leeson-10-SPFvMv" data-id="352:1047">
+              <div class="frame-12-WriWBx frame-12" data-id="352:1048">
+                <div
+                  class="x10-1530-rx6rK1 montserrat-extra-bold-gray-20px"
+                  data-id="352:1049"
+                >
+                  10 урок<br />15:30-16:10
+                </div>
+              </div>
+              <div class="frame-14-WriWBx" data-id="352:1050"></div>
+              <div class="frame-9-WriWBx" data-id="352:1051"></div>
+              <div class="frame-15-WriWBx" data-id="352:1052"></div>
+              <div class="frame-10-WriWBx frame-10" data-id="352:1053"></div>
+              <div class="frame-16-WriWBx" data-id="352:1054"></div>
+              <div class="frame-11-WriWBx" data-id="352:1055"></div>
+            </div>
+            <div class="leeson-11-SPFvMv" data-id="352:1057">
+              <div class="frame-12-QTJHzL frame-12" data-id="352:1058">
+                <div
+                  class="x11-1620-pnU0tZ montserrat-extra-bold-gray-20px"
+                  data-id="352:1059"
+                >
+                  11 урок<br />16:20-17:00
+                </div>
+              </div>
+              <div class="frame-14-QTJHzL" data-id="352:1060"></div>
+              <div class="frame-9-QTJHzL" data-id="352:1061"></div>
+              <div class="frame-15-QTJHzL" data-id="352:1062"></div>
+              <div class="frame-10-QTJHzL frame-10" data-id="352:1063"></div>
+              <div class="frame-16-QTJHzL" data-id="352:1064"></div>
+              <div class="frame-11-QTJHzL" data-id="352:1065"></div>
+            </div>
+            <div class="leeson-12-SPFvMv" data-id="352:1067">
+              <div class="frame-12-xJ55Z1 frame-12" data-id="352:1068">
+                <div
+                  class="x12-1710-za8IuY montserrat-extra-bold-gray-20px"
+                  data-id="352:1069"
+                >
+                  12 урок<br />17:10-17:50
+                </div>
+              </div>
+              <div class="frame-14-xJ55Z1" data-id="352:1070"></div>
+              <div class="frame-9-xJ55Z1" data-id="352:1071"></div>
+              <div class="frame-15-xJ55Z1" data-id="352:1072"></div>
+              <div class="frame-10-xJ55Z1 frame-10" data-id="352:1073"></div>
+              <div class="frame-16-xJ55Z1" data-id="352:1074"></div>
+              <div class="frame-11-xJ55Z1" data-id="352:1075"></div>
+            </div>
+            <div class="leeson-13-SPFvMv" data-id="352:1077">
+              <div class="frame-12-FBuVkK frame-12" data-id="352:1078">
+                <div
+                  class="x13-1800-QWbPD8 montserrat-extra-bold-gray-20px"
+                  data-id="352:1079"
+                >
+                  13 урок<br />18:00-18:40
+                </div>
+              </div>
+              <div class="frame-14-FBuVkK" data-id="352:1080"></div>
+              <div class="frame-9-FBuVkK" data-id="352:1081"></div>
+              <div class="frame-15-FBuVkK" data-id="352:1082"></div>
+              <div class="frame-10-FBuVkK frame-10" data-id="352:1083"></div>
+              <div class="frame-16-FBuVkK" data-id="352:1084"></div>
+              <div class="frame-11-FBuVkK" data-id="352:1085"></div>
+            </div>
+          </div>
+          <div class="frame-13-OT7iqL" data-id="353:1887">
+            <div
+              class="text_label-CxAIBT text_label montserrat-extra-bold-white-20px"
+              data-id="353:1888"
+            >
+              Вторник
+            </div>
+          </div>
+          <div class="frame-14-OT7iqL" data-id="353:1889">
+            <div
+              class="text_label-QLU03B text_label montserrat-extra-bold-white-20px"
+              data-id="353:1890"
+            >
+              Среда
+            </div>
+          </div>
+          <div class="frame-15-OT7iqL" data-id="353:1891">
+            <div
+              class="text_label-sxxesW text_label montserrat-extra-bold-white-20px"
+              data-id="353:1892"
+            >
+              Четверг
+            </div>
+          </div>
+          <div class="frame-16-OT7iqL" data-id="353:1893">
+            <div
+              class="text_label-hIjE5r text_label montserrat-extra-bold-white-20px"
+              data-id="353:1894"
+            >
+              Пятница
+            </div>
+          </div>
+          <div class="frame-17-OT7iqL frame-17" data-id="353:1895">
+            <div
+              class="text_label-rmHy1D text_label montserrat-extra-bold-white-20px"
+              data-id="353:1896"
+            >
+              Суббота
+            </div>
+          </div>
+          <div class="frame-18-OT7iqL frame-18" data-id="353:1897">
+            <div
+              class="text_label-QktvJU text_label montserrat-extra-bold-white-20px"
+              data-id="353:1898"
+            >
+              Воскресенье
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="launchpad-js/launchpad-banner.js" async></script>
+    <script
+      defer
+      src="https://animaapp.s3.amazonaws.com/static/restart-btn.min.js"
+    ></script>
+  </body>
+</html>

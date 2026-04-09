@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Проверка ДЗ</title>
+    <link rel="stylesheet" th:href="@{/css/homework.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<!-- Фильтры -->
+<div class="filters-container">
+    <form id="filterForm" method="get" th:action="@{/homework/review}" class="filters-form">
+        <div class="filter-group">
+            <label for="classId">Класс:</label>
+            <select name="classId" id="classId" class="filter-select" onchange="this.form.submit()">
+                <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
+                        th:value="${cls.key}"
+                        th:text="${cls.value}"
+                        th:selected="${cls.key == viewModel.selectedClassId}">
+                </option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="subjectId">Предмет:</label>
+            <select name="subjectId" id="subjectId" class="filter-select" onchange="this.form.submit()">
+                <option th:each="subject : ${viewModel.availableSubjects.entrySet()}"
+                        th:value="${subject.key}"
+                        th:text="${subject.value}"
+                        th:selected="${subject.key == viewModel.selectedSubjectId}">
+                </option>
+            </select>
+        </div>
+
+        <input type="hidden" name="tab" id="activeTabInput" th:value="${viewModel.activeTab}">
+    </form>
+</div>
+
+<!-- Сообщение об ошибке -->
+<div th:if="${viewModel.errorMessage != null}" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span th:text="${viewModel.errorMessage}"></span>
+</div>
+
+<!-- Вкладки -->
+<div class="homework-tabs-container">
+    <div class="homework-tabs-header">
+        <button type="button"
+                class="homework-tab"
+                th:classappend="${viewModel.activeTab == 'pending'} ? 'active' : ''"
+                onclick="switchTab('pending')">
+            На проверку
+        </button>
+        <button type="button"
+                class="homework-tab"
+                th:classappend="${viewModel.activeTab == 'reviewed'} ? 'active' : ''"
+                onclick="switchTab('reviewed')">
+            Проверенные
+        </button>
+    </div>
+</div>
+
+<!-- Таблица с ДЗ на проверку -->
+<div th:if="${viewModel.activeTab == 'pending'}" class="submissions-table-container">
+    <div th:if="${viewModel.pendingSubmissions != null && !viewModel.pendingSubmissions.isEmpty()}">
+        <table class="submissions-table">
+            <thead>
+            <tr>
+                <th>ФИО ученика</th>
+                <th>Урок</th>
+                <th>Домашнее задание</th>
+                <th>Дата сдачи</th>
+                <th>Ответ ученика</th>
+                <th>Оценка</th>
+                <th>Комментарий учителя</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${viewModel.pendingSubmissions}"
+                th:id="'row-' + ${item.homeworkId}"
+                class="submission-row pending">
+
+                <td class="student-cell">
+                    <div class="student-name" th:text="${item.studentFullName}">Иванов А.П.</div>
+                    <div class="student-class" th:text="${item.className}">9 А</div>
+                </td>
+
+                <td class="lesson-cell">
+                    <div class="lesson-number">Урок <span th:text="${item.lessonNumber}">1</span></div>
+                    <div class="lesson-date" th:text="${item.formattedLessonDate}">01.12.2024</div>
+                    <div class="lesson-topic" th:title="${item.lessonTopic}">
+                        <span th:text="${item.shortLessonTopic}">Тема урока</span>
+                    </div>
+                </td>
+
+                <td class="homework-cell">
+                    <div class="homework-text" th:title="${item.homeworkText}">
+                        <span th:text="${item.shortHomeworkText}">Домашнее задание</span>
+                    </div>
+                </td>
+
+                <td class="date-cell" th:text="${item.formattedSubmissionDate}">01.12.2024 14:30</td>
+
+                <td class="answer-cell">
+                    <button type="button" class="btn-view-answer"
+                            th:data-answer="${item.studentAnswer}"
+                            th:data-student-name="${item.studentFullName}"
+                            onclick="viewStudentAnswer(this)">
+                        Просмотреть
+                    </button>
+                </td>
+
+                <td class="grade-cell">
+                    <select th:id="'grade-' + ${item.homeworkId}" class="grade-select">
+                        <option value="">— Выбрать —</option>
+                        <option value="5" th:selected="${item.currentGradeValue == 5}">5</option>
+                        <option value="4" th:selected="${item.currentGradeValue == 4}">4</option>
+                        <option value="3" th:selected="${item.currentGradeValue == 3}">3</option>
+                        <option value="2" th:selected="${item.currentGradeValue == 2}">2</option>
+                        <option value="1" th:selected="${item.currentGradeValue == 1}">1</option>
+                    </select>
+                    <input type="hidden" th:id="'gradeid-' + ${item.homeworkId}" th:value="${item.gradeId}">
+                </td>
+
+                <td class="comment-cell">
+                    <textarea th:id="'comment-' + ${item.homeworkId}"
+                              class="comment-textarea"
+                              rows="2"
+                              placeholder="Введите комментарий..."></textarea>
+                    <input type="hidden" th:id="'originalcomment-' + ${item.homeworkId}"
+                           th:value="${item.currentTeacherComment}">
+                </td>
+
+                <td class="action-cell">
+                    <button type="button" class="btn-save"
+                            th:attr="data-id=${item.homeworkId}"
+                            onclick="saveReview(this)">
+                        Сохранить
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${viewModel.pendingSubmissions == null || viewModel.pendingSubmissions.isEmpty()}" class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>Нет заданий на проверку</h3>
+        <p>Для выбранного класса и предмета нет отправленных домашних заданий.</p>
+    </div>
+</div>
+
+<!-- Таблица с проверенными ДЗ -->
+<div th:if="${viewModel.activeTab == 'reviewed'}" class="submissions-table-container">
+    <div th:if="${viewModel.reviewedSubmissions != null && !viewModel.reviewedSubmissions.isEmpty()}">
+        <table class="submissions-table">
+            <thead>
+            <tr>
+                <th>ФИО ученика</th>
+                <th>Урок</th>
+                <th>Домашнее задание</th>
+                <th>Дата сдачи</th>
+                <th>Ответ ученика</th>
+                <th>Оценка</th>
+                <th>Комментарий учителя</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${viewModel.reviewedSubmissions}"
+                th:id="'row-' + ${item.homeworkId}"
+                class="submission-row reviewed">
+
+                <td class="student-cell">
+                    <div class="student-name" th:text="${item.studentFullName}">Иванов А.П.</div>
+                    <div class="student-class" th:text="${item.className}">9 А</div>
+                </td>
+
+                <td class="lesson-cell">
+                    <div class="lesson-number">Урок <span th:text="${item.lessonNumber}">1</span></div>
+                    <div class="lesson-date" th:text="${item.formattedLessonDate}">01.12.2024</div>
+                    <div class="lesson-topic" th:title="${item.lessonTopic}">
+                        <span th:text="${item.shortLessonTopic}">Тема урока</span>
+                    </div>
+                </td>
+
+                <td class="homework-cell">
+                    <div class="homework-text" th:title="${item.homeworkText}">
+                        <span th:text="${item.shortHomeworkText}">Домашнее задание</span>
+                    </div>
+                </td>
+
+                <td class="date-cell" th:text="${item.formattedSubmissionDate}">01.12.2024 14:30</td>
+
+                <td class="answer-cell">
+                    <button type="button" class="btn-view-answer"
+                            th:data-answer="${item.studentAnswer}"
+                            th:data-student-name="${item.studentFullName}"
+                            onclick="viewStudentAnswer(this)">
+                        Просмотреть
+                    </button>
+                </td>
+
+                <td class="grade-cell">
+                    <select th:id="'grade-' + ${item.homeworkId}" class="grade-select">
+                        <option value="">— Выбрать —</option>
+                        <option value="5" th:selected="${item.currentGradeValue == 5}">5</option>
+                        <option value="4" th:selected="${item.currentGradeValue == 4}">4</option>
+                        <option value="3" th:selected="${item.currentGradeValue == 3}">3</option>
+                        <option value="2" th:selected="${item.currentGradeValue == 2}">2</option>
+                        <option value="1" th:selected="${item.currentGradeValue == 1}">1</option>
+                    </select>
+                    <input type="hidden" th:id="'gradeid-' + ${item.homeworkId}" th:value="${item.gradeId}">
+                </td>
+
+                <td class="comment-cell">
+                    <textarea th:id="'comment-' + ${item.homeworkId}"
+                              class="comment-textarea"
+                              rows="2"
+                              placeholder="Введите комментарий..."></textarea>
+                    <input type="hidden" th:id="'originalcomment-' + ${item.homeworkId}"
+                           th:value="${item.currentTeacherComment}">
+                </td>
+
+                <td class="action-cell">
+                    <button type="button" class="btn-save"
+                            th:attr="data-id=${item.homeworkId}"
+                            onclick="saveReview(this)">
+                        Сохранить
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${viewModel.reviewedSubmissions == null || viewModel.reviewedSubmissions.isEmpty()}" class="empty-state">
+        <i class="fas fa-history"></i>
+        <h3>Нет проверенных заданий</h3>
+        <p>Для выбранного класса и предмета нет проверенных домашних заданий.</p>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра ответа ученика -->
+<div id="answerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Ответ ученика</h3>
+            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="student-info-modal">
+                <p><strong>Ученик:</strong> <span id="modalStudentName"></span></p>
+            </div>
+            <div class="answer-content">
+                <label>Текст ответа:</label>
+                <div class="answer-text" id="modalAnswerText"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/homework.js}"></script>
+<script>
+    function switchTab(tab) {
+        document.getElementById('activeTabInput').value = tab;
+        document.getElementById('filterForm').submit();
+    }
+</script>
+</body>
+</html>

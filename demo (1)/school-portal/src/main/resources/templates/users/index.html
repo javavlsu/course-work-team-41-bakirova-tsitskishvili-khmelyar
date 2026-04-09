@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/users.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аднимистрирование</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+<div class="admin-page-content">
+
+    <!-- Сообщения об успехе/ошибке -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Блок управления -->
+    <div class="admin-header-bar">
+        <a th:href="@{/users/create}" class="btn-filter-apply"
+           th:if="${#authorization.expression('hasRole(''DIRECTOR'')') or #authorization.expression('hasRole(''ADMIN'')')}">
+            <i class="fas fa-plus"></i> Административное управление
+        </a>
+
+        <form th:action="@{/users/index}" method="get" class="filter-search-form">
+            <select name="roleFilter" class="filter-field">
+                <option value="">Все роли</option>
+                <option th:each="role : ${availableRoles}"
+                        th:value="${role.name}"
+                        th:text="${role.nameRu}"
+                        th:selected="${role.name == roleFilter}">
+                </option>
+            </select>
+
+            <select name="classFilter" class="filter-field">
+                <option value="">Все классы</option>
+                <option th:each="schoolClass : ${schoolClasses}"
+                        th:value="${schoolClass.classId}"
+                        th:text="${schoolClass.className}"
+                        th:selected="${schoolClass.classId == classFilter}">
+                </option>
+            </select>
+
+            <input type="text" name="searchTerm" th:value="${searchTerm}"
+                   placeholder="Поиск по ФИО..." class="search-field" />
+
+            <button type="submit" class="btn-filter-apply">Применить</button>
+            <a th:href="@{/users/index}" class="btn-filter-reset">Сброс</a>
+        </form>
+    </div>
+
+    <!-- Список пользователей -->
+    <div class="user-list-container">
+        <div th:if="${users == null || users.isEmpty()}">
+            <p class="empty-list-message">
+                <i class="fas fa-user-slash fa-2x"></i><br>
+                Пользователи не найдены по заданным критериям.
+            </p>
+        </div>
+
+        <div th:if="${users != null && !users.isEmpty()}">
+            <div th:each="user : ${users}" class="user-row">
+                <div class="user-info">
+                    <span class="user-name" th:text="${user.fullName}">Иванов Иван Иванович</span>
+                    <span class="user-role-badge" th:text="${user.roleNameRu}">Учитель</span>
+                </div>
+
+                <div class="user-actions">
+                    <div th:if="${#authorization.expression('hasRole(''DIRECTOR'')') or #authorization.expression('hasRole(''ADMIN'')')}">
+                        <button type="button" class="btn-action btn-edit js-edit-user"
+                                th:attr="data-id=${user.userId}">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </button>
+
+                        <button type="button" class="btn-action btn-delete js-delete-user"
+                                th:attr="data-id=${user.userId}, data-name=${user.fullName}">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn-action btn-details js-details-user"
+                            th:attr="data-id=${user.userId}">
+                        <i class="fas fa-info-circle"></i> Подробнее
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно "Подробная информация" -->
+<div id="userDetailsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-details">
+        <div class="modal-form-header">
+            Подробная информация о пользователе
+        </div>
+        <div id="userDetailsContent" class="details-content-area">
+            Загрузка...
+        </div>
+        <div class="modal-form-actions">
+            <button type="button" id="closeDetailsModal" class="btn-secondary">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно "Редактирование пользователя" -->
+<div id="editUserModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-details">
+        <div class="modal-form-header">
+            Редактирование пользователя
+        </div>
+        <div id="editUserContent" class="details-content-area">
+            Загрузка...
+        </div>
+        <div class="modal-form-actions">
+            <button type="button" id="closeEditModal" class="btn-secondary">Отмена</button>
+            <button type="button" id="saveEditUser" class="btn-primary">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Передаем данные из Thymeleaf в JavaScript
+    const currentUserRole = /*[[${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''DIRECTOR'')') ? 'DIRECTOR' : 'TEACHER')}]]*/ 'TEACHER';
+    // ADMIN и DIRECTOR видят логин, TEACHER - нет
+    const showLogin = (currentUserRole === 'ADMIN' || currentUserRole === 'DIRECTOR');
+    /*]]>*/
+</script>
+<script th:src="@{/js/users/index.js}"></script>
+</body>
+</html>

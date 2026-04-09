@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Успеваемость</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/grades.css}">
+</head>
+<body>
+<div class="container mt-4">
+    <!-- Скрытый заголовок -->
+    <h2 class="mb-4 page-title">Успеваемость</h2>
+
+    <!-- Фильтр по четвертям -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/grades}" method="get" class="row g-3 align-items-center justify-content-end">
+                <div class="col-auto">
+                    <label for="quarter" class="form-label mb-0 fw-bold">Период:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="quarter" id="quarter" class="form-select">
+                        <option th:each="q : ${availableQuarters}"
+                                th:value="${q}"
+                                th:text="${q == 'Итоговые оценки' ? q : q + ' четверть'}"
+                                th:selected="${q == selectedQuarter}"></option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица успеваемости -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-primary">
+                    <tr>
+                        <th style="width: 40px;">№</th>
+                        <th>Предмет</th>
+                        <th style="width: 130px;">Средний балл</th>
+                        <th>Оценки</th>
+                        <th style="width: 100px;">Итоговая</th>
+                        <th style="width: 80px;">Пропуски</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="subject, stat : ${subjects}">
+                        <td class="text-center" th:text="${stat.count}">1</td>
+                        <td th:text="${subject.subjectName}">Математика</td>
+                        <td class="text-center">
+                            <span th:if="${subject.gradeCount > 0}">
+                                <span class="tooltip-trigger"
+                                      th:classappend="${subject.averageGrade >= 4 ? 'grade-high' : (subject.averageGrade >= 3 ? 'grade-medium' : 'grade-low')}"
+                                      th:text="${#numbers.formatDecimal(subject.averageGrade, 1, 2)}"
+                                      th:attr="data-type='grades',
+                                               data-subject=${subject.subjectName},
+                                               data-average=${#numbers.formatDecimal(subject.averageGrade, 1, 2)},
+                                               data-grade5=${subject.gradeCount5},
+                                               data-grade4=${subject.gradeCount4},
+                                               data-grade3=${subject.gradeCount3},
+                                               data-grade2=${subject.gradeCount2}">0.00</span>
+                            </span>
+                            <span th:unless="${subject.gradeCount > 0}" class="dash-grade">—</span>
+                        </td>
+                        <td>
+                            <span th:each="grade : ${subject.allGrades}"
+                                  th:classappend="'grade-badge grade-badge-' + ${grade}"
+                                  th:text="${grade}"></span>
+                            <span th:if="${subject.allGrades.isEmpty()}" class="dash-grade">—</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${subject.quarterFinalGrade > 0}">
+                                <span th:classappend="${subject.quarterFinalGrade >= 4 ? 'final-grade-high' : 'final-grade-low'}"
+                                      th:text="${subject.quarterFinalGrade}">—</span>
+                            </span>
+                            <span th:unless="${subject.quarterFinalGrade > 0}" class="dash-grade">—</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${subject.totalAbsences > 0}">
+                                <span class="tooltip-trigger"
+                                      th:classappend="${subject.totalAbsences > 0 ? 'text-danger fw-bold' : 'text-muted'}"
+                                      th:text="${subject.totalAbsences}"
+                                      th:attr="data-type='absences',
+                                               data-subject=${subject.subjectName},
+                                               data-total=${subject.totalAbsences},
+                                               data-h=${subject.absentTypeH},
+                                               data-u=${subject.absentTypeU},
+                                               data-b=${subject.absentTypeB}">0</span>
+                            </span>
+                            <span th:unless="${subject.totalAbsences > 0}" class="dash-grade">—</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сообщение при отсутствии данных -->
+    <div th:if="${subjects == null or subjects.isEmpty()}" class="alert alert-warning mt-4 text-center">
+        <i class="fas fa-chart-line me-2"></i>
+        Нет данных об успеваемости за выбранный период
+    </div>
+</div>
+
+<!-- Глобальный тултип -->
+<div id="globalTooltip" class="global-tooltip"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/grades.js}"></script>
+</body>
+</html>

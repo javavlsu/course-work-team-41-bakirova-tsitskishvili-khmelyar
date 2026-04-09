@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/users.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аднимистрирование</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+</head>
+<body>
+
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+<div class="create-page-content">
+    <div class="two-column-layout create-layout">
+
+        <!-- Левая колонка - Форма создания пользователя -->
+        <div class="form-card">
+            <div class="form-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-user-plus" style="color: #3b90d3; margin-right: 10px;"></i> Создание нового пользователя</h3>
+                <a href="/users/index" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+            <div class="form-card-body">
+                <div th:if="${param.success != null}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Пользователь успешно создан
+                </div>
+                <div th:if="${param.error != null}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> Ошибка создания пользователя
+                </div>
+
+                <form th:action="@{/users/create}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Фамилия *</label>
+                            <input type="text" id="lastName" name="lastName" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Имя *</label>
+                            <input type="text" id="firstName" name="firstName" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Отчество</label>
+                        <input type="text" id="middleName" name="middleName" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Роль *</label>
+                        <select id="roleId" name="roleId" required onchange="handleRoleChange()">
+                            <option value="">-- Выберите роль --</option>
+                            <option th:each="role : ${viewModel.availableRoles}"
+                                    th:value="${role.key}"
+                                    th:text="${role.value}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div id="dynamicFields" class="form-group"></div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" name="email" />
+                        </div>
+                        <div class="form-group">
+                            <label>Телефон</label>
+                            <input type="tel" id="phone" name="phone" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дата рождения</label>
+                        <input type="date" id="birthDate" name="birthDate" />
+                        <span id="birthDateError" class="error-message" style="display: none;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дополнительная информация</label>
+                        <textarea id="info" name="info" rows="3"></textarea>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Логин (опционально)</label>
+                            <input type="text" id="login" name="login" placeholder="Будет сгенерирован автоматически" />
+                        </div>
+                        <div class="form-group">
+                            <label>Пароль (опционально)</label>
+                            <input type="text" id="password" name="password" placeholder="Будет сгенерирован автоматически" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Создать пользователя
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Инструменты -->
+        <div class="tools-card" th:if="${#authorization.expression('hasRole(''DIRECTOR'')') or #authorization.expression('hasRole(''ADMIN'')')}">
+            <div class="tools-card-header">
+                <h3>
+                    <i class="fas fa-tools"></i>
+                    Дополнительные инструменты
+                </h3>
+            </div>
+            <div class="tools-card-body">
+                <p class="tools-description">
+                    <i class="fas fa-info-circle"></i> Управляйте классами и предметами школы
+                </p>
+
+                <!-- Блок управления классами -->
+                <div class="tool-section">
+                    <button type="button" id="toggleClassPanelBtn" class="tool-button">
+                        <i class="fas fa-school"></i> Управление классами
+                    </button>
+                    <div id="classPanel" class="tool-management-panel">
+                        <div class="panel-header">
+                            <h4><i class="fas fa-school"></i> Управление классами</h4>
+                        </div>
+                        <div id="classManagementContent" class="panel-body">
+                            <p>Загрузка данных...</p>
+                        </div>
+                        <div class="panel-actions">
+                            <button type="button" id="closeClassPanelBtn" class="btn-cancel-red">Закрыть</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок управления предметами -->
+                <div class="tool-section">
+                    <button type="button" id="toggleSubjectPanelBtn" class="tool-button">
+                        <i class="fas fa-book-open"></i> Управление предметами
+                    </button>
+                    <div id="subjectPanel" class="tool-management-panel">
+                        <div class="panel-header">
+                            <h4><i class="fas fa-book-open"></i> Управление предметами</h4>
+                        </div>
+                        <div id="subjectManagementContent" class="panel-body">
+                            <p>Загрузка данных...</p>
+                        </div>
+                        <div class="panel-actions">
+                            <button type="button" id="closeSubjectPanelBtn" class="btn-cancel-red">Закрыть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Передаем данные из Thymeleaf в JavaScript
+    const schoolClasses = /*[[${viewModel.schoolClasses}]]*/ [];
+    const allStudents = /*[[${viewModel.allStudents}]]*/ [];
+    /*]]>*/
+</script>
+<script th:src="@{/js/users/create.js}"></script>
+</body>
+</html>
