@@ -17,6 +17,7 @@ public class ScheduleItemViewModel {
     private Integer grade;
     private String gradeComment;
     private String className;
+    private Integer classId;
 
     public Integer getScheduleId() { return scheduleId; }
     public void setScheduleId(Integer scheduleId) { this.scheduleId = scheduleId; }
@@ -59,4 +60,7 @@ public class ScheduleItemViewModel {
 
     public String getClassName() { return className; }
     public void setClassName(String className) { this.className = className; }
+
+    public Integer getClassId() { return classId; }
+    public void setClassId(Integer classId) { this.classId = classId; }
 }

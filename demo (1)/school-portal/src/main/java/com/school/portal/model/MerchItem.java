@@ -2,6 +2,7 @@ package com.school.portal.model;
 
 import jakarta.persistence.*;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore; // Для избегания рекурсии
 
 @Entity
 @Table(name = "MerchItem")
@@ -27,6 +28,7 @@ public class MerchItem {
     @Column(name = "IsArchived", nullable = false)
     private Boolean isArchived = false;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "merchItem")
     private Set<MerchRequest> merchRequests;
 

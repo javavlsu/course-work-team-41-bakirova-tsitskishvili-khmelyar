@@ -79,7 +79,7 @@ public class HomeworkController {
                 availableClasses.put(sc.getClassId(), sc.getClassName());
             }
         } else {
-            List<Schedule> teacherLessons = scheduleRepository.findByTeacherUserIdOrderByLessonDateTime(currentUser.getUserId());
+            List<Schedule> teacherLessons = scheduleRepository.findByTeacher_UserIdOrderByLessonDateTime(currentUser.getUserId());
             for (Schedule lesson : teacherLessons) {
                 if (lesson.getSchoolClass() != null) {
                     availableClasses.put(lesson.getSchoolClass().getClassId(), lesson.getSchoolClass().getClassName());

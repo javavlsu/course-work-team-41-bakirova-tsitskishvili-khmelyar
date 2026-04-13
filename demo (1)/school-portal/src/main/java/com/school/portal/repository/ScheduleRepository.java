@@ -12,9 +12,9 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
 
-    List<Schedule> findBySchoolClassClassIdOrderByLessonDateTime(Integer classId);
+    List<Schedule> findBySchoolClass_ClassIdOrderByLessonDateTime(Integer classId);
 
-    List<Schedule> findByTeacherUserIdOrderByLessonDateTime(Integer teacherId);
+    List<Schedule> findByTeacher_UserIdOrderByLessonDateTime(Integer teacherId);
 
     @Query("SELECT s FROM Schedule s WHERE s.schoolClass.classId = :classId " +
             "AND s.lessonDateTime BETWEEN :startDate AND :endDate ORDER BY s.lessonDateTime")

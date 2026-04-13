@@ -11,11 +11,11 @@ import java.util.Optional;
 @Repository
 public interface ClassSubjectTeacherRepository extends JpaRepository<ClassSubjectTeacher, Integer> {
 
-    List<ClassSubjectTeacher> findBySchoolClassClassId(Integer classId);
+    List<ClassSubjectTeacher> findBySchoolClass_ClassId(Integer classId);
 
-    List<ClassSubjectTeacher> findByTeacherUserId(Integer teacherId);
+    List<ClassSubjectTeacher> findByTeacher_UserId(Integer teacherId);
 
-    Optional<ClassSubjectTeacher> findBySchoolClassClassIdAndSubjectSubjectId(
+    Optional<ClassSubjectTeacher> findBySchoolClass_ClassIdAndSubjectSubjectId(
             Integer classId, Integer subjectId);
 
     @Query("SELECT DISTINCT cst.schoolClass FROM ClassSubjectTeacher cst WHERE cst.teacher.userId = :teacherId")

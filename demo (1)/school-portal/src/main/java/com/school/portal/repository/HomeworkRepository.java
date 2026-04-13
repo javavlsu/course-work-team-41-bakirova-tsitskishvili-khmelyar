@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
@@ -13,6 +14,8 @@ public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
     List<Homework> findByStudentUserId(Integer studentId);
 
     List<Homework> findByLessonLessonId(Integer lessonId);
+
+    Optional<Homework> findByStudentUserIdAndLessonLessonId(Integer studentId, Integer lessonId);
 
     @Query("SELECT h FROM Homework h WHERE h.lesson.schoolClass.classId = :classId " +
             "AND h.status = :status ORDER BY h.date DESC")

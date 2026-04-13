@@ -10,9 +10,9 @@ import java.util.List;
 @Repository
 public interface ScheduleTemplateRepository extends JpaRepository<ScheduleTemplate, Integer> {
 
-    List<ScheduleTemplate> findBySchoolClassClassId(Integer classId);
+    List<ScheduleTemplate> findBySchoolClass_ClassId(Integer classId);
 
-    List<ScheduleTemplate> findByTeacherUserId(Integer teacherId);
+    List<ScheduleTemplate> findByTeacher_UserId(Integer teacherId);
 
     @Query("SELECT st FROM ScheduleTemplate st WHERE st.schoolClass.classId = :classId " +
             "AND st.dayOfWeek = :dayOfWeek ORDER BY st.lessonNumber")

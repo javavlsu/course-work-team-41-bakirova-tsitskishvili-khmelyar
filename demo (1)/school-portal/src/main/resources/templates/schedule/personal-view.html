@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -188,7 +188,7 @@
         }
 
         .bg-primary {
-            background-color: #0d6efd !important;
+            background-color: #3b90d3 !important;
         }
     </style>
 </head>
@@ -198,31 +198,30 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="d-flex flex-wrap align-items-center gap-3">
-                    <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.minusDays(7).toString()})}"
-                       class="btn btn-outline-secondary week-nav-btn">
-                        <i class="fas fa-chevron-left me-1"></i> Пред. неделя
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.minusDays(7).toString()}, filterType=${viewModel.filterType}, selectedId=${viewModel.filterType == 'Teacher' ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-chevron-left"></i>
                     </a>
 
-                    <div class="text-center">
-                        <h5 class="mb-0 fw-bold">
-                            <span th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM.yyyy')}"></span> -
-                            <span th:text="${#temporals.format(viewModel.startOfWeek.plusDays(6), 'dd.MM.yyyy')}"></span>
-                        </h5>
+                    <div class="btn btn-light fw-bold px-3 border" style="pointer-events: none; min-width: 180px;">
+                        <span th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM.yyyy')}"></span> -
+                        <span th:text="${#temporals.format(viewModel.startOfWeek.plusDays(6), 'dd.MM.yyyy')}"></span>
                     </div>
 
-                    <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.plusDays(7).toString()})}"
-                       class="btn btn-outline-secondary week-nav-btn">
-                        След. неделя <i class="fas fa-chevron-right ms-1"></i>
+                    <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.plusDays(7).toString()}, filterType=${viewModel.filterType}, selectedId=${viewModel.filterType == 'Teacher' ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-chevron-right"></i>
                     </a>
                 </div>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a th:href="@{/schedule/index}"
-                   class="btn btn-primary">
-                    <i class="fas fa-calendar-day me-2"></i> Текущая неделя
-                </a>
+
+                <div class="text-md-end mt-3 mt-md-0">
+                    <a th:href="@{/schedule/index}"
+                       class="btn btn-primary">
+                        <i class="fas fa-calendar-day me-2"></i> Текущая неделя
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -284,9 +283,20 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
                                 </div>
 
                                 <!-- Оценка -->
@@ -308,6 +318,15 @@
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -333,15 +352,50 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- Оценка -->
+                                <div th:if="${lesson.grade != null}" class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Оценка:</span>
+                                        <span th:class="${lesson.grade >= 4} ? 'badge bg-success' :
+                                                          (${lesson.grade == 3} ? 'badge bg-warning text-dark' :
+                                                          'badge bg-danger')"
+                                              class="grade-badge">
+                                                <span th:text="${lesson.grade}"></span>
+                                                <i th:if="${lesson.gradeComment}" class="fas fa-info-circle ms-1"
+                                                   data-bs-toggle="tooltip" th:title="${lesson.gradeComment}"></i>
+                                            </span>
+                                    </div>
                                 </div>
 
                                 <!-- Тема урока -->
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -367,15 +421,50 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- Оценка -->
+                                <div th:if="${lesson.grade != null}" class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Оценка:</span>
+                                        <span th:class="${lesson.grade >= 4} ? 'badge bg-success' :
+                                                          (${lesson.grade == 3} ? 'badge bg-warning text-dark' :
+                                                          'badge bg-danger')"
+                                              class="grade-badge">
+                                                <span th:text="${lesson.grade}"></span>
+                                                <i th:if="${lesson.gradeComment}" class="fas fa-info-circle ms-1"
+                                                   data-bs-toggle="tooltip" th:title="${lesson.gradeComment}"></i>
+                                            </span>
+                                    </div>
                                 </div>
 
                                 <!-- Тема урока -->
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -401,15 +490,50 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- Оценка -->
+                                <div th:if="${lesson.grade != null}" class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Оценка:</span>
+                                        <span th:class="${lesson.grade >= 4} ? 'badge bg-success' :
+                                                          (${lesson.grade == 3} ? 'badge bg-warning text-dark' :
+                                                          'badge bg-danger')"
+                                              class="grade-badge">
+                                                <span th:text="${lesson.grade}"></span>
+                                                <i th:if="${lesson.gradeComment}" class="fas fa-info-circle ms-1"
+                                                   data-bs-toggle="tooltip" th:title="${lesson.gradeComment}"></i>
+                                            </span>
+                                    </div>
                                 </div>
 
                                 <!-- Тема урока -->
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -435,15 +559,50 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- Оценка -->
+                                <div th:if="${lesson.grade != null}" class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Оценка:</span>
+                                        <span th:class="${lesson.grade >= 4} ? 'badge bg-success' :
+                                                          (${lesson.grade == 3} ? 'badge bg-warning text-dark' :
+                                                          'badge bg-danger')"
+                                              class="grade-badge">
+                                                <span th:text="${lesson.grade}"></span>
+                                                <i th:if="${lesson.gradeComment}" class="fas fa-info-circle ms-1"
+                                                   data-bs-toggle="tooltip" th:title="${lesson.gradeComment}"></i>
+                                            </span>
+                                    </div>
                                 </div>
 
                                 <!-- Тема урока -->
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -469,15 +628,50 @@
                              th:if="${lesson.lessonNumber == lessonNum}">
                             <div class="lesson-card">
                                 <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small mb-2" th:text="${lesson.teacherFullName}"></div>
+
+                                <!-- Учитель с иконкой человека -->
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i><span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+
+                                <!-- Класс с иконкой группы людей -->
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i><span th:text="${lesson.className}"></span>
+                                </div>
+
+                                <!-- Кабинет -->
                                 <div class="text-muted small mb-2">
-                                    <i class="fas fa-door-open me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- Оценка -->
+                                <div th:if="${lesson.grade != null}" class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Оценка:</span>
+                                        <span th:class="${lesson.grade >= 4} ? 'badge bg-success' :
+                                                          (${lesson.grade == 3} ? 'badge bg-warning text-dark' :
+                                                          'badge bg-danger')"
+                                              class="grade-badge">
+                                                <span th:text="${lesson.grade}"></span>
+                                                <i th:if="${lesson.gradeComment}" class="fas fa-info-circle ms-1"
+                                                   data-bs-toggle="tooltip" th:title="${lesson.gradeComment}"></i>
+                                            </span>
+                                    </div>
                                 </div>
 
                                 <!-- Тема урока -->
                                 <div th:if="${lesson.lessonTopic}" class="mt-2 pt-2 border-top">
                                     <div class="text-muted small">Тема:</div>
                                     <div class="small text-truncate" th:text="${lesson.lessonTopic}"></div>
+                                </div>
+
+                                <!-- Кнопка управления уроком (Видит ТОЛЬКО учитель) -->
+                                <div sec:authorize="hasRole('TEACHER')" class="mt-2">
+                                    <span class="badge bg-primary d-block w-100 py-2" style="cursor: pointer;"
+                                          th:attr="data-lesson-id=${lesson.scheduleId}"
+                                          onclick="openHomeworkModal(this)">
+                                        <i class="fas fa-edit me-1"></i> Задать ДЗ / Тему
+                                    </span>
                                 </div>
 
                                 <!-- Домашнее задание -->
@@ -554,73 +748,81 @@
                     </div>
                 </div>
 
-                <!-- Тема урока -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-2">
-                        <i class="fas fa-book-open me-2 text-primary"></i>Тема урока:
-                    </label>
-                    <div class="p-3 bg-light rounded border min-h-100">
-                        <p class="mb-0" id="modalLessonTopic">Не указана</p>
+                <!-- БЛОК ДЛЯ УЧЕНИКА / РОДИТЕЛЯ (Только чтение) -->
+                <div id="studentViewBlock">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-2">
+                            <i class="fas fa-book-open me-2 text-primary"></i>Тема урока:
+                        </label>
+                        <div class="p-3 bg-light rounded border min-h-100">
+                            <p class="mb-0" id="modalLessonTopicRead">Не указана</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-2">
+                            <i class="fas fa-home me-2 text-primary"></i>Домашнее задание:
+                        </label>
+                        <div class="p-3 bg-light rounded border min-h-100">
+                            <p class="mb-0" id="modalHomeworkTextRead">Не задано</p>
+                        </div>
+                    </div>
+
+                    <!-- Форма отправки ТОЛЬКО для учеников (если не сдано) -->
+                    <div id="studentSubmitBlock" class="d-none">
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="fas fa-paper-plane me-2 text-success"></i>Отправка ответа</h6>
+
+                        <form id="submitHomeworkForm">
+                            <input type="hidden" id="modalLessonIdStudent" name="lessonId">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ваш ответ (текст)</label>
+                                <textarea id="studentAnswer" name="studentAnswer" rows="4" class="form-control" required></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button type="submit" id="submitHomeworkButton" class="btn btn-success px-4">
+                                    Отправить задание
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Инфо-блок, если задание УЖЕ СДАНО -->
+                    <div id="studentAlreadySubmittedBlock" class="d-none">
+                        <hr class="my-4">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i> <strong>Задание уже отправлено!</strong>
+                            <p class="mb-0 mt-2 text-muted small">Ваш ответ:</p>
+                            <p class="mb-0 mt-1" id="alreadySubmittedText" style="white-space: pre-wrap;"></p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Домашнее задание -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-2">
-                        <i class="fas fa-home me-2 text-primary"></i>Домашнее задание:
-                    </label>
-                    <div class="p-3 bg-light rounded border min-h-100">
-                        <p class="mb-0" id="modalHomeworkText">Не задано</p>
-                    </div>
-                </div>
+                <!-- БЛОК ДЛЯ УЧИТЕЛЯ (Редактирование) -->
+                <div id="teacherViewBlock" class="d-none">
+                    <form id="teacherEditForm">
+                        <input type="hidden" id="modalLessonIdTeacher" name="lessonId">
 
-                <!-- Форма отправки ТОЛЬКО для учеников -->
-                <div th:unless="${isParent}">
-                    <hr class="my-4">
-                    <h6 class="mb-3">
-                        <i class="fas fa-paper-plane me-2 text-success"></i>Отправка выполненного задания
-                    </h6>
-
-                    <form id="submitHomeworkForm">
-                        <input type="hidden" id="modalLessonId" name="lessonId">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-                        <div class="mb-3">
-                            <label for="studentAnswer" class="form-label fw-bold">
-                                <i class="fas fa-edit me-1"></i>Ваш ответ (текст)
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-2">
+                                <i class="fas fa-book-open me-2 text-primary"></i>Тема урока:
                             </label>
-                            <textarea id="studentAnswer" name="studentAnswer" rows="4"
-                                      class="form-control"
-                                      placeholder="Введите ваш ответ или комментарий..."
-                                      required></textarea>
+                            <input type="text" id="editLessonTopic" name="topic" class="form-control" placeholder="Введите тему урока...">
                         </div>
 
-                        <div id="submissionMessage" class="alert d-none"></div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-2">
+                                <i class="fas fa-home me-2 text-primary"></i>Домашнее задание:
+                            </label>
+                            <textarea id="editHomeworkText" name="homeworkText" rows="4" class="form-control" placeholder="Опишите домашнее задание... (оставьте пустым для удаления)"></textarea>
+                        </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-1"></i>Закрыть
-                            </button>
-                            <button type="submit" id="submitHomeworkButton"
-                                    class="btn btn-success px-4">
-                                <i class="fas fa-paper-plane me-2"></i>Отправить задание
+                            <button type="submit" id="saveTeacherInfoBtn" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Сохранить изменения
                             </button>
                         </div>
                     </form>
-                </div>
-
-                <!-- Сообщение для родителей -->
-                <div th:if="${isParent}">
-                    <hr class="my-4">
-                    <div class="alert alert-info border-0">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-info-circle fa-lg me-3"></i>
-                            <div>
-                                <p class="fw-bold mb-1">Информация для родителей</p>
-                                <p class="mb-0">Для отправки домашнего задания необходимо войти в систему под учетной записью ученика.</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -678,6 +880,8 @@
                 try {
                     const lessonId = document.getElementById('modalLessonId').value;
                     const studentAnswer = document.getElementById('studentAnswer').value;
+
+                    // Захватываем CSRF токен из скрытого инпута формы
                     const csrfToken = document.querySelector('input[name="_csrf"]').value;
 
                     if (!studentAnswer.trim()) {
@@ -685,15 +889,17 @@
                         return;
                     }
 
+                    // Формируем данные
                     const formData = new URLSearchParams();
                     formData.append('lessonId', lessonId);
                     formData.append('studentAnswer', studentAnswer);
+                    formData.append('_csrf', csrfToken); // КЛАДЕМ ТОКЕН ПРЯМО В ТЕЛО ЗАПРОСА!
 
                     const response = await fetch(scheduleServerData.submitHomeworkUrl, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRF-TOKEN': csrfToken
+                            // Оставляем только тип контента, X-CSRF-TOKEN убираем
+                            'Content-Type': 'application/x-www-form-urlencoded'
                         },
                         body: formData
                     });
@@ -730,61 +936,122 @@
         const lessonId = element.getAttribute('data-lesson-id');
 
         try {
-            // Показываем индикатор загрузки
-            const modalTitle = document.getElementById('homeworkModalTitle');
-            if (modalTitle) {
-                modalTitle.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Загрузка...';
-            }
-
-            // Получаем данные урока через AJAX
             const response = await fetch(scheduleServerData.getLessonDetailsUrl + '?lessonId=' + lessonId);
             const result = await response.json();
 
             if (result.success) {
                 const data = result.data;
 
+                // Заполняем шапку
                 document.getElementById('modalSubject').textContent = data.subject || 'Не указано';
                 document.getElementById('modalDate').textContent = data.date || 'Не указана';
                 document.getElementById('modalLessonNumber').textContent = data.lessonNumber ? 'Урок ' + data.lessonNumber : 'Не указан';
                 document.getElementById('modalTeacher').textContent = data.teacher || 'Не указан';
                 document.getElementById('modalClassroom').textContent = data.classroom || 'Не указан';
-                document.getElementById('modalLessonTopic').textContent = data.lessonTopic || 'Не указана';
-                document.getElementById('modalHomeworkText').textContent = data.homeworkText || 'Не задано';
-                document.getElementById('modalLessonId').value = data.lessonId || lessonId;
 
-                // Очищаем предыдущие значения
-                const studentAnswer = document.getElementById('studentAnswer');
-                const submissionMessage = document.getElementById('submissionMessage');
+                // Скрываем все блоки по умолчанию
+                document.getElementById('studentViewBlock').classList.add('d-none');
+                document.getElementById('teacherViewBlock').classList.add('d-none');
+                document.getElementById('studentSubmitBlock').classList.add('d-none');
+                document.getElementById('studentAlreadySubmittedBlock').classList.add('d-none');
 
-                if (studentAnswer) {
-                    studentAnswer.value = '';
-                }
-                if (submissionMessage) {
-                    submissionMessage.classList.add('d-none');
-                    submissionMessage.textContent = '';
-                }
+                if (data.isTeacher) {
+                    // ЛОГИКА ДЛЯ УЧИТЕЛЯ
+                    document.getElementById('homeworkModalTitle').textContent = 'Редактирование урока';
+                    document.getElementById('teacherViewBlock').classList.remove('d-none');
+                    document.getElementById('modalLessonIdTeacher').value = data.lessonId;
+                    document.getElementById('editLessonTopic').value = data.lessonTopic || '';
+                    document.getElementById('editHomeworkText').value = data.homeworkText || '';
+                } else {
+                    // ЛОГИКА ДЛЯ УЧЕНИКА / РОДИТЕЛЯ
+                    document.getElementById('homeworkModalTitle').textContent = 'Домашнее задание';
+                    document.getElementById('studentViewBlock').classList.remove('d-none');
 
-                // Восстанавливаем заголовок
-                if (modalTitle) {
-                    if (scheduleServerData.isParent) {
-                        modalTitle.innerHTML = 'Просмотр домашнего задания';
-                    } else {
-                        modalTitle.innerHTML = 'Домашнее задание';
+                    document.getElementById('modalLessonTopicRead').textContent = data.lessonTopic || 'Не указана';
+                    document.getElementById('modalHomeworkTextRead').textContent = data.homeworkText || 'Не задано';
+
+                    if (data.isStudent) {
+                        if (data.homeworkStatus > 0) {
+                            // Уже сдано
+                            document.getElementById('studentAlreadySubmittedBlock').classList.remove('d-none');
+                            document.getElementById('alreadySubmittedText').textContent = data.studentAnswer || 'Ответ пуст';
+                        } else if (data.homeworkText) {
+                            // Не сдано, но ДЗ есть -> Показываем форму
+                            document.getElementById('studentSubmitBlock').classList.remove('d-none');
+                            document.getElementById('modalLessonIdStudent').value = data.lessonId;
+                            document.getElementById('studentAnswer').value = '';
+                        }
                     }
                 }
 
-                // Открываем модальное окно
-                if (homeworkModal) {
-                    homeworkModal.show();
-                }
-            } else {
-                showNotification('Ошибка загрузки данных урока: ' + result.message, 'error');
+                if (homeworkModal) homeworkModal.show();
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            showNotification('Ошибка загрузки данных урока', 'error');
         }
     }
+
+        // Обработчик отправки ДЗ учеником
+    document.getElementById('submitHomeworkForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitHomeworkButton');
+        btn.disabled = true;
+
+        const formData = new URLSearchParams();
+        formData.append('lessonId', document.getElementById('modalLessonIdStudent').value);
+        formData.append('studentAnswer', document.getElementById('studentAnswer').value);
+        formData.append('_csrf', document.querySelector('meta[name="_csrf"]').content);
+
+        try {
+            const response = await fetch('/schedule/submit-homework', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Успешно отправлено!');
+                location.reload();
+            } else {
+                alert(result.message);
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert('Ошибка сети');
+            btn.disabled = false;
+        }
+    });
+
+    // Обработчик сохранения урока учителем
+    document.getElementById('teacherEditForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('saveTeacherInfoBtn');
+        btn.disabled = true;
+
+        const formData = new URLSearchParams();
+        formData.append('lessonId', document.getElementById('modalLessonIdTeacher').value);
+        formData.append('topic', document.getElementById('editLessonTopic').value);
+        formData.append('homeworkText', document.getElementById('editHomeworkText').value);
+        formData.append('_csrf', document.querySelector('meta[name="_csrf"]').content);
+
+        try {
+            const response = await fetch('/schedule/save-lesson-info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert(result.message);
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert('Ошибка сети');
+            btn.disabled = false;
+        }
+    });
 
     // Утилита для показа уведомлений
     function showNotification(message, type = 'info') {

@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface StudentClassRepository extends JpaRepository<StudentClass, Integer> {
 
-    List<StudentClass> findBySchoolClassClassId(Integer classId);
+    List<StudentClass> findBySchoolClass_ClassId(Integer classId);
 
     Optional<StudentClass> findByStudentUserId(Integer studentId);
 

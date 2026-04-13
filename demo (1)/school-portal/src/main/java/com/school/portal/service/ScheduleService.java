@@ -71,7 +71,7 @@ public class ScheduleService {
 
     @Transactional
     public void generateLessonsFromTemplate(Integer classId, LocalDate startDate, LocalDate endDate) {
-        List<ScheduleTemplate> templates = templateRepository.findBySchoolClassClassId(classId);
+        List<ScheduleTemplate> templates = templateRepository.findBySchoolClass_ClassId(classId);
         List<Schedule> lessons = new ArrayList<>();
 
         LocalDate currentDate = startDate;

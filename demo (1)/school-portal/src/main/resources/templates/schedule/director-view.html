@@ -1,176 +1,582 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<div class="container-fluid" style="padding-bottom: 20px;">
-    <!-- Заголовок -->
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
-        <h1 class="h3 mb-0">
-            <span th:if="${#authorization.expression('hasRole(''DIRECTOR'')')}">Администрирование расписания</span>
-            <span th:unless="${#authorization.expression('hasRole(''DIRECTOR'')')}">Расписание учителя</span>
-        </h1>
-        <div th:if="${viewModel.selectedClassName != null}">
-            <p class="text-muted mb-0" th:text="${viewModel.selectedClassName}"></p>
-        </div>
-    </div>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - ШкЭД'">Администрирование расписания</title>
 
-    <!-- Фильтры -->
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
-        <form id="filterForm" method="get" th:action="@{/schedule/index}" class="row g-3">
+    <!-- Тот самый фикс для CSRF AJAX -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+        .lesson-cell {
+            min-height: 120px;
+            padding: 8px !important;
+            vertical-align: top !important;
+            min-width: 220px;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .lesson-card {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 12px;
+            height: 100%;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .grade-badge {
+            transition: all 0.2s ease;
+        }
+
+        .grade-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .schedule-scroll-container {
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+        }
+
+        .schedule-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .schedule-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .schedule-scroll-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .fixed-time-column {
+            position: sticky;
+            left: 0;
+            background-color: white;
+            z-index: 10;
+            min-width: 120px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* СТИЛИ АДМИНСКИХ КНОПОК */
+        .admin-lesson-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            border-top: 1px solid #bae6fd;
+            padding-top: 8px;
+        }
+
+        .btn-add-lesson {
+            border: 2px dashed #bae6fd;
+            color: #3b90d3;
+            background: transparent;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-add-lesson:hover {
+            background: #f0f9ff;
+            border-color: #3b90d3;
+        }
+
+        .btn-outline-primary {
+            color: #3b90d3;
+            border-color: #3b90d3;
+        }
+
+        .btn-outline-primary:hover {
+            background: #3b90d3;
+            border-color: #3b90d3;
+        }
+
+        .btn-outline-primary:active {
+            background: #3b90d3 !important;
+            border-color: #3b90d3 !important;
+        }
+
+        /* Стиль вкладок */
+        .nav-tabs .nav-link {
+            color: #6c757d; /* Серый цвет для неактивных */
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        /* Стиль для активной (выбранной) вкладки */
+        .nav-tabs .nav-link.active {
+            color: #3b90d3 !important; /* Ваш фирменный голубой */
+            background-color: transparent !important;
+            border: none !important;
+            border-bottom: 3px solid #3b90d3 !important; /* Голубая полоска снизу */
+            font-weight: 700;
+        }
+
+        /* Эффект при наведении на неактивную вкладку */
+        .nav-tabs .nav-link:hover {
+            color: #3b90d3;
+            border: none;
+            border-bottom: 3px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ФИЛЬТРЫ И НАВИГАЦИЯ -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form id="filterForm" method="get" th:action="@{/schedule/index}" class="row g-3 align-items-end">
             <input type="hidden" name="date" th:value="${viewModel.startOfWeek != null ? viewModel.startOfWeek.toString() : ''}" />
 
-            <div class="col-md-4">
-                <label for="filterType" class="form-label">Просмотр:</label>
-                <select name="filterType" id="filterType" onchange="this.form.submit()"
-                        class="form-select">
-                    <option value="Teacher" th:selected="${viewModel.filterType == 'Teacher'}">По преподавателю</option>
-                    <option value="Class" th:selected="${viewModel.filterType == 'Class'}">По классу</option>
-                </select>
+            <!-- ЛЕВАЯ ЧАСТЬ: Фильтры -->
+            <div class="col-md-6 col-lg-4 d-flex gap-3">
+                <div class="flex-grow-1">
+                    <label class="form-label fw-bold text-muted small">Тип просмотра:</label>
+                    <select name="filterType" class="form-select" onchange="this.form.submit()">
+                        <option value="All" th:selected="${viewModel.filterType == 'All'}">Вся школа</option>
+                        <option value="Class" th:selected="${viewModel.filterType == 'Class'}">По классу</option>
+                        <option value="Teacher" th:selected="${viewModel.filterType == 'Teacher'}">По учителю</option>
+                    </select>
+                </div>
+
+                <div class="flex-grow-1" th:if="${viewModel.filterType == 'Teacher'}">
+                    <label class="form-label fw-bold text-muted small">Выберите учителя:</label>
+                    <select name="selectedId" class="form-select" onchange="this.form.submit()">
+                        <option th:each="teacher : ${viewModel.availableTeachers}"
+                                th:value="${teacher.userId}" th:text="${teacher.fullName}"
+                                th:selected="${viewModel.selectedTeacherId == teacher.userId}"></option>
+                    </select>
+                </div>
+
+                <div class="flex-grow-1" th:if="${viewModel.filterType == 'Class'}">
+                    <label class="form-label fw-bold text-muted small">Выберите класс:</label>
+                    <select name="selectedId" class="form-select" onchange="this.form.submit()">
+                        <option th:each="schoolClass : ${viewModel.availableClasses}"
+                                th:value="${schoolClass.classId}" th:text="${schoolClass.className}"
+                                th:selected="${viewModel.selectedClassId == schoolClass.classId}"></option>
+                    </select>
+                </div>
             </div>
 
-            <div class="col-md-4" th:if="${viewModel.filterType == 'Teacher'}">
-                <label for="selectedId" class="form-label">Учитель:</label>
-                <select name="selectedId" id="selectedId" onchange="this.form.submit()"
-                        class="form-select">
-                    <option th:each="teacher : ${viewModel.availableTeachers}"
-                            th:value="${teacher.userId}"
-                            th:text="${teacher.fullName}"
-                            th:selected="${viewModel.selectedTeacherId == teacher.userId}"></option>
-                </select>
-            </div>
+            <!-- ПРАВАЯ ЧАСТЬ: Навигация по неделям (Прижата к правому краю) -->
+            <div class="col-md-6 col-lg-8 d-flex justify-content-md-end align-items-end gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.minusDays(7).toString()}, filterType=${viewModel.filterType}, selectedId=${viewModel.filterType == 'Teacher' ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
 
-            <div class="col-md-4" th:if="${viewModel.filterType == 'Class'}">
-                <label for="selectedId" class="form-label">Класс:</label>
-                <select name="selectedId" id="selectedId" onchange="this.form.submit()"
-                        class="form-select">
-                    <option th:each="schoolClass : ${viewModel.availableClasses}"
-                            th:value="${schoolClass.classId}"
-                            th:text="${schoolClass.className}"
-                            th:selected="${viewModel.selectedClassId == schoolClass.classId}"></option>
-                </select>
+                        <div class="btn btn-light fw-bold px-3 border" style="pointer-events: none; min-width: 180px;">
+                            <span th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM.yyyy')}"></span> -
+                            <span th:text="${#temporals.format(viewModel.startOfWeek.plusDays(6), 'dd.MM.yyyy')}"></span>
+                        </div>
+
+                        <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.plusDays(7).toString()}, filterType=${viewModel.filterType}, selectedId=${viewModel.filterType == 'Teacher' ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="text-md-end mt-3 mt-md-0">
+                        <a th:href="@{/schedule/index}"
+                           class="btn btn-primary">
+                            <i class="fas fa-calendar-day me-2"></i> Текущая неделя
+                        </a>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
+</div>
 
-    <!-- Навигация по неделям -->
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.minusDays(7).toString()},
-                                         filterType=${viewModel.filterType},
-                                         selectedId=${viewModel.selectedTeacherId != null ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
-               class="btn btn-outline-secondary">
-                <i class="fas fa-chevron-left me-2"></i> Пред. неделя
-            </a>
-
-            <span class="h5 mb-0">
-                <span th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM.yyyy')}"></span> -
-                <span th:text="${#temporals.format(viewModel.startOfWeek.plusDays(6), 'dd.MM.yyyy')}"></span>
-            </span>
-
-            <a th:href="@{/schedule/index(date=${viewModel.startOfWeek.plusDays(7).toString()},
-                                         filterType=${viewModel.filterType},
-                                         selectedId=${viewModel.selectedTeacherId != null ? viewModel.selectedTeacherId : viewModel.selectedClassId})}"
-               class="btn btn-outline-secondary">
-                След. неделя <i class="fas fa-chevron-right ms-2"></i>
-            </a>
-        </div>
-    </div>
-
-    <!-- Таблица расписания -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="table-responsive">
+<!-- ТАБЛИЦА РАСПИСАНИЯ -->
+<div class="card shadow-lg border-0">
+    <div class="card-body p-0 position-relative">
+        <div class="schedule-scroll-container">
             <table class="table table-hover mb-0">
-                <thead class="table-light">
+                <thead class="table-primary">
                 <tr>
-                    <th class="text-nowrap">Время</th>
-                    <th class="text-nowrap">Понедельник</th>
-                    <th class="text-nowrap">Вторник</th>
-                    <th class="text-nowrap">Среда</th>
-                    <th class="text-nowrap">Четверг</th>
-                    <th class="text-nowrap">Пятница</th>
+                    <th class="text-center align-middle fixed-time-column" style="width: 120px;">Время</th>
+                    <!-- Статические заголовки дней с датами -->
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Пн</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek, 'dd.MM')}"></small>
+                    </th>
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Вт</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek.plusDays(1), 'dd.MM')}"></small>
+                    </th>
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Ср</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek.plusDays(2), 'dd.MM')}"></small>
+                    </th>
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Чт</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek.plusDays(3), 'dd.MM')}"></small>
+                    </th>
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Пт</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek.plusDays(4), 'dd.MM')}"></small>
+                    </th>
+                    <th class="text-center align-middle lesson-cell">
+                        <div class="fw-bold">Сб</div>
+                        <small class="text-muted" th:text="${#temporals.format(viewModel.startOfWeek.plusDays(5), 'dd.MM')}"></small>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="lessonNum : ${#numbers.sequence(1, 6)}">
-                    <td class="align-middle">
-                        <div class="fw-bold" th:text="'Урок ' + ${lessonNum}"></div>
-                        <div class="text-muted small" th:text="${lessonTimes[lessonNum]}"></div>
+                <tr th:each="lessonNum : ${#numbers.sequence(1, 6)}" th:class="${lessonNum % 2 == 0} ? 'table-light' : ''">
+                    <td class="align-middle p-3 border-end fixed-time-column">
+                        <div class="fw-bold text-primary mb-1">Урок <span th:text="${lessonNum}"></span></div>
+                        <small class="text-muted" th:text="${lessonTimes[lessonNum]}"></small>
                     </td>
 
-                    <!-- Понедельник -->
-                    <td class="align-middle">
-                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).MONDAY]}"
+                    <!-- Итерация по 6 дням (Пн=1 ... Сб=6) -->
+                    <td th:each="dayIdx : ${#numbers.sequence(1, 6)}" class="lesson-cell border-end">
+
+                        <!-- СУЩЕСТВУЮЩИЕ УРОКИ -->
+                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).of(dayIdx)]}"
                              th:if="${lesson.lessonNumber == lessonNum}">
-                            <div class="p-2 border rounded">
-                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-door-open"></i>
-                                    <span th:text="'Каб. ' + ${lesson.classroom}"></span>
+                            <div class="lesson-card shadow-sm">
+                                <div class="fw-bold text-primary mb-1" th:text="${lesson.subjectName}"></div>
+
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-user text-secondary me-1"></i>
+                                    <span th:text="${lesson.teacherFullName}"></span>
+                                </div>
+                                <div class="text-muted small mb-1" th:if="${lesson.className}">
+                                    <i class="fas fa-users text-secondary me-1"></i>
+                                    <span th:text="${lesson.className}"></span>
+                                </div>
+                                <div class="text-muted small mb-2">
+                                    <i class="fas fa-door-open text-secondary me-1"></i>Каб. <span th:text="${lesson.classroom}"></span>
+                                </div>
+
+                                <!-- АДМИНСКИЕ КНОПКИ РЕДАКТИРОВАНИЯ И УДАЛЕНИЯ -->
+                                <div class="admin-lesson-actions">
+                                    <button class="btn btn-sm btn-outline-primary flex-grow-1"
+                                        th:attr="data-id=${lesson.scheduleId},
+                                            data-date=${#temporals.format(lesson.date, 'dd.MM.yyyy')},
+                                            data-num=${lessonNum},
+                                            data-class-id=${lesson.classId},
+                                            data-subject-id=${lesson.subjectId},
+                                            data-teacher-id=${lesson.teacherId},
+                                            data-room=${lesson.classroom}"
+                                            onclick="openAdminModal(this, 'edit')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            th:attr="data-id=${lesson.scheduleId}"
+                                            onclick="deleteLesson(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </td>
 
-                    <!-- Вторник -->
-                    <td class="align-middle">
-                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).TUESDAY]}"
-                             th:if="${lesson.lessonNumber == lessonNum}">
-                            <div class="p-2 border rounded">
-                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
-                            </div>
-                        </div>
-                    </td>
-
-                    <!-- Среда -->
-                    <td class="align-middle">
-                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).WEDNESDAY]}"
-                             th:if="${lesson.lessonNumber == lessonNum}">
-                            <div class="p-2 border rounded">
-                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
-                            </div>
-                        </div>
-                    </td>
-
-                    <!-- Четверг -->
-                    <td class="align-middle">
-                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).THURSDAY]}"
-                             th:if="${lesson.lessonNumber == lessonNum}">
-                            <div class="p-2 border rounded">
-                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
-                            </div>
-                        </div>
-                    </td>
-
-                    <!-- Пятница -->
-                    <td class="align-middle">
-                        <div th:each="lesson : ${viewModel.scheduleByDay[T(java.time.DayOfWeek).FRIDAY]}"
-                             th:if="${lesson.lessonNumber == lessonNum}">
-                            <div class="p-2 border rounded">
-                                <div class="fw-bold" th:text="${lesson.subjectName}"></div>
-                                <div class="text-muted small" th:text="${viewModel.filterType == 'Teacher' ? lesson.className : lesson.teacherFullName}"></div>
-                            </div>
-                        </div>
+                        <!-- КНОПКА ДОБАВЛЕНИЯ НОВОГО УРОКА -->
+                        <button class="btn-add-lesson mt-1"
+                            th:attr="data-date=${#temporals.format(viewModel.startOfWeek.plusDays(dayIdx - 1), 'dd.MM.yyyy')},
+                                data-num=${lessonNum},
+                                data-class-id=${viewModel.filterType == 'Class' ? viewModel.selectedClassId : ''},
+                                data-teacher-id=${viewModel.filterType == 'Teacher' ? viewModel.selectedTeacherId : ''}"
+                            onclick="openAdminModal(this, 'add')">
+                            <i class="fas fa-plus"></i> Добавить
+                        </button>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
 
-        <!-- Сообщение при отсутствии расписания -->
-        <div th:if="${viewModel.scheduleByDay == null || viewModel.scheduleByDay.isEmpty()}"
-             class="p-5 text-center">
-            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">Расписание пустое</h5>
+<!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ/РЕДАКТИРОВАНИЯ УРОКА -->
+<div class="modal fade" id="adminLessonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-calendar-plus me-2"></i><span id="modalModeTitle">Назначить урок</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="adminLessonForm">
+                    <input type="hidden" id="lessonId" name="lessonId">
+                    <input type="hidden" id="lessonDateStr" name="dateStr">
+                    <input type="hidden" id="lessonNum" name="lessonNum">
+
+                    <!-- Инфо о дате и номере урока -->
+                    <div class="alert alert-light border mb-3">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        <strong id="modalDateInfo">01.01.2026</strong> | Урок №<strong id="modalNumInfo">1</strong>
+                    </div>
+
+                    <!-- ВКЛАДКИ (По классу / По учителю) -->
+                    <ul class="nav nav-tabs mb-3" id="lessonModeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold" id="by-class-tab" data-bs-toggle="tab" data-bs-target="#by-class-pane" type="button" role="tab" onclick="currentMode = 'byClass'">По Классу</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold" id="by-teacher-tab" data-bs-toggle="tab" data-bs-target="#by-teacher-pane" type="button" role="tab" onclick="currentMode = 'byTeacher'">По Учителю</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="lessonModeTabContent">
+
+                        <!-- Вкладка: ВЫБОР ПО КЛАССУ -->
+                        <div class="tab-pane fade show active" id="by-class-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">1. Выберите Класс</label>
+                                <select id="modalClassId" class="form-select" onchange="loadMappingsByClass()">
+                                    <option value="">-- Выберите класс --</option>
+                                    <option th:each="c : ${viewModel.availableClasses}"
+                                            th:value="${c.classId}" th:text="${c.className}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">2. Предмет и Учитель</label>
+                                <select id="modalMappingByClass" class="form-select" disabled>
+                                    <option value="">Сначала выберите класс...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка: ВЫБОР ПО УЧИТЕЛЮ -->
+                        <div class="tab-pane fade" id="by-teacher-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">1. Выберите Учителя</label>
+                                <select id="modalTeacherId" class="form-select" onchange="loadMappingsByTeacher()">
+                                    <option value="">-- Выберите учителя --</option>
+                                    <option th:each="t : ${viewModel.availableTeachers}"
+                                            th:value="${t.userId}" th:text="${t.fullName}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">2. Предмет и Класс</label>
+                                <select id="modalMappingByTeacher" class="form-select" disabled>
+                                    <option value="">Сначала выберите учителя...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Общее поле Кабинет -->
+                    <div class="mb-3 mt-3">
+                        <label class="form-label fw-bold">Кабинет</label>
+                        <input type="text" id="modalRoom" name="room" class="form-control" placeholder="Например: 204" required>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" id="saveLessonBtn" class="btn btn-primary px-4">Сохранить</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Страница административного расписания загружена');
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    let adminModal = null;
+    let currentMode = 'byClass'; // Текущая активная вкладка
+
+    function getModal() {
+        if (!adminModal) {
+            adminModal = new bootstrap.Modal(document.getElementById('adminLessonModal'));
+        }
+        return adminModal;
+    }
+
+    function openAdminModal(btn, mode) {
+        const date = btn.getAttribute('data-date');
+        const num = btn.getAttribute('data-num');
+
+        document.getElementById('lessonDateStr').value = date;
+        document.getElementById('lessonNum').value = num;
+        document.getElementById('modalDateInfo').textContent = date;
+        document.getElementById('modalNumInfo').textContent = num;
+        document.getElementById('adminLessonForm').reset();
+
+        // Очищаем оба дропдауна с предметами
+        document.getElementById('modalMappingByClass').innerHTML = '<option value="">Сначала выберите класс...</option>';
+        document.getElementById('modalMappingByClass').disabled = true;
+        document.getElementById('modalMappingByTeacher').innerHTML = '<option value="">Сначала выберите учителя...</option>';
+        document.getElementById('modalMappingByTeacher').disabled = true;
+
+        if (mode === 'add') {
+            document.getElementById('modalModeTitle').textContent = 'Назначить урок';
+            document.getElementById('lessonId').value = '';
+
+            const preselectedClass = btn.getAttribute('data-class-id');
+            const preselectedTeacher = btn.getAttribute('data-teacher-id');
+
+            // Умное переключение вкладок в зависимости от того, какой фильтр включен на странице
+            if (preselectedTeacher) {
+                bootstrap.Tab.getOrCreateInstance(document.querySelector('#by-teacher-tab')).show();
+                currentMode = 'byTeacher';
+                document.getElementById('modalTeacherId').value = preselectedTeacher;
+                loadMappingsByTeacher();
+            } else {
+                bootstrap.Tab.getOrCreateInstance(document.querySelector('#by-class-tab')).show();
+                currentMode = 'byClass';
+                document.getElementById('modalClassId').value = preselectedClass || '';
+                if (preselectedClass) loadMappingsByClass();
+            }
+
+        } else {
+            // РЕДАКТИРОВАНИЕ
+            document.getElementById('modalModeTitle').textContent = 'Редактировать урок';
+            document.getElementById('lessonId').value = btn.getAttribute('data-id');
+            document.getElementById('modalRoom').value = btn.getAttribute('data-room');
+
+            const classId = btn.getAttribute('data-class-id');
+            const subjectId = btn.getAttribute('data-subject-id');
+            const teacherId = btn.getAttribute('data-teacher-id');
+
+            // При редактировании всегда открываем вкладку класса для надежности
+            bootstrap.Tab.getOrCreateInstance(document.querySelector('#by-class-tab')).show();
+            currentMode = 'byClass';
+
+            document.getElementById('modalClassId').value = classId;
+            loadMappingsByClass(subjectId + ',' + teacherId); // Авто-выбор старого предмета
+        }
+
+        getModal().show();
+    }
+
+    // Загрузка "От Класса"
+    function loadMappingsByClass(preselectValue = null) {
+        const classId = document.getElementById('modalClassId').value;
+        const select = document.getElementById('modalMappingByClass');
+
+        if (!classId) { select.innerHTML = '<option value="">Сначала выберите класс...</option>'; select.disabled = true; return; }
+
+        select.innerHTML = '<option value="">Загрузка...</option>';
+        select.disabled = true;
+
+        $.ajax({
+            url: '/schedule/get-class-mappings?classId=' + classId,
+            type: 'GET',
+            success: function(res) {
+                if (res.success) {
+                    select.innerHTML = '<option value="">-- Выберите предмет и учителя --</option>';
+                    res.mappings.forEach(m => {
+                        const val = `${m.subjectId},${m.teacherId}`;
+                        select.innerHTML += `<option value="${val}">${m.subjectName} (${m.teacherName})</option>`;
+                    });
+                    select.disabled = false;
+                    if (preselectValue) select.value = preselectValue; // Авто-выбор при редактировании!
+                }
+            }
+        });
+    }
+
+    // Загрузка "От Учителя"
+    function loadMappingsByTeacher() {
+        const teacherId = document.getElementById('modalTeacherId').value;
+        const select = document.getElementById('modalMappingByTeacher');
+
+        if (!teacherId) { select.innerHTML = '<option value="">Сначала выберите учителя...</option>'; select.disabled = true; return; }
+
+        select.innerHTML = '<option value="">Загрузка...</option>';
+        select.disabled = true;
+
+        $.ajax({
+            url: '/schedule/get-teacher-mappings?teacherId=' + teacherId,
+            type: 'GET',
+            success: function(res) {
+                if (res.success) {
+                    select.innerHTML = '<option value="">-- Выберите предмет и класс --</option>';
+                    res.mappings.forEach(m => {
+                        select.innerHTML += `<option value="${m.subjectId},${m.classId}">${m.subjectName} (${m.className})</option>`;
+                    });
+                    select.disabled = false;
+                }
+            }
+        });
+    }
+
+    // Сохранение урока
+    $('#adminLessonForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        let subjectId, teacherId, classId;
+
+        // Определяем, из какой вкладки брать данные
+        if (currentMode === 'byClass') {
+            classId = document.getElementById('modalClassId').value;
+            const mappingVal = document.getElementById('modalMappingByClass').value;
+            if (!classId || !mappingVal) { alert('Заполните все поля!'); return; }
+            [subjectId, teacherId] = mappingVal.split(',');
+        } else {
+            teacherId = document.getElementById('modalTeacherId').value;
+            const mappingVal = document.getElementById('modalMappingByTeacher').value;
+            if (!teacherId || !mappingVal) { alert('Заполните все поля!'); return; }
+            [subjectId, classId] = mappingVal.split(',');
+        }
+
+        const formData = new URLSearchParams();
+        formData.append('lessonId', document.getElementById('lessonId').value);
+        formData.append('classId', classId);
+        formData.append('subjectId', subjectId);
+        formData.append('teacherId', teacherId);
+        formData.append('room', document.getElementById('modalRoom').value);
+        formData.append('dateStr', document.getElementById('lessonDateStr').value);
+        formData.append('lessonNum', document.getElementById('lessonNum').value);
+
+        const btn = document.getElementById('saveLessonBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+
+        $.ajax({
+            url: '/schedule/save-admin-lesson',
+            type: 'POST',
+            data: formData.toString(),
+            headers: { [csrfHeader]: csrfToken },
+            success: function(res) {
+                if (res.success) location.reload();
+                else { alert(res.message); btn.disabled = false; btn.textContent = 'Сохранить'; }
+            }
+        });
     });
-    /*]]>*/
+
+    // Удаление урока
+    function deleteLesson(btn) {
+        if (confirm('Удалить этот урок из расписания? Это действие нельзя отменить.')) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+            const lessonId = btn.getAttribute('data-id');
+
+            $.ajax({
+                url: '/schedule/delete-admin-lesson',
+                type: 'POST',
+                data: { lessonId: lessonId },
+                headers: {[csrfHeader]: csrfToken },
+                success: function(res) {
+                    if (res.success) location.reload();
+                    else alert(res.message);
+                }
+            });
+        }
+    }
 </script>
+</body>
+</html>
