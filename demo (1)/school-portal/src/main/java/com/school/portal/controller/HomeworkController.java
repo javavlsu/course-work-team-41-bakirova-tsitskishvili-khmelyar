@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -51,6 +52,11 @@ public class HomeworkController {
             @RequestParam(value = "classId", required = false) Integer classId,
             @RequestParam(value = "subjectId", required = false) Integer subjectId,
             @RequestParam(value = "tab", required = false, defaultValue = "pending") String tab,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @RequestParam(value = "dateTo", required = false) String dateTo,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -94,6 +100,8 @@ public class HomeworkController {
             viewModel.setAvailableClasses(new HashMap<>());
             viewModel.setAvailableSubjects(new HashMap<>());
             viewModel.setErrorMessage("У вас нет привязанных классов для проверки домашнего задания.");
+            viewModel.setCurrentPage(0);
+            viewModel.setTotalPages(1);
             model.addAttribute("viewModel", viewModel);
             model.addAttribute("content", "homework/review");
             return "layout";
@@ -133,9 +141,9 @@ public class HomeworkController {
         // Получаем учеников класса
         List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
 
-        // Получаем все ДЗ и разделяем по статусам
-        List<HomeworkReviewItem> pendingItems = new ArrayList<>();
-        List<HomeworkReviewItem> reviewedItems = new ArrayList<>();
+        // Получаем все ДЗ
+        List<HomeworkReviewItem> allPendingItems = new ArrayList<>();
+        List<HomeworkReviewItem> allReviewedItems = new ArrayList<>();
 
         for (User student : students) {
             List<Homework> studentHomeworks = homeworkRepository.findByStudentUserId(student.getUserId());
@@ -164,19 +172,62 @@ public class HomeworkController {
 
                 HomeworkReviewItem item = convertToReviewItem(homework);
                 if (item != null) {
-                    // Разделяем по статусу: 1 - Сдано (на проверку), 2 - Проверено
                     if (homework.getStatus() == 1) {
-                        pendingItems.add(item);
+                        allPendingItems.add(item);
                     } else if (homework.getStatus() == 2) {
-                        reviewedItems.add(item);
+                        allReviewedItems.add(item);
                     }
                 }
             }
         }
 
-        // Сортируем по дате сдачи (новые сверху)
-        pendingItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
-        reviewedItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        // Сортировка
+        allPendingItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate,
+                Comparator.nullsLast(Comparator.reverseOrder())));
+        allReviewedItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate,
+                Comparator.nullsLast(Comparator.reverseOrder())));
+
+        // Фильтрация по поиску и датам
+        List<HomeworkReviewItem> filteredPending = applyFilters(allPendingItems, search, dateFrom, dateTo);
+        List<HomeworkReviewItem> filteredReviewed = applyFilters(allReviewedItems, search, dateFrom, dateTo);
+
+        // Пагинация
+        List<HomeworkReviewItem> pendingItems;
+        List<HomeworkReviewItem> reviewedItems;
+        int totalPages = 1;
+        int totalItems = 0;
+
+        if ("pending".equals(tab)) {
+            totalItems = filteredPending.size();
+            totalPages = (int) Math.ceil((double) totalItems / size);
+            if (totalPages < 1) totalPages = 1;
+            if (page >= totalPages) page = totalPages - 1;
+            if (page < 0) page = 0;
+
+            int fromIndex = page * size;
+            int toIndex = Math.min(fromIndex + size, totalItems);
+            if (totalItems > 0) {
+                pendingItems = new ArrayList<>(filteredPending.subList(fromIndex, toIndex));
+            } else {
+                pendingItems = new ArrayList<>();
+            }
+            reviewedItems = new ArrayList<>();
+        } else {
+            totalItems = filteredReviewed.size();
+            totalPages = (int) Math.ceil((double) totalItems / size);
+            if (totalPages < 1) totalPages = 1;
+            if (page >= totalPages) page = totalPages - 1;
+            if (page < 0) page = 0;
+
+            int fromIndex = page * size;
+            int toIndex = Math.min(fromIndex + size, totalItems);
+            if (totalItems > 0) {
+                reviewedItems = new ArrayList<>(filteredReviewed.subList(fromIndex, toIndex));
+            } else {
+                reviewedItems = new ArrayList<>();
+            }
+            pendingItems = new ArrayList<>();
+        }
 
         HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
         viewModel.setPendingSubmissions(pendingItems);
@@ -188,6 +239,11 @@ public class HomeworkController {
         viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
         viewModel.setSelectedSubjectName(selectedSubjectId > 0 ? availableSubjects.get(selectedSubjectId) : "Все предметы");
         viewModel.setActiveTab(tab);
+        viewModel.setCurrentPage(page);
+        viewModel.setTotalPages(totalPages);
+        viewModel.setSearch(search);
+        viewModel.setDateFrom(dateFrom);
+        viewModel.setDateTo(dateTo);
 
         model.addAttribute("viewModel", viewModel);
         model.addAttribute("content", "homework/review");
@@ -239,6 +295,69 @@ public class HomeworkController {
         }
 
         return response;
+    }
+
+    @GetMapping("/get-student-answer")
+    @ResponseBody
+    public Map<String, Object> getStudentAnswer(@RequestParam Integer homeworkId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Homework homework = homeworkRepository.findById(homeworkId)
+                    .orElseThrow(() -> new RuntimeException("Задание не найдено"));
+
+            response.put("success", true);
+            response.put("answer", homework.getText());
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("answer", "Ошибка: " + e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Фильтрация списка ДЗ по поиску и датам
+     */
+    private List<HomeworkReviewItem> applyFilters(List<HomeworkReviewItem> items, String search, String dateFrom, String dateTo) {
+        return items.stream()
+                .filter(item -> {
+                    // Фильтр по поиску (имя ученика)
+                    if (search != null && !search.trim().isEmpty()) {
+                        String searchLower = search.toLowerCase().trim();
+                        if (item.getStudentFullName() == null ||
+                                !item.getStudentFullName().toLowerCase().contains(searchLower)) {
+                            return false;
+                        }
+                    }
+
+                    // Фильтр по дате "С"
+                    if (dateFrom != null && !dateFrom.isEmpty()) {
+                        try {
+                            LocalDate from = LocalDate.parse(dateFrom);
+                            if (item.getSubmissionDate() != null &&
+                                    item.getSubmissionDate().toLocalDate().isBefore(from)) {
+                                return false;
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    // Фильтр по дате "До"
+                    if (dateTo != null && !dateTo.isEmpty()) {
+                        try {
+                            LocalDate to = LocalDate.parse(dateTo);
+                            if (item.getSubmissionDate() != null &&
+                                    item.getSubmissionDate().toLocalDate().isAfter(to)) {
+                                return false;
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    return true;
+                })
+                .collect(Collectors.toList());
     }
 
     private HomeworkReviewItem convertToReviewItem(Homework homework) {
@@ -310,23 +429,5 @@ public class HomeworkController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_USER");
-    }
-    @GetMapping("/get-student-answer")
-    @ResponseBody
-    public Map<String, Object> getStudentAnswer(@RequestParam Integer homeworkId) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            Homework homework = homeworkRepository.findById(homeworkId)
-                    .orElseThrow(() -> new RuntimeException("Задание не найдено"));
-
-            response.put("success", true);
-            response.put("answer", homework.getText());
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("answer", "Ошибка: " + e.getMessage());
-        }
-
-        return response;
     }
 }

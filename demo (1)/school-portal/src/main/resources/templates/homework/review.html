@@ -8,270 +8,299 @@
     <title>Проверка ДЗ</title>
     <link rel="stylesheet" th:href="@{/css/homework.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-item input,
+        .filter-item select {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+        .btn-filter {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-filter-primary {
+            background: #3b90d3;
+            color: white;
+        }
+        .btn-filter-primary:hover {
+            background: #2a7cbb;
+            color: white;
+        }
+        .btn-filter-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-filter-secondary:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        .pagination-info {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .pagination-btn {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pagination-btn:hover:not(.disabled):not(.active) {
+            background: #e3f2fd;
+            border-color: #3b90d3;
+            color: #3b90d3;
+        }
+        .pagination-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .pagination-btn.active {
+            background: #3b90d3;
+            color: white;
+            border-color: #3b90d3;
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Фильтры -->
-<div class="filters-container">
-    <form id="filterForm" method="get" th:action="@{/homework/review}" class="filters-form">
-        <div class="filter-group">
-            <label for="classId">Класс:</label>
-            <select name="classId" id="classId" class="filter-select" onchange="this.form.submit()">
-                <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
-                        th:value="${cls.key}"
-                        th:text="${cls.value}"
-                        th:selected="${cls.key == viewModel.selectedClassId}">
-                </option>
-            </select>
-        </div>
-
-        <div class="filter-group">
-            <label for="subjectId">Предмет:</label>
-            <select name="subjectId" id="subjectId" class="filter-select" onchange="this.form.submit()">
-                <option th:each="subject : ${viewModel.availableSubjects.entrySet()}"
-                        th:value="${subject.key}"
-                        th:text="${subject.value}"
-                        th:selected="${subject.key == viewModel.selectedSubjectId}">
-                </option>
-            </select>
-        </div>
-
-        <input type="hidden" name="tab" id="activeTabInput" th:value="${viewModel.activeTab}">
-    </form>
-</div>
-
 <!-- Сообщение об ошибке -->
-<div th:if="${viewModel.errorMessage != null}" class="error-message">
-    <i class="fas fa-exclamation-triangle"></i>
+<div th:if="${viewModel.errorMessage != null}" class="error-message" style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
+    <i class="fas fa-exclamation-triangle me-2"></i>
     <span th:text="${viewModel.errorMessage}"></span>
 </div>
 
+<!-- Фильтры -->
+<div class="filter-panel" th:unless="${viewModel.errorMessage != null}">
+    <form method="get" th:action="@{/homework/review}">
+        <input type="hidden" name="tab" th:value="${viewModel.activeTab}">
+
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>Класс</label>
+                <select name="classId" onchange="this.form.submit()">
+                    <option th:each="cls : ${viewModel.availableClasses.entrySet()}"
+                            th:value="${cls.key}" th:text="${cls.value}"
+                            th:selected="${cls.key == viewModel.selectedClassId}"></option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>Предмет</label>
+                <select name="subjectId" onchange="this.form.submit()">
+                    <option th:each="subj : ${viewModel.availableSubjects.entrySet()}"
+                            th:value="${subj.key}" th:text="${subj.value}"
+                            th:selected="${subj.key == viewModel.selectedSubjectId}"></option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>Поиск ученика</label>
+                <input type="text" name="search" placeholder="ФИО ученика..." th:value="${viewModel.search}">
+            </div>
+            <div class="filter-item">
+                <label>Дата с</label>
+                <input type="date" name="dateFrom" th:value="${viewModel.dateFrom}">
+            </div>
+            <div class="filter-item">
+                <label>Дата до</label>
+                <input type="date" name="dateTo" th:value="${viewModel.dateTo}">
+            </div>
+            <div class="filter-item">
+                <label>&nbsp;</label>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-filter btn-filter-primary">
+                        <i class="fas fa-search"></i> Применить
+                    </button>
+                    <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab})}"
+                       class="btn-filter btn-filter-secondary">
+                        <i class="fas fa-times"></i> Сброс
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 <!-- Вкладки -->
-<div class="homework-tabs-container">
-    <div class="homework-tabs-header">
-        <button type="button"
-                class="homework-tab"
-                th:classappend="${viewModel.activeTab == 'pending'} ? 'active' : ''"
-                onclick="switchTab('pending')">
+<div class="homework-tabs-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 1.5rem;">
+    <div class="homework-tabs-header" style="display: flex !important; border-bottom: 1px solid #e5e7eb !important; background-color: white !important; padding: 0 20px !important;">
+        <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab='pending', search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo})}"
+           class="homework-tab"
+           th:classappend="${viewModel.activeTab == 'pending'} ? 'active' : ''"
+           style="padding: 14px 24px !important; text-decoration: none !important; color: #6b7280 !important; font-weight: 600 !important; font-size: 0.95rem !important; border-bottom: 3px solid transparent !important; transition: all 0.2s ease !important; background: none !important; border-top: none !important; border-left: none !important; border-right: none !important; cursor: pointer !important; font-family: inherit !important; display: inline-block !important;"
+           th:style="${viewModel.activeTab == 'pending'} ? 'color: #3b90d3 !important; border-bottom: 3px solid #3b90d3 !important;' : 'color: #6b7280 !important; border-bottom: 3px solid transparent !important;'">
             На проверку
-        </button>
-        <button type="button"
-                class="homework-tab"
-                th:classappend="${viewModel.activeTab == 'reviewed'} ? 'active' : ''"
-                onclick="switchTab('reviewed')">
+            <span class="homework-tab-badge" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 5px; display: inline-block !important;"
+                  th:style="${viewModel.activeTab == 'pending'} ? 'background-color: #3b90d3; color: white;' : 'background-color: #e5e7eb; color: #6b7280;'"
+                  th:text="${viewModel.pendingCount}">0</span>
+        </a>
+        <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab='reviewed', search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo})}"
+           class="homework-tab"
+           th:classappend="${viewModel.activeTab == 'reviewed'} ? 'active' : ''"
+           style="padding: 14px 24px !important; text-decoration: none !important; color: #6b7280 !important; font-weight: 600 !important; font-size: 0.95rem !important; border-bottom: 3px solid transparent !important; transition: all 0.2s ease !important; background: none !important; border-top: none !important; border-left: none !important; border-right: none !important; cursor: pointer !important; font-family: inherit !important; display: inline-block !important;"
+           th:style="${viewModel.activeTab == 'reviewed'} ? 'color: #3b90d3 !important; border-bottom: 3px solid #3b90d3 !important;' : 'color: #6b7280 !important; border-bottom: 3px solid transparent !important;'">
             Проверенные
-        </button>
+            <span class="homework-tab-badge" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 5px; display: inline-block !important;"
+                  th:style="${viewModel.activeTab == 'reviewed'} ? 'background-color: #3b90d3; color: white;' : 'background-color: #e5e7eb; color: #6b7280;'"
+                  th:text="${viewModel.reviewedCount}">0</span>
+        </a>
     </div>
 </div>
 
-<!-- Таблица с ДЗ на проверку -->
-<div th:if="${viewModel.activeTab == 'pending'}" class="submissions-table-container">
-    <div th:if="${viewModel.pendingSubmissions != null && !viewModel.pendingSubmissions.isEmpty()}">
-        <table class="submissions-table">
+<!-- Таблица -->
+<div class="submissions-table-container" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
+    <div th:if="${(viewModel.activeTab == 'pending' && viewModel.pendingSubmissions != null && !viewModel.pendingSubmissions.isEmpty()) || (viewModel.activeTab == 'reviewed' && viewModel.reviewedSubmissions != null && !viewModel.reviewedSubmissions.isEmpty())}">
+        <table class="submissions-table" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
             <thead>
             <tr>
-                <th>ФИО ученика</th>
-                <th>Урок</th>
-                <th>Домашнее задание</th>
-                <th>Дата сдачи</th>
-                <th>Ответ ученика</th>
-                <th>Оценка</th>
-                <th>Комментарий учителя</th>
-                <th>Действие</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">ФИО ученика</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Урок</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Дата сдачи</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Ответ</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Оценка</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Комментарий</th>
+                <th style="background: #f8fafc; padding: 12px; text-align: center; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Действие</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="item : ${viewModel.pendingSubmissions}"
-                th:id="'row-' + ${item.homeworkId}"
-                class="submission-row pending">
-
-                <td class="student-cell">
-                    <div class="student-name" th:text="${item.studentFullName}">Иванов А.П.</div>
-                    <div class="student-class" th:text="${item.className}">9 А</div>
+            <tr th:each="item : ${viewModel.activeTab == 'pending' ? viewModel.pendingSubmissions : viewModel.reviewedSubmissions}"
+                style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 12px;" th:text="${item.studentFullName}"></td>
+                <td style="padding: 12px;">
+                    <span th:text="${item.subjectName}"></span><br>
+                    <small style="color: #6b7280;" th:text="${item.formattedLessonDate}"></small>
                 </td>
-
-                <td class="lesson-cell">
-                    <div class="lesson-number">Урок <span th:text="${item.lessonNumber}">1</span></div>
-                    <div class="lesson-date" th:text="${item.formattedLessonDate}">01.12.2024</div>
-                    <div class="lesson-topic" th:title="${item.lessonTopic}">
-                        <span th:text="${item.shortLessonTopic}">Тема урока</span>
-                    </div>
-                </td>
-
-                <td class="homework-cell">
-                    <div class="homework-text" th:title="${item.homeworkText}">
-                        <span th:text="${item.shortHomeworkText}">Домашнее задание</span>
-                    </div>
-                </td>
-
-                <td class="date-cell" th:text="${item.formattedSubmissionDate}">01.12.2024 14:30</td>
-
-                <td class="answer-cell">
+                <td style="padding: 12px; white-space: nowrap;" th:text="${item.formattedSubmissionDate}"></td>
+                <td style="padding: 12px;">
                     <button type="button" class="btn-view-answer"
                             th:data-answer="${item.studentAnswer}"
-                            th:data-student-name="${item.studentFullName}"
-                            onclick="viewStudentAnswer(this)">
+                            onclick="viewStudentAnswer(this)"
+                            style="background: #eff6ff; border: none; padding: 6px 12px; border-radius: 6px; color: #3b90d3; cursor: pointer;">
                         Просмотреть
                     </button>
                 </td>
-
-                <td class="grade-cell">
-                    <select th:id="'grade-' + ${item.homeworkId}" class="grade-select">
-                        <option value="">— Выбрать —</option>
+                <td style="padding: 12px;">
+                    <select th:id="'grade-' + ${item.homeworkId}" style="padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px;">
+                        <option value="">—</option>
                         <option value="5" th:selected="${item.currentGradeValue == 5}">5</option>
                         <option value="4" th:selected="${item.currentGradeValue == 4}">4</option>
                         <option value="3" th:selected="${item.currentGradeValue == 3}">3</option>
                         <option value="2" th:selected="${item.currentGradeValue == 2}">2</option>
-                        <option value="1" th:selected="${item.currentGradeValue == 1}">1</option>
                     </select>
                     <input type="hidden" th:id="'gradeid-' + ${item.homeworkId}" th:value="${item.gradeId}">
                 </td>
-
-                <td class="comment-cell">
-                    <textarea th:id="'comment-' + ${item.homeworkId}"
-                              class="comment-textarea"
-                              rows="2"
-                              placeholder="Введите комментарий..."></textarea>
-                    <input type="hidden" th:id="'originalcomment-' + ${item.homeworkId}"
-                           th:value="${item.currentTeacherComment}">
+                <td style="padding: 12px;">
+                    <textarea th:id="'comment-' + ${item.homeworkId}" rows="2"
+                              style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; resize: vertical;"
+                              th:text="${item.currentTeacherComment}"></textarea>
                 </td>
-
-                <td class="action-cell">
-                    <button type="button" class="btn-save"
-                            th:attr="data-id=${item.homeworkId}"
-                            onclick="saveReview(this)">
+                <td style="padding: 12px; text-align: center;">
+                    <button type="button" class="btn-save" th:data-id="${item.homeworkId}" onclick="saveReview(this)"
+                            style="background: #10b981; border: none; padding: 6px 16px; border-radius: 6px; color: white; cursor: pointer;">
                         Сохранить
                     </button>
                 </td>
             </tr>
             </tbody>
         </table>
+
+        <!-- ПАГИНАЦИЯ -->
+        <div class="pagination-container" th:if="${viewModel.totalPages > 1}">
+            <div class="pagination-info">
+                Страница <strong th:text="${viewModel.currentPage + 1}"></strong> из <strong th:text="${viewModel.totalPages}"></strong>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=0)}"
+                   class="pagination-btn" th:classappend="${!viewModel.hasPrevious} ? 'disabled' : ''">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.previousPage})}"
+                   class="pagination-btn" th:classappend="${!viewModel.hasPrevious} ? 'disabled' : ''">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <span class="pagination-btn active" th:text="${viewModel.currentPage + 1}"></span>
+                <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.nextPage})}"
+                   class="pagination-btn" th:classappend="${!viewModel.hasNext} ? 'disabled' : ''">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.totalPages - 1})}"
+                   class="pagination-btn" th:classappend="${!viewModel.hasNext} ? 'disabled' : ''">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        </div>
     </div>
-    <div th:if="${viewModel.pendingSubmissions == null || viewModel.pendingSubmissions.isEmpty()}" class="empty-state">
-        <i class="fas fa-check-circle"></i>
-        <h3>Нет заданий на проверку</h3>
-        <p>Для выбранного класса и предмета нет отправленных домашних заданий.</p>
+    <div th:unless="${(viewModel.activeTab == 'pending' && viewModel.pendingSubmissions != null && !viewModel.pendingSubmissions.isEmpty()) || (viewModel.activeTab == 'reviewed' && viewModel.reviewedSubmissions != null && !viewModel.reviewedSubmissions.isEmpty())}"
+         style="text-align: center; padding: 40px; color: #6b7280;">
+        <i class="fas fa-inbox fa-3x mb-3" style="color: #d1d5db;"></i>
+        <h4>Нет заданий</h4>
+        <p>Для выбранных фильтров нет домашних заданий.</p>
     </div>
 </div>
 
-<!-- Таблица с проверенными ДЗ -->
-<div th:if="${viewModel.activeTab == 'reviewed'}" class="submissions-table-container">
-    <div th:if="${viewModel.reviewedSubmissions != null && !viewModel.reviewedSubmissions.isEmpty()}">
-        <table class="submissions-table">
-            <thead>
-            <tr>
-                <th>ФИО ученика</th>
-                <th>Урок</th>
-                <th>Домашнее задание</th>
-                <th>Дата сдачи</th>
-                <th>Ответ ученика</th>
-                <th>Оценка</th>
-                <th>Комментарий учителя</th>
-                <th>Действие</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${viewModel.reviewedSubmissions}"
-                th:id="'row-' + ${item.homeworkId}"
-                class="submission-row reviewed">
-
-                <td class="student-cell">
-                    <div class="student-name" th:text="${item.studentFullName}">Иванов А.П.</div>
-                    <div class="student-class" th:text="${item.className}">9 А</div>
-                </td>
-
-                <td class="lesson-cell">
-                    <div class="lesson-number">Урок <span th:text="${item.lessonNumber}">1</span></div>
-                    <div class="lesson-date" th:text="${item.formattedLessonDate}">01.12.2024</div>
-                    <div class="lesson-topic" th:title="${item.lessonTopic}">
-                        <span th:text="${item.shortLessonTopic}">Тема урока</span>
-                    </div>
-                </td>
-
-                <td class="homework-cell">
-                    <div class="homework-text" th:title="${item.homeworkText}">
-                        <span th:text="${item.shortHomeworkText}">Домашнее задание</span>
-                    </div>
-                </td>
-
-                <td class="date-cell" th:text="${item.formattedSubmissionDate}">01.12.2024 14:30</td>
-
-                <td class="answer-cell">
-                    <button type="button" class="btn-view-answer"
-                            th:data-answer="${item.studentAnswer}"
-                            th:data-student-name="${item.studentFullName}"
-                            onclick="viewStudentAnswer(this)">
-                        Просмотреть
-                    </button>
-                </td>
-
-                <td class="grade-cell">
-                    <select th:id="'grade-' + ${item.homeworkId}" class="grade-select">
-                        <option value="">— Выбрать —</option>
-                        <option value="5" th:selected="${item.currentGradeValue == 5}">5</option>
-                        <option value="4" th:selected="${item.currentGradeValue == 4}">4</option>
-                        <option value="3" th:selected="${item.currentGradeValue == 3}">3</option>
-                        <option value="2" th:selected="${item.currentGradeValue == 2}">2</option>
-                        <option value="1" th:selected="${item.currentGradeValue == 1}">1</option>
-                    </select>
-                    <input type="hidden" th:id="'gradeid-' + ${item.homeworkId}" th:value="${item.gradeId}">
-                </td>
-
-                <td class="comment-cell">
-                    <textarea th:id="'comment-' + ${item.homeworkId}"
-                              class="comment-textarea"
-                              rows="2"
-                              placeholder="Введите комментарий..."></textarea>
-                    <input type="hidden" th:id="'originalcomment-' + ${item.homeworkId}"
-                           th:value="${item.currentTeacherComment}">
-                </td>
-
-                <td class="action-cell">
-                    <button type="button" class="btn-save"
-                            th:attr="data-id=${item.homeworkId}"
-                            onclick="saveReview(this)">
-                        Сохранить
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div th:if="${viewModel.reviewedSubmissions == null || viewModel.reviewedSubmissions.isEmpty()}" class="empty-state">
-        <i class="fas fa-history"></i>
-        <h3>Нет проверенных заданий</h3>
-        <p>Для выбранного класса и предмета нет проверенных домашних заданий.</p>
-    </div>
-</div>
-
-<!-- Модальное окно для просмотра ответа ученика -->
-<div id="answerModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Ответ ученика</h3>
-            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+<!-- Модальное окно -->
+<div id="answerModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000;">
+    <div style="background: white; border-radius: 12px; width: 90%; max-width: 600px; margin: 100px auto;">
+        <div style="padding: 16px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #3b90d3; color: white; border-radius: 12px 12px 0 0;">
+            <h5 style="margin: 0;">Ответ ученика</h5>
+            <button onclick="closeModal()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
-        <div class="modal-body">
-            <div class="student-info-modal">
-                <p><strong>Ученик:</strong> <span id="modalStudentName"></span></p>
-            </div>
-            <div class="answer-content">
-                <label>Текст ответа:</label>
-                <div class="answer-text" id="modalAnswerText"></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button>
+        <div style="padding: 24px;">
+            <div id="modalAnswerText" style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 200px; white-space: pre-wrap;"></div>
         </div>
     </div>
 </div>
 
 <script th:src="@{/js/homework.js}"></script>
-<script>
-    function switchTab(tab) {
-        document.getElementById('activeTabInput').value = tab;
-        document.getElementById('filterForm').submit();
-    }
-</script>
 </body>
 </html>
