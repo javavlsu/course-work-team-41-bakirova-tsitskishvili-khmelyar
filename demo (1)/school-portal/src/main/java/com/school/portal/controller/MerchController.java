@@ -231,28 +231,34 @@ public class MerchController {
 
     // ================== ПАНЕЛЬ ДИРЕКТОРА ==================
 
-    // 1. Страница всех заявок
+    // 1. Обновлённая страница всех заявок - с пагинацией
     @GetMapping("/requests")
-    public String viewRequests(Model model) {
+    public String viewRequests(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            Model model) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isDirector = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_DIRECTOR") || a.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isDirector) {
-            return "redirect:/merch"; // Защита: если зашел ученик, выкидываем обратно
+            return "redirect:/merch";
         }
 
-        // Получаем все заявки
-        List<MerchRequest> requests = merchRequestRepository.findAll();
+        // 1. Создаем объект пагинации
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page, size);
 
-        // Сортируем: сначала новые (0), потом всё остальное по дате
-        requests.sort((r1, r2) -> {
-            if (r1.getStatus() == 0 && r2.getStatus() != 0) return -1;
-            if (r1.getStatus() != 0 && r2.getStatus() == 0) return 1;
-            return r2.getRequestDate().compareTo(r1.getRequestDate());
-        });
+        // 2. Достаем нужную страницу прямо из базы!
+        org.springframework.data.domain.Page<MerchRequest> requestPage =
+                merchRequestRepository.findAllWithCustomOrder(pageable);
 
-        model.addAttribute("requests", requests);
+        // 3. Кладем в модель только отрезанный кусок (getContent()) и инфу о страницах
+        model.addAttribute("requests", requestPage.getContent());
+        model.addAttribute("currentPage", requestPage.getNumber());
+        model.addAttribute("totalPages", requestPage.getTotalPages() == 0 ? 1 : requestPage.getTotalPages());
+
         model.addAttribute("title", "Заявки на мерч");
         model.addAttribute("activePage", "merch-requests");
         model.addAttribute("content", "merch/requests");

@@ -13,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
+import org.springframework.data.domain.Page; // Для пагинации на уровне БД
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -138,96 +141,55 @@ public class HomeworkController {
             selectedSubjectId = availableSubjects.keySet().iterator().next();
         }
 
-        // Получаем учеников класса
-        List<User> students = studentClassRepository.findStudentsByClassId(selectedClassId);
+        // =================================================================
+        // НОВАЯ ИДЕАЛЬНАЯ ПАГИНАЦИЯ (НА УРОВНЕ БД)
+        // =================================================================
 
-        // Получаем все ДЗ
-        List<HomeworkReviewItem> allPendingItems = new ArrayList<>();
-        List<HomeworkReviewItem> allReviewedItems = new ArrayList<>();
-
-        for (User student : students) {
-            List<Homework> studentHomeworks = homeworkRepository.findByStudentUserId(student.getUserId());
-
-            for (Homework homework : studentHomeworks) {
-                Schedule lesson = homework.getLesson();
-                if (lesson == null) continue;
-
-                if (lesson.getSchoolClass() == null || !lesson.getSchoolClass().getClassId().equals(selectedClassId)) {
-                    continue;
-                }
-
-                boolean canReview = false;
-                if (role.equals("ROLE_DIRECTOR")) {
-                    canReview = true;
-                } else if (lesson.getTeacher() != null && lesson.getTeacher().getUserId().equals(currentUser.getUserId())) {
-                    canReview = true;
-                }
-
-                if (!canReview) continue;
-
-                if (selectedSubjectId > 0 && lesson.getSubject() != null &&
-                        !lesson.getSubject().getSubjectId().equals(selectedSubjectId)) {
-                    continue;
-                }
-
-                HomeworkReviewItem item = convertToReviewItem(homework);
-                if (item != null) {
-                    if (homework.getStatus() == 1) {
-                        allPendingItems.add(item);
-                    } else if (homework.getStatus() == 2) {
-                        allReviewedItems.add(item);
-                    }
-                }
+        // 1. Подготавливаем фильтры дат
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        try {
+            if (dateFrom != null && !dateFrom.trim().isEmpty()) {
+                startDateTime = LocalDate.parse(dateFrom).atStartOfDay();
             }
-        }
-
-        // Сортировка
-        allPendingItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate,
-                Comparator.nullsLast(Comparator.reverseOrder())));
-        allReviewedItems.sort(Comparator.comparing(HomeworkReviewItem::getSubmissionDate,
-                Comparator.nullsLast(Comparator.reverseOrder())));
-
-        // Фильтрация по поиску и датам
-        List<HomeworkReviewItem> filteredPending = applyFilters(allPendingItems, search, dateFrom, dateTo);
-        List<HomeworkReviewItem> filteredReviewed = applyFilters(allReviewedItems, search, dateFrom, dateTo);
-
-        // Пагинация
-        List<HomeworkReviewItem> pendingItems;
-        List<HomeworkReviewItem> reviewedItems;
-        int totalPages = 1;
-        int totalItems = 0;
-
-        if ("pending".equals(tab)) {
-            totalItems = filteredPending.size();
-            totalPages = (int) Math.ceil((double) totalItems / size);
-            if (totalPages < 1) totalPages = 1;
-            if (page >= totalPages) page = totalPages - 1;
-            if (page < 0) page = 0;
-
-            int fromIndex = page * size;
-            int toIndex = Math.min(fromIndex + size, totalItems);
-            if (totalItems > 0) {
-                pendingItems = new ArrayList<>(filteredPending.subList(fromIndex, toIndex));
-            } else {
-                pendingItems = new ArrayList<>();
+            if (dateTo != null && !dateTo.trim().isEmpty()) {
+                endDateTime = LocalDate.parse(dateTo).atTime(LocalTime.MAX);
             }
-            reviewedItems = new ArrayList<>();
+        } catch (Exception ignored) {}
+
+        // 2. Определяем ID учителя (если это директор - передаем null, чтобы показать всех)
+        Integer filterTeacherId = role.equals("ROLE_DIRECTOR") ? null : currentUser.getUserId();
+
+        // 3. Определяем статус по вкладке (pending = 1 (Сдано), reviewed = 2 (Проверено))
+        int targetStatus = "pending".equals(tab) ? 1 : 2;
+
+        // 4. Настраиваем пагинацию и сортировку (Сортируем по дате по убыванию)
+        // Обрати внимание: импортируй org.springframework.data.domain.PageRequest и Sort
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("date").descending());
+
+        // 5. БД сама делает всю фильтрацию и отрезает LIMIT
+        Page<Homework> homeworkPage = homeworkRepository.findFilteredHomeworks(
+                targetStatus, selectedClassId, selectedSubjectId, filterTeacherId,
+                search, startDateTime, endDateTime, pageable
+        );
+
+        // 6. Конвертируем полученные записи в DTO
+        List<HomeworkReviewItem> itemsToShow = homeworkPage.getContent().stream()
+                .map(this::convertToReviewItem)
+                .collect(Collectors.toList());
+
+        // 7. Раскладываем по спискам для модели
+        List<HomeworkReviewItem> pendingItems = new ArrayList<>();
+        List<HomeworkReviewItem> reviewedItems = new ArrayList<>();
+        if (targetStatus == 1) {
+            pendingItems = itemsToShow;
         } else {
-            totalItems = filteredReviewed.size();
-            totalPages = (int) Math.ceil((double) totalItems / size);
-            if (totalPages < 1) totalPages = 1;
-            if (page >= totalPages) page = totalPages - 1;
-            if (page < 0) page = 0;
-
-            int fromIndex = page * size;
-            int toIndex = Math.min(fromIndex + size, totalItems);
-            if (totalItems > 0) {
-                reviewedItems = new ArrayList<>(filteredReviewed.subList(fromIndex, toIndex));
-            } else {
-                reviewedItems = new ArrayList<>();
-            }
-            pendingItems = new ArrayList<>();
+            reviewedItems = itemsToShow;
         }
+
+        // =================================================================
 
         HomeworkReviewViewModel viewModel = new HomeworkReviewViewModel();
         viewModel.setPendingSubmissions(pendingItems);
@@ -239,8 +201,10 @@ public class HomeworkController {
         viewModel.setSelectedClassName(availableClasses.get(selectedClassId));
         viewModel.setSelectedSubjectName(selectedSubjectId > 0 ? availableSubjects.get(selectedSubjectId) : "Все предметы");
         viewModel.setActiveTab(tab);
-        viewModel.setCurrentPage(page);
-        viewModel.setTotalPages(totalPages);
+
+        // Передаем данные пагинации прямо из объекта Page
+        viewModel.setCurrentPage(homeworkPage.getNumber());
+        viewModel.setTotalPages(homeworkPage.getTotalPages() == 0 ? 1 : homeworkPage.getTotalPages());
         viewModel.setSearch(search);
         viewModel.setDateFrom(dateFrom);
         viewModel.setDateTo(dateTo);

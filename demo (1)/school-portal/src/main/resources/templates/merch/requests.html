@@ -92,6 +92,32 @@
   </div>
 </div>
 
+<!-- ПАГИНАЦИЯ -->
+<div class="pagination-container" th:if="${viewModel.totalPages > 1}">
+  <div class="pagination-info">
+    Страница <strong th:text="${viewModel.currentPage + 1}"></strong> из <strong th:text="${viewModel.totalPages}"></strong>
+  </div>
+  <div style="display: flex; gap: 5px;">
+    <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=0)}"
+       class="pagination-btn" th:classappend="${!viewModel.hasPrevious} ? 'disabled' : ''">
+      <i class="fas fa-angle-double-left"></i>
+    </a>
+    <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.previousPage})}"
+       class="pagination-btn" th:classappend="${!viewModel.hasPrevious} ? 'disabled' : ''">
+      <i class="fas fa-angle-left"></i>
+    </a>
+    <span class="pagination-btn active" th:text="${viewModel.currentPage + 1}"></span>
+    <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.nextPage})}"
+       class="pagination-btn" th:classappend="${!viewModel.hasNext} ? 'disabled' : ''">
+      <i class="fas fa-angle-right"></i>
+    </a>
+    <a th:href="@{/homework/review(classId=${viewModel.selectedClassId}, subjectId=${viewModel.selectedSubjectId}, tab=${viewModel.activeTab}, search=${viewModel.search}, dateFrom=${viewModel.dateFrom}, dateTo=${viewModel.dateTo}, page=${viewModel.totalPages - 1})}"
+       class="pagination-btn" th:classappend="${!viewModel.hasNext} ? 'disabled' : ''">
+      <i class="fas fa-angle-double-right"></i>
+    </a>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
   $(document).ready(function() {

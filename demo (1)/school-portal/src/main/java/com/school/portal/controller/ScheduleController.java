@@ -50,6 +50,9 @@ public class ScheduleController {
     @Autowired
     private GradeRepository gradeRepository;
 
+    @Autowired
+    private StudentParentRepository studentParentRepository;
+
     private static final Map<Integer, String> LESSON_TIME_MAP = new HashMap<>();
     static {
         LESSON_TIME_MAP.put(1, "08:30 - 10:00");
@@ -197,6 +200,16 @@ public class ScheduleController {
         return response;
     }
 
+    // ========================================================================
+    // МЕТОД ДЛЯ НАХОЖДЕНИЯ РЕБЁНКА
+    // ========================================================================
+    private User findStudentForParent(int parentId) {
+        var children = studentParentRepository.findByParentUserId(parentId);
+        if (!children.isEmpty()) {
+            return children.get(0).getStudent();
+        }
+        return null;
+    }
 
     // ========================================================================
     // МЕТОД ДЛЯ ДИРЕКТОРА (ПОЛНОЕ РАСПИСАНИЕ С ФИЛЬТРАМИ)
@@ -535,9 +548,25 @@ public class ScheduleController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated()) {
             userRepository.findByLogin(auth.getName()).ifPresent(user -> {
-                if ("ROLE_STUDENT".equals(getCurrentUserRole(auth))) {
+                String role = getCurrentUserRole(auth);
+                Integer targetStudentId = null;
+
+                // 1. Если это ученик - ищем его собственную оценку
+                if ("ROLE_STUDENT".equals(role)) {
+                    targetStudentId = user.getUserId();
+                }
+                // 2. Если это родитель - находим его ребенка и ищем оценку ребенка!
+                else if ("ROLE_PARENT".equals(role)) {
+                    User child = findStudentForParent(user.getUserId());
+                    if (child != null) {
+                        targetStudentId = child.getUserId();
+                    }
+                }
+
+                // 3. Если мы определили, чью оценку искать - идем в базу
+                if (targetStudentId != null) {
                     gradeRepository.findByStudentUserIdAndLessonLessonId(
-                            user.getUserId(), schedule.getLessonId()).ifPresent(grade -> {
+                            targetStudentId, schedule.getLessonId()).ifPresent(grade -> {
                         item.setGrade(grade.getGradeValue());
                         item.setGradeComment(grade.getComment());
                     });
