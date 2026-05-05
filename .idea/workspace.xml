@@ -6,11 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="a0465fea-3027-43f0-bb99-81dd2f9d1fef" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/HomeworkController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/HomeworkController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/model/dto/HomeworkReviewViewModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/model/dto/HomeworkReviewViewModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/homework.js" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/homework.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/templates/homework/review.html" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/templates/homework/review.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/UsersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/controller/UsersController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/repository/MessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/repository/MessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/service/MessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/java/com/school/portal/service/MessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/css/messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/css/messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/css/users.css" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/css/users.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/messages.js" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/messages.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/users/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/static/js/users/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/templates/messages/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/demo (1)/school-portal/src/main/resources/templates/messages/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

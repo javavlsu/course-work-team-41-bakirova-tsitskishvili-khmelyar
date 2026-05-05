@@ -1282,3 +1282,23 @@
 .class-list-item-warning .class-teacher i {
     color: #dc2626;
 }
+
+/* Копируем ключевые стили из профиля для модального окна */
+.message-input-panel {
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.message-form-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e40af;
+    padding: 10px 15px;
+    background: #e0efff;
+    border-bottom: 1px solid #bfdbfe;
+    margin: 0;
+}
+#adminToUserForm { padding: 15px; }
+.response-success { background: #dcfce7; color: #166534; padding: 10px; border-radius: 6px; border: 1px solid #bbf7d0; }
+.response-error { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; border: 1px solid #fecaca; }

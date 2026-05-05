@@ -20,6 +20,19 @@
     min-height: 100vh;
 }
 
+
+/* Заголовок и строки сообщений */
+.message-list-header,
+.message-row {
+    display: grid;
+    /* Распределяем место:
+       Имя (20%), Сообщение (гибкое), Дата (140px), Статус (100px), Кнопки (150px) */
+    grid-template-columns: 0.2fr 1fr 140px 100px 150px;
+    gap: 15px;
+    align-items: center;
+    padding: 12px 15px;
+}
+
 /* Сообщения об успехе/ошибке */
 .alert-success {
     background-color: #dcfce7;
@@ -193,6 +206,8 @@
     padding: 2px 6px;
     border-radius: 12px;
 }
+
+
 
 /* Непрочитанные сообщения */
 .message-row.unread {
@@ -587,4 +602,99 @@
     .message-form {
         padding: 20px;
     }
+}
+
+
+/* === Пагинация === */
+.load-more-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.btn-load-more {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #007bff;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-load-more:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.btn-load-more:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* === Фильтрация === */
+/* Фильтры и поиск */
+.filter-search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.filter-field, .search-field {
+    padding: 10px 16px;
+    border: 1px solid #3b90d3;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
+
+.filter-field:hover, .search-field:hover {
+    border-color: #2a7cbb;
+    box-shadow: 0 0 0 2px rgba(59, 144, 211, 0.1);
+}
+
+.filter-field:focus, .search-field:focus {
+    outline: none;
+    border-color: #2a7cbb;
+    box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.2);
+}
+
+.btn-filter-apply {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3b90d3 0%, #2a7cbb 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-filter-apply:hover {
+    background: linear-gradient(135deg, #2a7cbb 0%, #1e6b9e 100%);
+    transform: translateY(-1px);
+}
+
+.btn-filter-reset {
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.btn-filter-reset:hover {
+    background-color: #e9ecef;
+    color: #3b90d3;
+    border-color: #3b90d3;
 }

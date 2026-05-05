@@ -4,6 +4,9 @@ import com.school.portal.model.*;
 import com.school.portal.model.dto.SendMessageViewModel;
 import com.school.portal.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -30,28 +33,31 @@ public class MessagesController {
 
     @GetMapping("/index")
     public String index(@RequestParam(value = "filter", defaultValue = "inbox") String filter,
+                        @RequestParam(value = "page", defaultValue = "0") int page,
+                        @RequestParam(value = "searchTerm", required = false) String searchTerm, // Добавляем поиск
                         Model model) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page, pageSize);
 
-        User currentUser = userRepository.findByLogin(username)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findByLogin(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-        List<Message> messages;
+        Page<Message> messagePage;
+
+        // Если поиск пустой, передаем null или пустую строку в репозиторий
+        String search = (searchTerm != null && !searchTerm.trim().isEmpty()) ? searchTerm.trim() : null;
 
         switch (filter) {
-            case "inbox":
-                messages = messageRepository.findInboxMessages(currentUser.getUserId());
-                break;
             case "sent":
-                messages = messageRepository.findSentMessages(currentUser.getUserId());
+                messagePage = messageRepository.findSentMessagesWithSearch(currentUser.getUserId(), search, pageable);
                 break;
             case "elect":
-                messages = messageRepository.findElectMessages(currentUser.getUserId());
+                messagePage = messageRepository.findElectMessagesWithSearch(currentUser.getUserId(), search, pageable);
                 break;
             default:
-                messages = messageRepository.findInboxMessages(currentUser.getUserId());
+                messagePage = messageRepository.findInboxMessagesWithSearch(currentUser.getUserId(), search, pageable);
         }
 
         // Получаем все роли для формы
@@ -59,12 +65,15 @@ public class MessagesController {
                 .map(Role::getRoleName)
                 .collect(Collectors.toList());
 
-        model.addAttribute("messages", messages);
+        model.addAttribute("messages", messagePage.getContent());
         model.addAttribute("filter", filter);
         model.addAttribute("recipientRoles", role);
         model.addAttribute("title", "Сообщения");
         model.addAttribute("activePage", "messages");
         model.addAttribute("content", "messages/index");
+        model.addAttribute("currentPage", messagePage.getNumber());
+        model.addAttribute("totalPages", messagePage.getTotalPages());
+        model.addAttribute("searchTerm", searchTerm);
 
         return "layout";
     }

@@ -1,6 +1,7 @@
 package com.school.portal.controller;
 
 import com.school.portal.model.*;
+import com.school.portal.model.enums.MessageStatus;
 import com.school.portal.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,9 @@ public class UsersController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     // Метод для получения русского названия роли
     private String getRussianRoleName(String roleName) {
@@ -234,6 +239,54 @@ public class UsersController {
             response.put("success", false);
             response.put("message", e.getMessage());
         }
+        return response;
+    }
+
+    @PostMapping("/send-message")
+    @ResponseBody
+    public Map<String, Object> sendMessageToUser(
+            @RequestParam Integer recipientId,
+            @RequestParam String body) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 1. Получаем текущего пользователя (кто отправляет)
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String currentLogin = auth.getName();
+            User currentUser = userRepository.findByLogin(currentLogin)
+                    .orElseThrow(() -> new RuntimeException("Отправитель не найден"));
+
+            // 2. Находим получателя по ID (используем Integer, как в твоем UserRepository)
+            User recipient = userRepository.findById(recipientId)
+                    .orElseThrow(() -> new RuntimeException("Получатель не найден"));
+
+            // 3. Простейшая валидация
+            if (body == null || body.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Текст сообщения пуст.");
+                return response;
+            }
+
+            // 4. Создаем объект сообщения
+            Message message = new Message();
+            message.setFromUser(currentUser);
+            message.setToUser(recipient);
+            message.setMessageText(body.trim());
+            message.setSentAt(LocalDateTime.now());
+            message.setStatus(MessageStatus.NEW); // Твой Enum из модели
+
+            // 5. Сохраняем через MessageRepository
+            messageRepository.save(message);
+
+            response.put("success", true);
+            response.put("message", "Сообщение для " + recipient.getFirstName() + " отправлено!");
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Ошибка: " + e.getMessage());
+        }
+
         return response;
     }
 
