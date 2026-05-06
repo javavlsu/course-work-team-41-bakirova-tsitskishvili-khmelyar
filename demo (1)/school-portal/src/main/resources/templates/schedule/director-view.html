@@ -325,13 +325,16 @@
                         <strong id="modalDateInfo">01.01.2026</strong> | Урок №<strong id="modalNumInfo">1</strong>
                     </div>
 
-                    <!-- ВКЛАДКИ (По классу / По учителю) -->
+                    <!-- ВКЛАДКИ (По классу / По учителю / Новая связь) -->
                     <ul class="nav nav-tabs mb-3" id="lessonModeTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active fw-bold" id="by-class-tab" data-bs-toggle="tab" data-bs-target="#by-class-pane" type="button" role="tab" onclick="currentMode = 'byClass'">По Классу</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link fw-bold" id="by-teacher-tab" data-bs-toggle="tab" data-bs-target="#by-teacher-pane" type="button" role="tab" onclick="currentMode = 'byTeacher'">По Учителю</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold" id="new-link-tab" data-bs-toggle="tab" data-bs-target="#new-link-pane" type="button" role="tab" onclick="currentMode = 'newLink'">Новая связь</button>
                         </li>
                     </ul>
 
@@ -369,6 +372,37 @@
                                 <label class="form-label fw-bold">2. Предмет и Класс</label>
                                 <select id="modalMappingByTeacher" class="form-select" disabled>
                                     <option value="">Сначала выберите учителя...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка: НОВАЯ СВЯЗЬ (Свободный выбор) -->
+                        <div class="tab-pane fade" id="new-link-pane" role="tabpanel">
+                            <div class="alert alert-info py-2 small mb-3">
+                                <i class="fas fa-solid fa-triangle-exclamation me-2"></i>Используйте эту вкладку, если учителя еще нет в списках выбранного класса.
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">1. Выберите Класс</label>
+                                <select id="freeClassId" class="form-select form-select-sm">
+                                    <option value="">-- Класс --</option>
+                                    <option th:each="c : ${viewModel.availableClasses}" th:value="${c.classId}" th:text="${c.className}"></option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">2. Выберите Предмет</label>
+                                <select id="freeSubjectId" class="form-select form-select-sm">
+                                    <option value="">-- Предмет --</option>
+                                    <option th:each="s : ${viewModel.availableSubjects}" th:value="${s.subjectId}" th:text="${s.subjectName}"></option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">3. Выберите Учителя</label>
+                                <select id="freeTeacherId" class="form-select form-select-sm">
+                                    <option value="">-- Учитель --</option>
+                                    <option th:each="t : ${viewModel.availableTeachers}" th:value="${t.userId}" th:text="${t.fullName}"></option>
                                 </select>
                             </div>
                         </div>
@@ -520,17 +554,29 @@
 
         let subjectId, teacherId, classId;
 
-        // Определяем, из какой вкладки брать данные
+        // ЛОГИКА ВЫБОРА ДАННЫХ ИЗ ВКЛАДОК
         if (currentMode === 'byClass') {
             classId = document.getElementById('modalClassId').value;
             const mappingVal = document.getElementById('modalMappingByClass').value;
-            if (!classId || !mappingVal) { alert('Заполните все поля!'); return; }
+            if (!classId || !mappingVal) { alert('Заполните все поля во вкладке Класс!'); return; }
             [subjectId, teacherId] = mappingVal.split(',');
-        } else {
+
+        } else if (currentMode === 'byTeacher') {
             teacherId = document.getElementById('modalTeacherId').value;
             const mappingVal = document.getElementById('modalMappingByTeacher').value;
-            if (!teacherId || !mappingVal) { alert('Заполните все поля!'); return; }
+            if (!teacherId || !mappingVal) { alert('Заполните все поля во вкладке Учитель!'); return; }
             [subjectId, classId] = mappingVal.split(',');
+
+        } else if (currentMode === 'newLink') {
+            // ДАННЫЕ ИЗ ТРЕТЬЕЙ ВКЛАДКИ
+            classId = document.getElementById('freeClassId').value;
+            subjectId = document.getElementById('freeSubjectId').value;
+            teacherId = document.getElementById('freeTeacherId').value;
+
+            if (!classId || !subjectId || !teacherId) {
+                alert('Выберите Класс, Предмет и Учителя!');
+                return;
+            }
         }
 
         const formData = new URLSearchParams();

@@ -97,6 +97,41 @@
             </div>
         </div>
     </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    <div class="pagination-container" th:if="${totalPages > 1}">
+        <div class="pagination-info" style="margin-bottom: 10px; color: #6c757d; font-size: 14px;">
+            Страница <strong th:text="${currentPage + 1}"></strong> из <strong th:text="${totalPages}"></strong>
+        </div>
+        <div style="display: flex; gap: 5px; justify-content: center;">
+            <!-- В самое начало (Страница 0) -->
+            <a th:href="@{/users/index(roleFilter=${roleFilter}, classFilter=${classFilter}, searchTerm=${searchTerm}, page=0)}"
+               class="pagination-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+
+            <!-- На одну назад -->
+            <a th:href="@{/users/index(roleFilter=${roleFilter}, classFilter=${classFilter}, searchTerm=${searchTerm}, page=${currentPage - 1})}"
+               class="pagination-btn" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <i class="fas fa-angle-left"></i>
+            </a>
+
+            <!-- Текущая страница -->
+            <span class="pagination-btn active" th:text="${currentPage + 1}"></span>
+
+            <!-- На одну вперед -->
+            <a th:href="@{/users/index(roleFilter=${roleFilter}, classFilter=${classFilter}, searchTerm=${searchTerm}, page=${currentPage + 1})}"
+               class="pagination-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                <i class="fas fa-angle-right"></i>
+            </a>
+
+            <!-- В самый конец -->
+            <a th:href="@{/users/index(roleFilter=${roleFilter}, classFilter=${classFilter}, searchTerm=${searchTerm}, page=${totalPages - 1})}"
+               class="pagination-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </div>
+    </div>
 </div>
 
 <!-- Модальное окно "Подробная информация" -->

@@ -63,46 +63,26 @@ public class UsersController {
     public String index(@RequestParam(value = "roleFilter", required = false) String roleFilter,
                         @RequestParam(value = "classFilter", required = false) Integer classFilter,
                         @RequestParam(value = "searchTerm", required = false) String searchTerm,
+                        @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                        @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                         Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = auth.getName();
-        User currentUser = userRepository.findByLogin(currentUsername).orElse(null);
+        User currentUser = userRepository.findByLogin(auth.getName()).orElse(null);
         boolean isAdmin = currentUser != null && "ADMIN".equals(currentUser.getRole().getRoleName());
 
-        List<User> users = userRepository.findAll();
+        // 1. Создаем объект пагинации (сразу просим базу отсортировать по фамилии)
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("lastName").ascending());
 
-        // Фильтрация по роли
-        if (roleFilter != null && !roleFilter.isEmpty()) {
-            users = users.stream()
-                    .filter(u -> u.getRole() != null && roleFilter.equals(u.getRole().getRoleName()))
-                    .collect(Collectors.toList());
-        }
+        // 2. Идем в базу! Она сама отфильтрует и выдаст ровно "size" (10) пользователей
+        org.springframework.data.domain.Page<User> userPage =
+                userRepository.findFilteredUsers(roleFilter, classFilter, searchTerm, pageable);
 
-        // Фильтрация по классу (только для учеников)
-        if (classFilter != null) {
-            Set<Integer> studentIdsInClass = studentClassRepository.findStudentsByClassId(classFilter)
-                    .stream()
-                    .map(User::getUserId)
-                    .collect(Collectors.toSet());
-            users = users.stream()
-                    .filter(u -> studentIdsInClass.contains(u.getUserId()))
-                    .collect(Collectors.toList());
-        }
-
-        // Поиск по ФИО
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            String searchLower = searchTerm.toLowerCase().trim();
-            users = users.stream()
-                    .filter(u -> u.getFullName().toLowerCase().contains(searchLower))
-                    .collect(Collectors.toList());
-        }
-
-        users.sort(Comparator.comparing(User::getLastName));
-
-        // Подготавливаем данные для отображения
+        // 3. Подготавливаем данные для отображения (берем только отрезанный кусок - getContent())
         List<Map<String, Object>> usersWithDetails = new ArrayList<>();
-        for (User user : users) {
+        for (User user : userPage.getContent()) {
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userId", user.getUserId());
             userMap.put("fullName", user.getFullName());
@@ -112,16 +92,15 @@ public class UsersController {
             userMap.put("phone", user.getPhone());
             userMap.put("birthDate", user.getBirthDate() != null ? user.getBirthDate().toString() : "");
             userMap.put("login", user.getLogin());
-            userMap.put("password", isAdmin ? user.getPassword() : null); // Только ADMIN видит пароль
+            userMap.put("password", isAdmin ? user.getPassword() : null);
             userMap.put("info", user.getInfo());
             userMap.put("coins", user.getCoins());
             usersWithDetails.add(userMap);
         }
 
-        // Список ролей для фильтра с русскими названиями
+        // Список ролей для фильтра
         List<Map<String, String>> availableRolesWithRu = new ArrayList<>();
-        List<Role> roles = roleRepository.findAll();
-        for (Role role : roles) {
+        for (Role role : roleRepository.findAll()) {
             Map<String, String> roleMap = new HashMap<>();
             roleMap.put("name", role.getRoleName());
             roleMap.put("nameRu", getRussianRoleName(role.getRoleName()));
@@ -129,6 +108,11 @@ public class UsersController {
         }
 
         model.addAttribute("users", usersWithDetails);
+
+        // Передаем переменные для пагинации
+        model.addAttribute("currentPage", userPage.getNumber());
+        model.addAttribute("totalPages", userPage.getTotalPages() == 0 ? 1 : userPage.getTotalPages());
+
         model.addAttribute("availableRoles", availableRolesWithRu);
         model.addAttribute("schoolClasses", classRepository.findAll());
         model.addAttribute("roleFilter", roleFilter);

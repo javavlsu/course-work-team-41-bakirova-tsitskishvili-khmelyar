@@ -21,6 +21,7 @@ public class ScheduleViewModel {
 
     private List<com.school.portal.model.User> availableTeachers;
     private List<com.school.portal.model.SchoolClass> availableClasses;
+    private List<com.school.portal.model.Subject> availableSubjects;
 
     public Map<DayOfWeek, List<ScheduleItemViewModel>> getScheduleByDay() {
         return scheduleByDay;
@@ -89,4 +90,8 @@ public class ScheduleViewModel {
     public List<SchoolClass> getAvailableClasses() { return availableClasses; }
 
     public void setAvailableClasses(List<SchoolClass> availableClasses) { this.availableClasses = availableClasses; }
+
+    public List<com.school.portal.model.Subject> getAvailableSubjects() { return availableSubjects; }
+
+    public void setAvailableSubjects(List<com.school.portal.model.Subject> availableSubjects) { this.availableSubjects = availableSubjects; }
 }

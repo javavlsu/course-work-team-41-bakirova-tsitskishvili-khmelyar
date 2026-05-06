@@ -234,6 +234,8 @@ public class MerchController {
     // 1. Обновлённая страница всех заявок - с пагинацией
     @GetMapping("/requests")
     public String viewRequests(
+            @RequestParam(value = "statusFilter", required = false) Integer statusFilter,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             Model model) {
@@ -246,21 +248,24 @@ public class MerchController {
             return "redirect:/merch";
         }
 
-        // 1. Создаем объект пагинации
         org.springframework.data.domain.Pageable pageable =
                 org.springframework.data.domain.PageRequest.of(page, size);
 
-        // 2. Достаем нужную страницу прямо из базы!
         org.springframework.data.domain.Page<MerchRequest> requestPage =
-                merchRequestRepository.findAllWithCustomOrder(pageable);
+                merchRequestRepository.findFilteredRequests(statusFilter, searchTerm, pageable);
 
-        // 3. Кладем в модель только отрезанный кусок (getContent()) и инфу о страницах
         model.addAttribute("requests", requestPage.getContent());
         model.addAttribute("currentPage", requestPage.getNumber());
         model.addAttribute("totalPages", requestPage.getTotalPages() == 0 ? 1 : requestPage.getTotalPages());
 
+        // Передаем фильтры обратно на страницу, чтобы они не сбрасывались
+        model.addAttribute("statusFilter", statusFilter);
+        model.addAttribute("searchTerm", searchTerm);
+
         model.addAttribute("title", "Заявки на мерч");
-        model.addAttribute("activePage", "merch-requests");
+
+        model.addAttribute("activePage", "merch");
+
         model.addAttribute("content", "merch/requests");
 
         return "layout";

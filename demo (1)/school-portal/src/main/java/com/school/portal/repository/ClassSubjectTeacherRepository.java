@@ -20,4 +20,7 @@ public interface ClassSubjectTeacherRepository extends JpaRepository<ClassSubjec
 
     @Query("SELECT DISTINCT cst.schoolClass FROM ClassSubjectTeacher cst WHERE cst.teacher.userId = :teacherId")
     List<Object> findClassesByTeacherId(@Param("teacherId") Integer teacherId);
+
+    Optional<ClassSubjectTeacher> findBySchoolClass_ClassIdAndSubject_SubjectIdAndTeacher_UserId(
+            Integer classId, Integer subjectId, Integer teacherId);
 }

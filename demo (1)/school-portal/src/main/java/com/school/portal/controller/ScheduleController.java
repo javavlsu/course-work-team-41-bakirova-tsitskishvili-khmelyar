@@ -224,6 +224,7 @@ public class ScheduleController {
         viewModel.setAdminView(true);
         viewModel.setPersonalView(false);
         viewModel.setFilterType(filterType);
+        viewModel.setAvailableSubjects(subjectRepository.findAll());
 
         List<User> teachers = userRepository.findByRole_RoleName("TEACHER");
         List<SchoolClass> classes = classRepository.findAll();
@@ -393,7 +394,7 @@ public class ScheduleController {
         return response;
     }
 
-    // 2. Сохранение или создание нового урока
+    // 2. Сохранение или создание нового урока (вместе с добавлением связи класс-предмет-учитель)
     @PostMapping("/save-admin-lesson")
     @ResponseBody
     @Transactional
@@ -408,28 +409,30 @@ public class ScheduleController {
 
         Map<String, Object> response = new HashMap<>();
         try {
-            // Рассчитываем точное время начала урока
-            LocalDate date = LocalDate.parse(dateStr, DATE_FORMATTER);
-            LocalTime time;
-            switch (lessonNum) {
-                case 1: time = LocalTime.of(8, 30); break;
-                case 2: time = LocalTime.of(10, 10); break;
-                case 3: time = LocalTime.of(11, 50); break;
-                case 4: time = LocalTime.of(14, 0); break;
-                case 5: time = LocalTime.of(15, 40); break;
-                default: time = LocalTime.of(17, 20); break;
+            // 1. ПРОВЕРКА И СОЗДАНИЕ СВЯЗИ (ClassSubjectTeacher)
+            Optional<ClassSubjectTeacher> mapping = classSubjectTeacherRepository
+                    .findBySchoolClass_ClassIdAndSubject_SubjectIdAndTeacher_UserId(classId, subjectId, teacherId);
+
+            if (mapping.isEmpty()) {
+                // Если такой связки нет - создаем её автоматически!
+                ClassSubjectTeacher newMapping = new ClassSubjectTeacher();
+                newMapping.setSchoolClass(classRepository.findById(classId).orElseThrow());
+                newMapping.setSubject(subjectRepository.findById(subjectId).orElseThrow());
+                newMapping.setTeacher(userRepository.findById(teacherId).orElseThrow());
+                classSubjectTeacherRepository.save(newMapping);
+                System.out.println("✅ Создана новая связь: Класс " + classId + " + Предмет " + subjectId + " + Учитель " + teacherId);
             }
+
+            // 2. СОХРАНЕНИЕ САМОГО УРОКА (как и было)
+            LocalDate date = LocalDate.parse(dateStr, DATE_FORMATTER);
+            LocalTime time = getStartTimeByLessonNum(lessonNum);
             LocalDateTime lessonDateTime = date.atTime(time);
 
-            Schedule lesson;
-            if (lessonId != null && lessonId > 0) {
-                lesson = scheduleRepository.findById(lessonId)
-                        .orElseThrow(() -> new RuntimeException("Урок не найден"));
-            } else {
-                lesson = new Schedule();
-                lesson.setLessonDateTime(lessonDateTime);
-            }
+            Schedule lesson = (lessonId != null && lessonId > 0)
+                    ? scheduleRepository.findById(lessonId).orElseThrow()
+                    : new Schedule();
 
+            lesson.setLessonDateTime(lessonDateTime);
             lesson.setSchoolClass(classRepository.findById(classId).orElseThrow());
             lesson.setSubject(subjectRepository.findById(subjectId).orElseThrow());
             lesson.setTeacher(userRepository.findById(teacherId).orElseThrow());
@@ -444,6 +447,18 @@ public class ScheduleController {
             response.put("message", "Ошибка: " + e.getMessage());
         }
         return response;
+    }
+
+    // Вспомогательный метод
+    private LocalTime getStartTimeByLessonNum(int num) {
+        switch (num) {
+            case 1: return LocalTime.of(8, 30);
+            case 2: return LocalTime.of(10, 10);
+            case 3: return LocalTime.of(11, 50);
+            case 4: return LocalTime.of(14, 0);
+            case 5: return LocalTime.of(15, 40);
+            default: return LocalTime.of(17, 20);
+        }
     }
 
     // 3. Удаление урока
