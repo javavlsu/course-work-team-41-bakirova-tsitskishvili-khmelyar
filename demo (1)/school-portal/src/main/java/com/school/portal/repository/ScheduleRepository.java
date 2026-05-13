@@ -35,7 +35,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
-    // Добавьте этот метод
     @Query("SELECT DISTINCT s.subject FROM Schedule s WHERE s.teacher.userId = :teacherId AND s.schoolClass.classId = :classId")
     List<Subject> findSubjectsByTeacherIdAndClassId(@Param("teacherId") Integer teacherId, @Param("classId") Integer classId);
     @Query("SELECT s FROM Schedule s WHERE s.subject.subjectId = :subjectId " +
@@ -45,5 +44,13 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
-
+    @Query("SELECT s FROM Schedule s WHERE s.lessonDateTime = :dateTime " +
+            "AND s.lessonId <> :excludeLessonId " +
+            "AND (s.teacher.userId = :teacherId OR s.schoolClass.classId = :classId OR LOWER(s.room) = LOWER(:room))")
+    List<Schedule> findConflicts(
+            @Param("dateTime") LocalDateTime dateTime,
+            @Param("teacherId") Integer teacherId,
+            @Param("classId") Integer classId,
+            @Param("room") String room,
+            @Param("excludeLessonId") Integer excludeLessonId);
 }

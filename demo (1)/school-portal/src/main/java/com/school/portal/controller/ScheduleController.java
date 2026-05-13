@@ -428,6 +428,40 @@ public class ScheduleController {
             LocalTime time = getStartTimeByLessonNum(lessonNum);
             LocalDateTime lessonDateTime = date.atTime(time);
 
+            // ================= БЛОК ПРОВЕРКИ НАКЛАДОК =================
+            Integer safeExcludeId = (lessonId != null && lessonId > 0) ? lessonId : 0;
+
+            List<Schedule> conflicts = scheduleRepository.findConflicts(
+                    lessonDateTime, teacherId, classId, room, safeExcludeId);
+
+            if (!conflicts.isEmpty()) {
+                // Создаем список для сбора всех ошибок
+                List<String> errorMessages = new ArrayList<>();
+
+                for (Schedule conflict : conflicts) {
+                    if (conflict.getTeacher().getUserId().equals(teacherId)) {
+                        errorMessages.add("Учитель " + conflict.getTeacher().getShortName() + " уже ведет другой урок в это время (Класс " + conflict.getSchoolClass().getClassName() + ").");
+                    }
+                    if (conflict.getSchoolClass().getClassId().equals(classId)) {
+                        errorMessages.add("У класса " + conflict.getSchoolClass().getClassName() + " уже стоит другой урок в это время.");
+                    }
+                    if (conflict.getRoom().equalsIgnoreCase(room)) {
+                        errorMessages.add("Кабинет " + room + " уже занят классом " + conflict.getSchoolClass().getClassName() + ".");
+                    }
+                }
+
+                // Убираем дубликаты (на случай, если один и тот же урок вызвал две одинаковые ошибки)
+                List<String> uniqueErrors = errorMessages.stream().distinct().collect(Collectors.toList());
+
+                if (!uniqueErrors.isEmpty()) {
+                    response.put("success", false);
+                    response.put("messages", uniqueErrors); // ВАЖНО: передаем МАССИВ ошибок (messages), а не одну (message)
+                    return response;
+                }
+            }
+            // ==========================================================
+
+            // СОХРАНЕНИЕ УРОКА
             Schedule lesson = (lessonId != null && lessonId > 0)
                     ? scheduleRepository.findById(lessonId).orElseThrow()
                     : new Schedule();

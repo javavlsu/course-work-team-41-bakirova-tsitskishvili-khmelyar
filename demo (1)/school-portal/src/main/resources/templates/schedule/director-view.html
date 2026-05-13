@@ -315,6 +315,9 @@
             </div>
             <div class="modal-body p-4">
                 <form id="adminLessonForm">
+                    <div id="modalErrorBox" class="alert alert-danger d-none mb-3 py-2 text-start">
+                        <!-- Сюда JS будет вставлять ошибки -->
+                    </div>
                     <input type="hidden" id="lessonId" name="lessonId">
                     <input type="hidden" id="lessonDateStr" name="dateStr">
                     <input type="hidden" id="lessonNum" name="lessonNum">
@@ -437,6 +440,7 @@
     }
 
     function openAdminModal(btn, mode) {
+        document.getElementById('modalErrorBox').classList.add('d-none');
         const date = btn.getAttribute('data-date');
         const num = btn.getAttribute('data-num');
 
@@ -598,8 +602,26 @@
             data: formData.toString(),
             headers: { [csrfHeader]: csrfToken },
             success: function(res) {
-                if (res.success) location.reload();
-                else { alert(res.message); btn.disabled = false; btn.textContent = 'Сохранить'; }
+                if (res.success) {
+                    location.reload();
+                } else {
+                    const errorBox = document.getElementById('modalErrorBox');
+                    errorBox.innerHTML = ''; // Очищаем старые ошибки
+
+                    // Проверяем, пришел ли массив ошибок (messages) или одна строка (message)
+                    if (res.messages && res.messages.length > 0) {
+                        res.messages.forEach(msg => {
+                            errorBox.innerHTML += `<div class="mb-1"><i class="fas fa-exclamation-triangle me-2"></i>${msg}</div>`;
+                        });
+                    } else if (res.message) {
+                        errorBox.innerHTML = `<div><i class="fas fa-exclamation-triangle me-2"></i>${res.message}</div>`;
+                    }
+
+                    errorBox.classList.remove('d-none');
+
+                    btn.disabled = false;
+                    btn.textContent = 'Сохранить';
+                }
             }
         });
     });

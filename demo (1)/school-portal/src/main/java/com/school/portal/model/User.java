@@ -133,6 +133,8 @@ public class User {
         return lastName + " " + firstName + (middleName != null ? " " + middleName : "");
     }
 
+    public String getShortName() { return lastName + " " + firstName.charAt(0) + "." + (middleName != null ? middleName.charAt(0) + "." : ""); }
+
     // Геттеры и сеттеры для связей
     public Set<Schedule> getSchedules() { return schedules; }
     public void setSchedules(Set<Schedule> schedules) { this.schedules = schedules; }
