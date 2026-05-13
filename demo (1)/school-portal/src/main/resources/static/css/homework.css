@@ -1,0 +1,574 @@
+/* ======================================== */
+/* Стили для страницы проверки домашних заданий */
+/* ======================================== */
+
+:root {
+    --color-primary: #3b90d3;
+    --color-primary-dark: #327bbc;
+    --color-text-default: #1f2937;
+    --color-text-secondary: #6b7280;
+    --color-bg-light: #f9fafb;
+    --color-border-light: #e5e7eb;
+    --color-announcement-bg: #e6f3ff;
+    --color-announcement-border: #bfdbfe;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+}
+
+/* Заголовок страницы - скрыт */
+.homework-header {
+    display: none;
+}
+
+/* Фильтры */
+.filters-container {
+    margin-bottom: 1.5rem;
+}
+
+.filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-end;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.filter-select {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    background-color: white;
+    font-size: 0.875rem;
+    color: var(--color-text-default);
+    cursor: pointer;
+    min-width: 200px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5rem;
+}
+
+.filter-select:hover {
+    border-color: var(--color-primary);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(59, 144, 211, 0.1);
+}
+
+/* Сообщение об ошибке */
+.error-message {
+    background-color: #fef2f2;
+    border-left: 4px solid var(--danger-color);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    color: #991b1b;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.error-message i {
+    font-size: 1.25rem;
+}
+
+/* Информационная панель - скрыта */
+.info-panel {
+    display: none;
+}
+
+/* ======================================== */
+/* Вкладки */
+/* ======================================== */
+
+.homework-tabs-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.homework-tabs-header {
+    display: flex !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background-color: white !important;
+    padding: 0 20px !important;
+}
+
+.homework-tab {
+    padding: 14px 24px !important;
+    text-decoration: none !important;
+    color: #6b7280 !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    border-bottom: 3px solid transparent !important;
+    transition: all 0.2s ease !important;
+    background: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+}
+
+.homework-tab:hover {
+    color: #3b90d3 !important;
+    border-bottom-color: #e5e7eb !important;
+}
+
+.homework-tab.active {
+    color: #3b90d3 !important;
+    border-bottom-color: #3b90d3 !important;
+}
+
+/* Скрываем бейджи с цифрами */
+.homework-tab-badge {
+    display: none !important;
+}
+
+/* Таблица */
+.submissions-table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+}
+
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    table-layout: fixed;
+}
+
+.submissions-table th,
+.submissions-table td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--color-border-light);
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+/* Ширина колонок */
+.submissions-table th:nth-child(1),
+.submissions-table td:nth-child(1) {
+    width: 15%;
+}
+
+.submissions-table th:nth-child(2),
+.submissions-table td:nth-child(2) {
+    width: 12%;
+}
+
+.submissions-table th:nth-child(3),
+.submissions-table td:nth-child(3) {
+    width: 15%;
+}
+
+.submissions-table th:nth-child(4),
+.submissions-table td:nth-child(4) {
+    width: 10%;
+}
+
+.submissions-table th:nth-child(5),
+.submissions-table td:nth-child(5) {
+    width: 10%;
+}
+
+.submissions-table th:nth-child(6),
+.submissions-table td:nth-child(6) {
+    width: 8%;
+}
+
+.submissions-table th:nth-child(7),
+.submissions-table td:nth-child(7) {
+    width: 18%;
+}
+
+.submissions-table th:nth-child(8),
+.submissions-table td:nth-child(8) {
+    width: 8%;
+}
+
+.submissions-table th {
+    background-color: #f8fafc;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.submission-row {
+    transition: background-color 0.2s ease;
+}
+
+.submission-row:hover {
+    background-color: #fefce8;
+}
+
+.submission-row.pending {
+    background-color: #fffbeb;
+}
+
+.submission-row.reviewed {
+    background-color: white;
+}
+
+/* Ячейки с переносом текста */
+.student-cell .student-name {
+    font-weight: 600;
+    color: var(--color-text-default);
+    margin-bottom: 0.25rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.student-cell .student-class {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.lesson-cell .lesson-number {
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-bottom: 0.25rem;
+}
+
+.lesson-cell .lesson-date {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.lesson-cell .lesson-topic {
+    font-size: 0.75rem;
+    color: var(--color-text-default);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.homework-cell .homework-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    color: var(--color-text-default);
+    line-height: 1.4;
+}
+
+.date-cell {
+    font-size: 0.875rem;
+    color: var(--color-text-default);
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Кнопка просмотра ответа */
+.btn-view-answer {
+    background-color: #eff6ff;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-view-answer:hover {
+    background-color: #dbeafe;
+    transform: translateY(-1px);
+}
+
+/* Выбор оценки */
+.grade-select {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background-color: white;
+    cursor: pointer;
+    width: 100%;
+    min-width: 90px;
+}
+
+.grade-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* Комментарий */
+.comment-textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.comment-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* Кнопка сохранения */
+.btn-save {
+    background-color: var(--success-color);
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Пустое состояние */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--success-color);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-default);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--color-text-secondary);
+}
+
+/* Модальное окно */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--color-announcement-bg);
+    margin: 5% auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-lg);
+    animation: modalFadeIn 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-announcement-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-default);
+    margin: 0;
+}
+
+.modal-header h3 i {
+    color: var(--color-primary);
+    margin-right: 0.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--color-text-default);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.student-info-modal {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-announcement-border);
+}
+
+.answer-content label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-default);
+}
+
+.answer-text {
+    background-color: var(--color-bg-light);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-light);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-announcement-border);
+    display: flex;
+    justify-content: flex-end;
+    background-color: white;
+}
+
+.btn-secondary {
+    background-color: #e57373;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #ef5350;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(229, 115, 115, 0.3);
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    background-color: white;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 1100;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.notification.success i {
+    color: var(--success-color);
+}
+
+.notification.error {
+    border-left: 4px solid var(--danger-color);
+}
+
+.notification.error i {
+    color: var(--danger-color);
+}
+

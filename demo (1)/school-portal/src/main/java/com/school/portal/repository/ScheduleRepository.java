@@ -1,0 +1,56 @@
+package com.school.portal.repository;
+
+import com.school.portal.model.Schedule;
+import com.school.portal.model.Subject;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Repository
+public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
+
+    List<Schedule> findBySchoolClass_ClassIdOrderByLessonDateTime(Integer classId);
+
+    List<Schedule> findByTeacher_UserIdOrderByLessonDateTime(Integer teacherId);
+
+    @Query("SELECT s FROM Schedule s WHERE s.schoolClass.classId = :classId " +
+            "AND s.lessonDateTime BETWEEN :startDate AND :endDate ORDER BY s.lessonDateTime")
+    List<Schedule> findLessonsForClassBetween(
+            @Param("classId") Integer classId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT s FROM Schedule s WHERE s.teacher.userId = :teacherId " +
+            "AND s.lessonDateTime BETWEEN :startDate AND :endDate ORDER BY s.lessonDateTime")
+    List<Schedule> findLessonsForTeacherBetween(
+            @Param("teacherId") Integer teacherId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT s FROM Schedule s WHERE s.lessonDateTime BETWEEN :startDate AND :endDate ORDER BY s.lessonDateTime")
+    List<Schedule> findLessonsBetween(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT DISTINCT s.subject FROM Schedule s WHERE s.teacher.userId = :teacherId AND s.schoolClass.classId = :classId")
+    List<Subject> findSubjectsByTeacherIdAndClassId(@Param("teacherId") Integer teacherId, @Param("classId") Integer classId);
+    @Query("SELECT s FROM Schedule s WHERE s.subject.subjectId = :subjectId " +
+            "AND s.lessonDateTime BETWEEN :startDate AND :endDate")
+    List<Schedule> findLessonsForSubjectAndPeriod(
+            @Param("subjectId") Integer subjectId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT s FROM Schedule s WHERE s.lessonDateTime = :dateTime " +
+            "AND s.lessonId <> :excludeLessonId " +
+            "AND (s.teacher.userId = :teacherId OR s.schoolClass.classId = :classId OR LOWER(s.room) = LOWER(:room))")
+    List<Schedule> findConflicts(
+            @Param("dateTime") LocalDateTime dateTime,
+            @Param("teacherId") Integer teacherId,
+            @Param("classId") Integer classId,
+            @Param("room") String room,
+            @Param("excludeLessonId") Integer excludeLessonId);
+}

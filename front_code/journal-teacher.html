@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Журнал учителя - ШкЭД</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/journal-teacher.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap"
+            rel="stylesheet"
+    />
+
+</head>
+<body>
+<div class="journal-teacher">
+    <!-- Плейсхолдер для боковой панели -->
+    <div id="left-panel-placeholder"></div>
+
+    <main class="main-content">
+        <!-- Панель фильтров -->
+        <!-- Замените существующий блок filter-panel на этот -->
+        <div class="filter-panel">
+            <div class="filter-group">
+                <span class="filter-label">Класс:</span>
+                <div class="filter-select">
+                    <div class="select-display">
+                        <span class="selected-text">11А</span>
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" class="dropdown-arrow">
+                            <path d="M1 1L7 7L13 1" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-option">11А</div>
+                        <div class="dropdown-option">11Б</div>
+                        <div class="dropdown-option">10А</div>
+                        <div class="dropdown-option">10Б</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Предмет:</span>
+                <div class="filter-select">
+                    <div class="select-display">
+                        <span class="selected-text">Русский язык</span>
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" class="dropdown-arrow">
+                            <path d="M1 1L7 7L13 1" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-option">Русский язык</div>
+                        <div class="dropdown-option">Математика</div>
+                        <div class="dropdown-option">Физика</div>
+                        <div class="dropdown-option">История</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Период:</span>
+                <div class="filter-select">
+                    <div class="select-display">
+                        <span class="selected-text">1 нед.</span>
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" class="dropdown-arrow">
+                            <path d="M1 1L7 7L13 1" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-option">1 нед.</div>
+                        <div class="dropdown-option">2 нед.</div>
+                        <div class="dropdown-option">3 нед.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблица журнала -->
+        <div class="journal-table-container">
+            <table class="journal-table">
+                <thead>
+                <tr>
+                    <th class="number-col">№</th>
+                    <th class="name-col">ФИО</th>
+                    <th class="date-col">01.09</th>
+                    <th class="date-col">02.09</th>
+                    <th class="date-col">03.09</th>
+                    <th class="date-col">04.09</th>
+                    <th class="date-col">05.09</th>
+                    <th class="date-col">06.09</th>
+                    <th class="date-col">07.09</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Абрамов Максим Сергеевич</td>
+                    <td>4</td>
+                    <td></td>
+                    <td>5</td>
+                    <td></td>
+                    <td>Н</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Беляева София Дмитриевна</td>
+                    <td>5</td>
+                    <td>5</td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Волков Артём Алексеевич</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>Н</td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Григорьева Анна Владимировна</td>
+                    <td>4</td>
+                    <td></td>
+                    <td>5</td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Дмитриев Иван Павлович</td>
+                    <td>Н</td>
+                    <td>Б</td>
+                    <td>Б</td>
+                    <td>Б</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Егорова Мария Игоревна</td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Зайцева Алиса Романовна</td>
+                    <td>3</td>
+                    <td>У</td>
+                    <td>5</td>
+                    <td></td>
+                    <td>Н</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>Козлов Михаил Викторович</td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>Лебедева Полина Андреевна</td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>Новиков Дмитрий Евгеньевич</td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>Афанасьева Виктория Михайловна</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Петров Кирилл Александрович</td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>Смирнова Дарья Денисовна</td>
+                    <td></td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Модальные окна -->
+<div class="modal-overlay" id="access-denied-modal">
+    <div class="modal-content">
+        <h2>Доступ запрещен!</h2>
+        <p>Это действие недоступно<br />для Вашего типа пользователя.</p>
+        <button class="button-primary modal-close-btn">Закрыть</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="journal-teacher.js"></script>
+</body>
+</html>

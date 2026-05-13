@@ -1,0 +1,3385 @@
+<!DOCTYPE html>
+
+<!-- This code was generated using AnimaApp.com. 
+This code is a high-fidelity prototype.
+Get developer-friendly React or HTML/CSS code for this project at: https://projects.animaapp.com?utm_source=hosted-code 
+17/11/2025 18:18:04 -->
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1918, maximum-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="https://animaproject.s3.amazonaws.com/home/favicon.png"
+    />
+    <meta name="og:type" content="website" />
+    <meta name="twitter:card" content="photo" />
+    <script id="anima-load-script" src="load.js"></script>
+    <script id="anima-hotspots-script" src="hotspots.js"></script>
+    <script id="anima-overrides-script" src="overrides.js"></script>
+    <script src="https://animaapp.s3.amazonaws.com/js/timeline.js"></script>
+    <style>
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+      @import url("https://fonts.googleapis.com/css?family=Montserrat:700,600,400,800");
+
+      /* The following line is used to measure usage of this code. You can remove it if you want. */
+      @import url("https://px.animaapp.com/677d1ab5f73ac86ffcf1e2fa.677d1ab6f73ac86ffcf1e2fd.3JImHu2.hch.png");
+
+      .screen textarea:focus,
+      .screen input:focus {
+        outline: none;
+      }
+
+      .screen * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+      }
+
+      .screen div {
+        -webkit-text-size-adjust: none;
+      }
+
+      .component-wrapper a {
+        display: contents;
+        pointer-events: auto;
+        text-decoration: none;
+      }
+
+      .component-wrapper * {
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+        pointer-events: none;
+      }
+
+      .component-wrapper a *,
+      .component-wrapper input,
+      .component-wrapper video,
+      .component-wrapper iframe {
+        pointer-events: auto;
+      }
+
+      .component-wrapper.not-ready,
+      .component-wrapper.not-ready * {
+        visibility: hidden !important;
+      }
+
+      .screen a {
+        display: contents;
+        text-decoration: none;
+      }
+
+      .full-width-a {
+        width: 100%;
+      }
+
+      .full-height-a {
+        height: 100%;
+      }
+
+      .container-center-vertical {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .container-center-vertical > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .container-center-horizontal {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        pointer-events: none;
+        width: 100%;
+      }
+
+      .container-center-horizontal > * {
+        flex-shrink: 0;
+        pointer-events: auto;
+      }
+
+      .auto-animated div {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated input {
+        --z-index: -1;
+        opacity: 0;
+        position: absolute;
+      }
+
+      .auto-animated .container-center-vertical,
+      .auto-animated .container-center-horizontal {
+        opacity: 1;
+      }
+
+      .overlay-base {
+        display: none;
+        height: 100%;
+        opacity: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+
+      .overlay-base.animate-appear {
+        align-items: center;
+        animation: reveal 0.3s ease-in-out 1 normal forwards;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .overlay-base.animate-disappear {
+        animation: reveal 0.3s ease-in-out 1 reverse forwards;
+        display: block;
+        opacity: 1;
+        pointer-events: none;
+      }
+
+      .overlay-base.animate-disappear * {
+        pointer-events: none;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-nodelay {
+        animation-delay: 0s;
+      }
+
+      .align-self-flex-start {
+        align-self: flex-start;
+      }
+
+      .align-self-flex-end {
+        align-self: flex-end;
+      }
+
+      .align-self-flex-center {
+        align-self: flex-center;
+      }
+
+      .valign-text-middle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .valign-text-bottom {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      input:focus {
+        outline: none;
+      }
+
+      .listeners-active,
+      .listeners-active * {
+        pointer-events: auto;
+      }
+
+      .hidden,
+      .hidden * {
+        pointer-events: none;
+        visibility: hidden;
+      }
+
+      .smart-layers-pointers,
+      .smart-layers-pointers * {
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      .listeners-active-click,
+      .listeners-active-click * {
+        cursor: pointer;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        --black: #000000;
+        --granite-gray: #666666;
+        --gray: #7f7f7f;
+        --mercury: #e6e6e6;
+        --pigeon-post: #adc8d8;
+        --spindle: #b6d3e4;
+        --spindle-2: #b7d4e5;
+        --tropical-blue: #c3e1f4;
+        --white: #ffffff;
+        --x--1: #43a8e4;
+        --x--3: #0e5681;
+        --x--4: #7bc7f4;
+
+        --font-size-m: 20px;
+        --font-size-s: 18px;
+        --font-size-xs: 16px;
+
+        --font-family-montserrat: "Montserrat", Helvetica;
+      }
+      .montserrat-semi-bold-granite-gray-18px {
+        color: var(--granite-gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      .montserrat-extra-bold-gray-20px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      .montserrat-extra-bold-white-20px {
+        color: var(--white);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-m);
+        font-style: normal;
+        font-weight: 800;
+      }
+
+      .montserrat-semi-bold-gray-16px {
+        color: var(--gray);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-xs);
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      .montserrat-normal-black-18px {
+        color: var(--black);
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-s);
+        font-style: normal;
+        font-weight: 400;
+      }
+
+      :root {
+      }
+
+      /* screen - journal-teacher */
+
+      .journal-teacher {
+        align-items: flex-start;
+        background-color: #e6ecf2;
+        display: flex;
+        left: 0px;
+        overflow: hidden;
+        position: relative;
+        top: 0px;
+        width: 1918px;
+      }
+
+      .journal-teacher .left-panel-scroll-iBixvU {
+        align-self: stretch;
+        background-color: var(--white);
+        box-shadow: 0px 0px 8px #00000040;
+        overflow: hidden;
+        position: relative;
+        width: 250px;
+      }
+
+      .journal-teacher .left-panel-frame-KnkNrb {
+        background-color: transparent;
+        height: 1024px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        width: 263px;
+      }
+
+      .journal-teacher .left-panel-elements-YEe0zU {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        left: 0px;
+        position: relative;
+        top: 0px;
+        width: 250px;
+      }
+
+      .journal-teacher .logo-iFYnCP {
+        background-color: transparent;
+        height: 79px;
+        position: relative;
+        width: 250px;
+      }
+
+      .journal-teacher .logo-background-CpazVe {
+        background-color: var(--x--1);
+        height: 79px;
+        left: 0px;
+        position: absolute;
+        top: 0px;
+        transform: rotate(180deg);
+        width: 250px;
+      }
+
+      .journal-teacher .logo-text-CpazVe {
+        background-color: transparent;
+        height: 79px;
+        left: 29px;
+        position: absolute;
+        top: 0px;
+        width: 192px;
+      }
+
+      .journal-teacher .left-panel-buttons-iFYnCP {
+        align-items: flex-start;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .home-button-director-C55bEj {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .home-icon-E7ecWv {
+        background-color: transparent;
+        height: 18.3427734375px;
+        position: relative;
+        width: 18px;
+      }
+
+      .journal-teacher .text_label-w4m5QW {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .journal-button-director-C55bEj {
+        align-items: center;
+        background-color: var(--x--1);
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .journal-icon-3Ukypp {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 20px;
+      }
+
+      .journal-teacher .text_label-6ZAQ1a {
+        align-items: center;
+        align-self: stretch;
+        color: var(--white);
+        display: flex;
+        flex: 1;
+        font-family: var(--font-family-montserrat);
+        font-size: var(--font-size-xs);
+        font-style: normal;
+        font-weight: 700;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .messages-button-director-C55bEj {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .text_label-QB88II {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .schedule-button-director-C55bEj {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .schedule-icon-SW05Aj {
+        background-color: transparent;
+        height: 20px;
+        position: relative;
+        width: 18px;
+      }
+
+      .journal-teacher .text_label-68ASng {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .vector-i5sjod {
+        height: 18px;
+        width: 20px;
+      }
+
+      .journal-teacher .text_label-ciUj3o {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .vector-5ffF8y {
+        height: 20px;
+        width: 16px;
+      }
+
+      .journal-teacher .text_label-CGVwrB {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .profile-button-KnkNrb {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 976px;
+        width: 200px;
+      }
+
+      .journal-teacher .vector-xYr6Hx {
+        height: 20px;
+        width: 20px;
+      }
+
+      .journal-teacher .text_label-wS73un {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .log-out-button-KnkNrb {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35px;
+        left: 25px;
+        padding: 6px;
+        position: absolute;
+        top: 1021px;
+        width: 200px;
+      }
+
+      .journal-teacher .log-out-icon-RIjRSm {
+        background-color: transparent;
+        height: 18px;
+        position: relative;
+        width: 18px;
+      }
+
+      .journal-teacher .text_label-VrH6CQ {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        line-height: 16px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .home-elements-iBixvU {
+        align-items: flex-end;
+        background-color: transparent;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 24px;
+        padding: 56px 153px;
+        position: relative;
+      }
+
+      .journal-teacher .frame-18-XhT1qh {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0px 0px 8px #00000040;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 32px;
+        padding: 6px;
+      }
+
+      .journal-teacher .frame-20-FQy0Do {
+        align-items: center;
+        background-color: transparent;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 10px;
+        position: relative;
+      }
+
+      .journal-teacher .image-21EkoV {
+        height: 12.780029296875px;
+        width: 53.859375px;
+      }
+
+      .journal-teacher .x11-ABwk0t {
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+      }
+
+      .journal-teacher .vector-Wos8hv {
+        height: 8px;
+        width: 14px;
+      }
+
+      .journal-teacher .frame-21-FQy0Do {
+        align-items: center;
+        background-color: transparent;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 10px;
+        position: relative;
+      }
+
+      .journal-teacher .image-1MbYiW {
+        height: 16.092041015625px;
+        width: 83.703125px;
+      }
+
+      .journal-teacher .text_label-jQgLuP {
+        line-height: 18px;
+        margin-top: -1px;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .vector-sOxQOP {
+        height: 8px;
+        width: 14px;
+      }
+
+      .journal-teacher .frame-19-FQy0Do {
+        align-items: center;
+        background-color: transparent;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 10px;
+        position: relative;
+      }
+
+      .journal-teacher .image-KvQXu0 {
+        height: 14.7421875px;
+        width: 69.2841796875px;
+      }
+
+      .journal-teacher .x1-01092025-07092025-jNrkhD {
+        background-color: transparent;
+        letter-spacing: 0px;
+        line-height: 18px;
+        margin-top: -1px;
+        position: relative;
+        text-align: left;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .vector-qxmBgc {
+        height: 8px;
+        width: 14px;
+      }
+
+      .journal-teacher .schedule-list-XhT1qh {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        box-shadow: 0px 0px 8px #00000040;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .upper-row-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-MP4lFS {
+        background-color: var(--x--3);
+        border-radius: 8px 0px 0px 0px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        width: 38px;
+      }
+
+      .journal-teacher .text_label-MiTWBs {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-MP4lFS {
+        background-color: var(--x--3);
+        height: 36px;
+      }
+
+      .journal-teacher .text_label-UPovuR {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-14-MP4lFS {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0109-IQCDVx {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-9-MP4lFS {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0209-XE2ajD {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-15-MP4lFS {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0309-fJtupk {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-10-MP4lFS {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0409-Z0pGcE {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-16-MP4lFS {
+        align-items: center;
+        background-color: var(--x--1);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0509-6L98ZO {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-11-MP4lFS {
+        align-items: center;
+        background-color: var(--x--4);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0609-WpQvlq {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-17-MP4lFS {
+        align-items: center;
+        background-color: var(--x--1);
+        border-radius: 0px 8px 0px 0px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 36px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x0709-sXJ83B {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .leeson-1-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-gUklQ1 {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x1-xA5xO6 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-gUklQ1 {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-MIorYC {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-gUklQ1 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-C4bNfZ {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-gUklQ1 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-15-gUklQ1 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-8dNoWf {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-10-gUklQ1 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-16-gUklQ1 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-vyiO4W {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-11-gUklQ1 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-gUklQ1 {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-2-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-uCgYjl {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x2-mBxqgQ {
+        line-height: 20px;
+      }
+
+      .journal-teacher .frame-12-uCgYjl {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-07Y6hN {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-uCgYjl {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-lx5xBN {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-uCgYjl {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-3ZtVFQ {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-15-uCgYjl {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-10-uCgYjl {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-jdVTP0 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-16-uCgYjl {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-11-uCgYjl {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-uCgYjl {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-3-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-2wgJFi {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x3-Ml6ksx {
+        line-height: 20px;
+      }
+
+      .journal-teacher .frame-12-2wgJFi {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-Oj0yKq {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-2wgJFi {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x3-SBxBzw {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-2wgJFi {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        cursor: pointer;
+      }
+
+      .journal-teacher .frame-15-2wgJFi {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-U1rqtX {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-10-2wgJFi {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-16-2wgJFi {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x3-BNSbdj {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-11-2wgJFi {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-2wgJFi {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-4-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-3EDT44 {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x4-Pe2Npb {
+        line-height: 20px;
+      }
+
+      .journal-teacher .frame-12-3EDT44 {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-AMcCsW {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-3EDT44 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-AdPIAN {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-3EDT44 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-15-3EDT44 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-h8Hkxv {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-10-3EDT44 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-16-3EDT44 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-0qxix6 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-11-3EDT44 {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-3EDT44 {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-5-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-TIxO66 {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x5-0a1r7H {
+        line-height: 20px;
+      }
+
+      .journal-teacher .frame-12-TIxO66 {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-NLeArb {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-TIxO66 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-sfsELT {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-9-TIxO66 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-FcO6dk {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-15-TIxO66 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-GqohXx {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-10-TIxO66 {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-lsQZ2X {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-16-TIxO66 {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-11-TIxO66 {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-TIxO66 {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-6-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-9OM9Oo {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x6-K2M68B {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-9OM9Oo {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-xBDMBU {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-9OM9Oo {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-Z5Ibbk {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-9OM9Oo {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-15-9OM9Oo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-10-9OM9Oo {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-QGFhvD {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-16-9OM9Oo {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-09YKKJ {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-11-9OM9Oo {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-9OM9Oo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-7-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-zPTySa {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x7-g4oW9B {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-zPTySa {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-UiKwx0 {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-zPTySa {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x3-ZoT1pP {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-zPTySa {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-RmNCXR {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-15-zPTySa {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-1HD4xd {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-10-zPTySa {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-16-zPTySa {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .text_label-7Nbxf7 {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-11-zPTySa {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-zPTySa {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-8-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-W7Ycjv {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x8-doiA9E {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-W7Ycjv {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-6nRlhD {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-W7Ycjv {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-gE1wa4 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-W7Ycjv {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-15-W7Ycjv {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-10-W7Ycjv {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-GsMIdl {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-16-W7Ycjv {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-11-W7Ycjv {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-W7Ycjv {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-9-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-snhsDM {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x9-zkcdPl {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-snhsDM {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-xmQFfx {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-snhsDM {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-9-snhsDM {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-MZC4NJ {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-15-snhsDM {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-10-snhsDM {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x3-WDWLxI {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-16-snhsDM {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-11-snhsDM {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-snhsDM {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-10-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-3QOBMD {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x10-KP0sux {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-3QOBMD {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-2xqxvY {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-3QOBMD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-bDxhZ8 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-3QOBMD {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-15-3QOBMD {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-10-3QOBMD {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-16-3QOBMD {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-tRv0R1 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-11-3QOBMD {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-3QOBMD {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-11-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-5vIdYV {
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x11-x9SAqI {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: center;
+      }
+
+      .journal-teacher .frame-12-5vIdYV {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-lHRVxg {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-5vIdYV {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x2-HvgB8k {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-9-5vIdYV {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-15-5vIdYV {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-ZU3LKt {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-10-5vIdYV {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-6l50aF {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-16-5vIdYV {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-11-5vIdYV {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-5vIdYV {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .leeson-12-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-o2DuMo {
+        background-color: var(--mercury);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x12-StghFk {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-o2DuMo {
+        background-color: var(--mercury);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-LCsl87 {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-o2DuMo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-9-o2DuMo {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle-2);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-ZZgOK8 {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-15-o2DuMo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-10-o2DuMo {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-16-o2DuMo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .frame-11-o2DuMo {
+        align-self: stretch;
+        background-color: var(--spindle-2);
+      }
+
+      .journal-teacher .frame-17-o2DuMo {
+        align-self: stretch;
+        background-color: var(--pigeon-post);
+      }
+
+      .journal-teacher .leeson-13-U0insf {
+        align-items: flex-start;
+        align-self: stretch;
+        background-color: transparent;
+        display: flex;
+        flex: 0 0 auto;
+        position: relative;
+        width: 100%;
+      }
+
+      .journal-teacher .frame-18-mgd1lz {
+        background-color: var(--white);
+        border-radius: 0px 0px 0px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 80px;
+        width: 38px;
+      }
+
+      .journal-teacher .x13-BRcyIF {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        line-height: 20px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .frame-12-mgd1lz {
+        background-color: var(--white);
+        height: 80px;
+        padding: 0px 8px;
+      }
+
+      .journal-teacher .text_label-M92g2D {
+        align-items: center;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        line-height: 20px;
+        text-align: left;
+      }
+
+      .journal-teacher .frame-14-mgd1lz {
+        align-self: stretch;
+        background-color: var(--spindle);
+      }
+
+      .journal-teacher .frame-9-mgd1lz {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-15-mgd1lz {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x4-NNO6xj {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-10-mgd1lz {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-16-mgd1lz {
+        align-items: center;
+        align-self: stretch;
+        background-color: var(--spindle);
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .journal-teacher .x5-uiDO5A {
+        line-height: 18px;
+      }
+
+      .journal-teacher .frame-11-mgd1lz {
+        align-self: stretch;
+        background-color: var(--tropical-blue);
+      }
+
+      .journal-teacher .frame-17-mgd1lz {
+        align-self: stretch;
+        background-color: var(--spindle);
+        border-radius: 0px 0px 8px 0px;
+      }
+
+      .journal-teacher .date-time-icon-frame {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 20px;
+        justify-content: center;
+        margin-bottom: -3.5px;
+        margin-top: -3.5px;
+        position: relative;
+        width: 18px;
+      }
+
+      .journal-teacher .date-time-start-field {
+        align-items: center;
+        background-color: var(--mercury);
+        border-radius: 8px;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 6px;
+        height: 27px;
+        padding: 7px 5px 7px 6px;
+        position: relative;
+      }
+
+      .journal-teacher .frame-10 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-11 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-12 {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        position: relative;
+        width: 430px;
+      }
+
+      .journal-teacher .frame-14 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-15 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-16 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-17 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .frame-18 {
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .journal-teacher .frame-9 {
+        flex: 1;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .journal-teacher .home-icon-frame {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 20px;
+        justify-content: center;
+        position: relative;
+        width: 20px;
+      }
+
+      .journal-teacher .image {
+        background-color: transparent;
+        position: relative;
+      }
+
+      .journal-teacher .login-icon-borderline {
+        background-color: transparent;
+        height: 30px;
+        margin-bottom: -8.5px;
+        margin-top: -8.5px;
+        position: relative;
+        width: 2px;
+      }
+
+      .journal-teacher .messages-icon {
+        background-color: transparent;
+        height: 18.91943359375px;
+        position: relative;
+        width: 20px;
+      }
+
+      .journal-teacher .text_label {
+        background-color: transparent;
+        letter-spacing: 0px;
+        position: relative;
+      }
+
+      .journal-teacher .vector {
+        background-color: transparent;
+        position: relative;
+      }
+
+      .journal-teacher .view {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 8px;
+        display: flex;
+        gap: 6px;
+        height: 35.32155227661133px;
+        padding: 6px;
+        position: relative;
+        width: 200px;
+      }
+
+      .journal-teacher .x11 {
+        background-color: transparent;
+        letter-spacing: 0px;
+        position: relative;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .x2 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .x3 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .x4 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+
+      .journal-teacher .x5 {
+        align-items: center;
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        letter-spacing: 0px;
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        width: fit-content;
+      }
+    </style>
+  </head>
+  <body style="margin: 0; background: #e6ecf2">
+    <input type="hidden" id="anPageName" name="page" value="journal-teacher" />
+    <div class="journal-teacher screen" data-id="209:594">
+      <div class="left-panel-scroll-iBixvU" data-id="209:595">
+        <div class="left-panel-frame-KnkNrb" data-id="209:596">
+          <div class="left-panel-elements-YEe0zU" data-id="209:597">
+            <div class="logo-iFYnCP" data-id="209:598">
+              <div class="logo-background-CpazVe" data-id="209:599"></div>
+              <img
+                class="logo-text-CpazVe"
+                data-id="209:600"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/logo-text-1.svg"
+                alt="Logo text"
+              />
+            </div>
+            <div class="left-panel-buttons-iFYnCP" data-id="209:601">
+              <div class="home-button-director-C55bEj" data-id="209:602">
+                <div class="home-icon-frame" data-id="I209:602;104:118">
+                  <img
+                    class="home-icon-E7ecWv"
+                    data-id="I209:602;104:119"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/home-icon.svg"
+                    alt="Home icon"
+                  />
+                </div>
+                <div
+                  class="text_label-w4m5QW text_label montserrat-semi-bold-gray-16px"
+                  data-id="I209:602;104:120"
+                >
+                  Главная
+                </div>
+              </div>
+              <div class="journal-button-director-C55bEj" data-id="209:603">
+                <div class="home-icon-frame" data-id="I209:603;104:251">
+                  <img
+                    class="journal-icon-3Ukypp"
+                    data-id="I209:603;104:260"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/journal-icon.svg"
+                    alt="Journal icon"
+                  />
+                </div>
+                <div
+                  class="text_label-6ZAQ1a text_label"
+                  data-id="I209:603;104:253"
+                >
+                  Ведение журнала
+                </div>
+              </div>
+              <div class="messages-button-director-C55bEj" data-id="209:604">
+                <div class="home-icon-frame" data-id="I209:604;104:267">
+                  <img
+                    class="messages-icon"
+                    data-id="I209:604;65:34"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/messages-icon-1.svg"
+                    alt="Messages icon"
+                  />
+                </div>
+                <div
+                  class="text_label-QB88II text_label montserrat-semi-bold-gray-16px"
+                  data-id="I209:604;104:269"
+                >
+                  Сообщения
+                </div>
+              </div>
+              <div class="schedule-button-director-C55bEj" data-id="209:605">
+                <div class="home-icon-frame" data-id="I209:605;104:284">
+                  <img
+                    class="schedule-icon-SW05Aj"
+                    data-id="I209:605;74:14"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/schedule-icon-1.svg"
+                    alt="Schedule icon"
+                  />
+                </div>
+                <div
+                  class="text_label-68ASng text_label montserrat-semi-bold-gray-16px"
+                  data-id="I209:605;104:286"
+                >
+                  Расписание
+                </div>
+              </div>
+              <div class="view" data-id="271:372">
+                <div class="home-icon-frame" data-id="I271:372;271:262">
+                  <img
+                    class="vector-i5sjod vector"
+                    data-id="I271:372;270:266"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-ciUj3o text_label montserrat-semi-bold-gray-16px"
+                  data-id="I271:372;271:264"
+                >
+                  Успеваемость
+                </div>
+              </div>
+              <div class="view" data-id="271:373">
+                <div class="home-icon-frame" data-id="I271:373;271:279">
+                  <img
+                    class="vector-5ffF8y vector"
+                    data-id="I271:373;270:271"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                    anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-1.svg"
+                    alt="Vector"
+                  />
+                </div>
+                <div
+                  class="text_label-CGVwrB text_label montserrat-semi-bold-gray-16px"
+                  data-id="I271:373;271:281"
+                >
+                  Домашние задания
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-button-KnkNrb" data-id="221:270">
+          <div class="home-icon-frame" data-id="I221:270;221:241">
+            <img
+              class="vector-xYr6Hx vector"
+              data-id="I221:270;221:254"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/vector-1.svg"
+              alt="Vector"
+            />
+          </div>
+          <div
+            class="text_label-wS73un text_label montserrat-semi-bold-gray-16px"
+            data-id="I221:270;221:243"
+          >
+            Профиль
+          </div>
+        </div>
+        <div class="log-out-button-KnkNrb" data-id="209:606">
+          <div class="home-icon-frame" data-id="I209:606;209:171">
+            <img
+              class="log-out-icon-RIjRSm"
+              data-id="I209:606;209:164"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69078b0d44073557a5728c2b/img/log-out-icon-1.svg"
+              alt="Log out icon"
+            />
+          </div>
+          <div
+            class="text_label-VrH6CQ text_label montserrat-semi-bold-gray-16px"
+            data-id="I209:606;209:173"
+          >
+            Выйти
+          </div>
+        </div>
+      </div>
+      <div class="home-elements-iBixvU" data-id="209:607">
+        <div class="frame-18-XhT1qh frame-18" data-id="209:684">
+          <div class="frame-20-FQy0Do" data-id="209:857">
+            <img
+              class="image-21EkoV image"
+              data-id="209:858"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/-----.png"
+              alt="image"
+            />
+            <div class="date-time-start-field" data-id="209:859">
+              <div
+                class="x11-ABwk0t x11 montserrat-normal-black-18px"
+                data-id="209:860"
+              >
+                11А
+              </div>
+              <img
+                class="login-icon-borderline"
+                data-id="209:861"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69090533625e2c6d37270583/img/login-icon-borderline.svg"
+                alt="Login icon borderline"
+              />
+              <div class="date-time-icon-frame" data-id="209:862">
+                <img
+                  class="vector-Wos8hv vector"
+                  data-id="209:863"
+                  src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                  anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-3.svg"
+                  alt="Vector"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="frame-21-FQy0Do" data-id="209:864">
+            <img
+              class="image-1MbYiW image"
+              data-id="209:865"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/-------.png"
+              alt="image"
+            />
+            <div class="date-time-start-field" data-id="209:866">
+              <div
+                class="text_label-jQgLuP text_label montserrat-normal-black-18px"
+                data-id="209:867"
+              >
+                Русский язык
+              </div>
+              <img
+                class="login-icon-borderline"
+                data-id="209:868"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69090533625e2c6d37270583/img/login-icon-borderline.svg"
+                alt="Login icon borderline"
+              />
+              <div class="date-time-icon-frame" data-id="209:869">
+                <img
+                  class="vector-sOxQOP vector"
+                  data-id="209:870"
+                  src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                  anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-3.svg"
+                  alt="Vector"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="frame-19-FQy0Do" data-id="209:856">
+            <img
+              class="image-KvQXu0 image"
+              data-id="209:685"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/------.png"
+              alt="image"
+            />
+            <div class="date-time-start-field" data-id="209:686">
+              <div
+                class="x1-01092025-07092025-jNrkhD montserrat-normal-black-18px"
+                data-id="209:687"
+              >
+                1 нед. (01.09.2025-07.09.2025)
+              </div>
+              <img
+                class="login-icon-borderline"
+                data-id="209:688"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/69090533625e2c6d37270583/img/login-icon-borderline.svg"
+                alt="Login icon borderline"
+              />
+              <div class="date-time-icon-frame" data-id="209:689">
+                <img
+                  class="vector-qxmBgc vector"
+                  data-id="209:690"
+                  src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                  anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b648ef036f613c14e558c/img/vector-3.svg"
+                  alt="Vector"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="schedule-list-XhT1qh" data-id="209:691">
+          <div class="upper-row-U0insf" data-id="209:692">
+            <div class="frame-18-MP4lFS frame-18" data-id="209:871">
+              <div
+                class="text_label-MiTWBs text_label montserrat-extra-bold-white-20px"
+                data-id="209:872"
+              >
+                №
+              </div>
+            </div>
+            <div class="frame-12-MP4lFS frame-12" data-id="209:693">
+              <div
+                class="text_label-UPovuR text_label montserrat-extra-bold-white-20px"
+                data-id="209:694"
+              >
+                ФИО
+              </div>
+            </div>
+            <div class="frame-14-MP4lFS frame-14" data-id="209:695">
+              <div
+                class="x0109-IQCDVx montserrat-extra-bold-white-20px"
+                data-id="209:696"
+              >
+                01.09
+              </div>
+            </div>
+            <div class="frame-9-MP4lFS frame-9" data-id="209:697">
+              <div
+                class="x0209-XE2ajD montserrat-extra-bold-white-20px"
+                data-id="209:698"
+              >
+                02.09
+              </div>
+            </div>
+            <div class="frame-15-MP4lFS frame-15" data-id="209:699">
+              <div
+                class="x0309-fJtupk montserrat-extra-bold-white-20px"
+                data-id="209:700"
+              >
+                03.09
+              </div>
+            </div>
+            <div class="frame-10-MP4lFS frame-10" data-id="209:701">
+              <div
+                class="x0409-Z0pGcE montserrat-extra-bold-white-20px"
+                data-id="209:702"
+              >
+                04.09
+              </div>
+            </div>
+            <div class="frame-16-MP4lFS frame-16" data-id="209:703">
+              <div
+                class="x0509-6L98ZO montserrat-extra-bold-white-20px"
+                data-id="209:704"
+              >
+                05.09
+              </div>
+            </div>
+            <div class="frame-11-MP4lFS frame-11" data-id="209:705">
+              <div
+                class="x0609-WpQvlq montserrat-extra-bold-white-20px"
+                data-id="209:706"
+              >
+                06.09
+              </div>
+            </div>
+            <div class="frame-17-MP4lFS frame-17" data-id="209:707">
+              <div
+                class="x0709-sXJ83B montserrat-extra-bold-white-20px"
+                data-id="209:708"
+              >
+                07.09
+              </div>
+            </div>
+          </div>
+          <div class="leeson-1-U0insf" data-id="209:709">
+            <div class="frame-18-gUklQ1 frame-18" data-id="209:873">
+              <div
+                class="x1-xA5xO6 montserrat-extra-bold-gray-20px"
+                data-id="209:874"
+              >
+                1
+              </div>
+            </div>
+            <div class="frame-12-gUklQ1 frame-12" data-id="209:710">
+              <div
+                class="text_label-MIorYC text_label montserrat-extra-bold-gray-20px"
+                data-id="209:711"
+              >
+                Абрамов Максим Сергеевич
+              </div>
+            </div>
+            <div class="frame-14-gUklQ1 frame-14" data-id="209:712">
+              <div
+                class="x4-C4bNfZ x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:713"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-9-gUklQ1 frame-9" data-id="209:714"></div>
+            <div class="frame-15-gUklQ1 frame-15" data-id="209:715">
+              <div
+                class="x5-8dNoWf x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:878"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-10-gUklQ1 frame-10" data-id="209:716"></div>
+            <div class="frame-16-gUklQ1 frame-16" data-id="209:717">
+              <div
+                class="text_label-vyiO4W text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:880"
+              >
+                Н
+              </div>
+            </div>
+            <div class="frame-11-gUklQ1 frame-11" data-id="209:719"></div>
+            <div class="frame-17-gUklQ1 frame-17" data-id="209:720"></div>
+          </div>
+          <div class="leeson-2-U0insf" data-id="209:721">
+            <div class="frame-18-uCgYjl frame-18" data-id="209:875">
+              <div
+                class="x2-mBxqgQ x2 montserrat-extra-bold-gray-20px"
+                data-id="209:876"
+              >
+                2
+              </div>
+            </div>
+            <div class="frame-12-uCgYjl frame-12" data-id="209:722">
+              <div
+                class="text_label-07Y6hN text_label montserrat-extra-bold-gray-20px"
+                data-id="209:723"
+              >
+                Беляева София Дмитриевна
+              </div>
+            </div>
+            <div class="frame-14-uCgYjl frame-14" data-id="209:724">
+              <div
+                class="x5-lx5xBN x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:725"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-9-uCgYjl frame-9" data-id="209:726">
+              <div
+                class="x5-3ZtVFQ x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:727"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-15-uCgYjl frame-15" data-id="209:728"></div>
+            <div class="frame-10-uCgYjl frame-10" data-id="209:729">
+              <div
+                class="x4-jdVTP0 x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:879"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-16-uCgYjl frame-16" data-id="209:731"></div>
+            <div class="frame-11-uCgYjl frame-11" data-id="209:733"></div>
+            <div class="frame-17-uCgYjl frame-17" data-id="209:734"></div>
+          </div>
+          <div class="leeson-3-U0insf" data-id="209:881">
+            <div class="frame-18-2wgJFi frame-18" data-id="209:882">
+              <div
+                class="x3-Ml6ksx x3 montserrat-extra-bold-gray-20px"
+                data-id="209:883"
+              >
+                3
+              </div>
+            </div>
+            <div class="frame-12-2wgJFi frame-12" data-id="209:884">
+              <div
+                class="text_label-Oj0yKq text_label montserrat-extra-bold-gray-20px"
+                data-id="209:885"
+              >
+                Волков Артём Алексеевич
+              </div>
+            </div>
+            <div class="frame-14-2wgJFi frame-14" data-id="209:886">
+              <div
+                class="x3-SBxBzw x3 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:887"
+              >
+                3
+              </div>
+            </div>
+            <div class="frame-9-2wgJFi frame-9" data-id="209:888"></div>
+            <div class="frame-15-2wgJFi frame-15" data-id="209:889">
+              <div
+                class="text_label-U1rqtX text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:890"
+              >
+                Н
+              </div>
+            </div>
+            <div class="frame-10-2wgJFi frame-10" data-id="209:891"></div>
+            <div class="frame-16-2wgJFi frame-16" data-id="209:892">
+              <div
+                class="x3-BNSbdj x3 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:893"
+              >
+                3
+              </div>
+            </div>
+            <div class="frame-11-2wgJFi frame-11" data-id="209:894"></div>
+            <div class="frame-17-2wgJFi frame-17" data-id="209:895"></div>
+          </div>
+          <div class="leeson-4-U0insf" data-id="209:896">
+            <div class="frame-18-3EDT44 frame-18" data-id="209:897">
+              <div
+                class="x4-Pe2Npb x4 montserrat-extra-bold-gray-20px"
+                data-id="209:898"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-12-3EDT44 frame-12" data-id="209:899">
+              <div
+                class="text_label-AMcCsW text_label montserrat-extra-bold-gray-20px"
+                data-id="209:900"
+              >
+                Григорьева Анна Владимировна
+              </div>
+            </div>
+            <div class="frame-14-3EDT44 frame-14" data-id="209:901">
+              <div
+                class="x4-AdPIAN x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:902"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-9-3EDT44 frame-9" data-id="209:903"></div>
+            <div class="frame-15-3EDT44 frame-15" data-id="209:905">
+              <div
+                class="x5-h8Hkxv x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1046"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-10-3EDT44 frame-10" data-id="209:906"></div>
+            <div class="frame-16-3EDT44 frame-16" data-id="209:908">
+              <div
+                class="x4-0qxix6 x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1049"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-11-3EDT44 frame-11" data-id="209:909"></div>
+            <div class="frame-17-3EDT44 frame-17" data-id="209:910"></div>
+          </div>
+          <div class="leeson-5-U0insf" data-id="209:911">
+            <div class="frame-18-TIxO66 frame-18" data-id="209:912">
+              <div
+                class="x5-0a1r7H x5 montserrat-extra-bold-gray-20px"
+                data-id="209:913"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-12-TIxO66 frame-12" data-id="209:914">
+              <div
+                class="text_label-NLeArb text_label montserrat-extra-bold-gray-20px"
+                data-id="209:915"
+              >
+                Дмитриев Иван Павлович
+              </div>
+            </div>
+            <div class="frame-14-TIxO66 frame-14" data-id="209:916">
+              <div
+                class="text_label-sfsELT text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:917"
+              >
+                Н
+              </div>
+            </div>
+            <div class="frame-9-TIxO66 frame-9" data-id="209:918">
+              <div
+                class="text_label-FcO6dk text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:934"
+              >
+                Б
+              </div>
+            </div>
+            <div class="frame-15-TIxO66 frame-15" data-id="209:919">
+              <div
+                class="text_label-GqohXx text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:920"
+              >
+                Б
+              </div>
+            </div>
+            <div class="frame-10-TIxO66 frame-10" data-id="209:921">
+              <div
+                class="text_label-lsQZ2X text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1047"
+              >
+                Б
+              </div>
+            </div>
+            <div class="frame-16-TIxO66 frame-16" data-id="209:922"></div>
+            <div class="frame-11-TIxO66 frame-11" data-id="209:924"></div>
+            <div class="frame-17-TIxO66 frame-17" data-id="209:925"></div>
+          </div>
+          <div class="leeson-6-U0insf" data-id="209:926">
+            <div class="frame-18-9OM9Oo frame-18" data-id="209:927">
+              <div
+                class="x6-K2M68B montserrat-extra-bold-gray-20px"
+                data-id="209:928"
+              >
+                6
+              </div>
+            </div>
+            <div class="frame-12-9OM9Oo frame-12" data-id="209:929">
+              <div
+                class="text_label-xBDMBU text_label montserrat-extra-bold-gray-20px"
+                data-id="209:930"
+              >
+                Егорова Мария Игоревна
+              </div>
+            </div>
+            <div class="frame-14-9OM9Oo frame-14" data-id="209:931">
+              <div
+                class="x5-Z5Ibbk x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:932"
+              >
+                5
+              </div>
+              <img
+                class="messages-icon"
+                data-id="216:177"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/messages-icon-1.svg"
+                alt="Messages icon"
+              />
+            </div>
+            <div class="frame-9-9OM9Oo frame-9" data-id="209:933"></div>
+            <div class="frame-15-9OM9Oo frame-15" data-id="209:935"></div>
+            <div class="frame-10-9OM9Oo frame-10" data-id="209:936">
+              <div
+                class="x4-QGFhvD x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:937"
+              >
+                4
+              </div>
+              <img
+                class="messages-icon"
+                data-id="216:178"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/messages-icon-1.svg"
+                alt="Messages icon"
+              />
+            </div>
+            <div class="frame-16-9OM9Oo frame-16" data-id="209:938">
+              <div
+                class="x5-09YKKJ x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1050"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-11-9OM9Oo frame-11" data-id="209:939"></div>
+            <div class="frame-17-9OM9Oo frame-17" data-id="209:940"></div>
+          </div>
+          <div class="leeson-7-U0insf" data-id="209:941">
+            <div class="frame-18-zPTySa frame-18" data-id="209:942">
+              <div
+                class="x7-g4oW9B montserrat-extra-bold-gray-20px"
+                data-id="209:943"
+              >
+                7
+              </div>
+            </div>
+            <div class="frame-12-zPTySa frame-12" data-id="209:944">
+              <div
+                class="text_label-UiKwx0 text_label montserrat-extra-bold-gray-20px"
+                data-id="209:945"
+              >
+                Зайцева Алиса Романовна
+              </div>
+            </div>
+            <div class="frame-14-zPTySa frame-14" data-id="209:946">
+              <div
+                class="x3-ZoT1pP x3 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:947"
+              >
+                3
+              </div>
+            </div>
+            <div class="frame-9-zPTySa frame-9" data-id="209:948">
+              <div
+                class="text_label-RmNCXR text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:964"
+              >
+                У
+              </div>
+            </div>
+            <div class="frame-15-zPTySa frame-15" data-id="209:949">
+              <div
+                class="x5-1HD4xd x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:950"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-10-zPTySa frame-10" data-id="209:951"></div>
+            <div class="frame-16-zPTySa frame-16" data-id="209:952">
+              <div
+                class="text_label-7Nbxf7 text_label montserrat-semi-bold-granite-gray-18px"
+                data-id="209:953"
+              >
+                Н
+              </div>
+            </div>
+            <div class="frame-11-zPTySa frame-11" data-id="209:954"></div>
+            <div class="frame-17-zPTySa frame-17" data-id="209:955"></div>
+          </div>
+          <div class="leeson-8-U0insf" data-id="209:956">
+            <div class="frame-18-W7Ycjv frame-18" data-id="209:957">
+              <div
+                class="x8-doiA9E montserrat-extra-bold-gray-20px"
+                data-id="209:958"
+              >
+                8
+              </div>
+            </div>
+            <div class="frame-12-W7Ycjv frame-12" data-id="209:959">
+              <div
+                class="text_label-6nRlhD text_label montserrat-extra-bold-gray-20px"
+                data-id="209:960"
+              >
+                Козлов Михаил Викторович
+              </div>
+            </div>
+            <div class="frame-14-W7Ycjv frame-14" data-id="209:961">
+              <div
+                class="x4-gE1wa4 x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:962"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-9-W7Ycjv frame-9" data-id="209:963"></div>
+            <div class="frame-15-W7Ycjv frame-15" data-id="209:965"></div>
+            <div class="frame-10-W7Ycjv frame-10" data-id="209:966">
+              <div
+                class="x4-GsMIdl x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:967"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-16-W7Ycjv frame-16" data-id="209:968"></div>
+            <div class="frame-11-W7Ycjv frame-11" data-id="209:969"></div>
+            <div class="frame-17-W7Ycjv frame-17" data-id="209:970"></div>
+          </div>
+          <div class="leeson-9-U0insf" data-id="209:971">
+            <div class="frame-18-snhsDM frame-18" data-id="209:972">
+              <div
+                class="x9-zkcdPl montserrat-extra-bold-gray-20px"
+                data-id="209:973"
+              >
+                9
+              </div>
+            </div>
+            <div class="frame-12-snhsDM frame-12" data-id="209:974">
+              <div
+                class="text_label-xmQFfx text_label montserrat-extra-bold-gray-20px"
+                data-id="209:975"
+              >
+                Лебедева Полина Андреевна
+              </div>
+            </div>
+            <div class="frame-14-snhsDM frame-14" data-id="209:976"></div>
+            <div class="frame-9-snhsDM frame-9" data-id="209:978">
+              <div
+                class="x4-MZC4NJ x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:994"
+              >
+                4
+              </div>
+              <img
+                class="messages-icon"
+                data-id="216:179"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                anima-src="https://cdn.animaapp.com/projects/677dc0ad3eb231dd43f52f9f/releases/691b66d9f588b7c8636f4271/img/messages-icon-1.svg"
+                alt="Messages icon"
+              />
+            </div>
+            <div class="frame-15-snhsDM frame-15" data-id="209:979"></div>
+            <div class="frame-10-snhsDM frame-10" data-id="209:981">
+              <div
+                class="x3-WDWLxI x3 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1051"
+              >
+                3
+              </div>
+            </div>
+            <div class="frame-16-snhsDM frame-16" data-id="209:982"></div>
+            <div class="frame-11-snhsDM frame-11" data-id="209:984"></div>
+            <div class="frame-17-snhsDM frame-17" data-id="209:985"></div>
+          </div>
+          <div class="leeson-10-U0insf" data-id="209:986">
+            <div class="frame-18-3QOBMD frame-18" data-id="209:987">
+              <div
+                class="x10-KP0sux montserrat-extra-bold-gray-20px"
+                data-id="209:988"
+              >
+                10
+              </div>
+            </div>
+            <div class="frame-12-3QOBMD frame-12" data-id="209:989">
+              <div
+                class="text_label-2xqxvY text_label montserrat-extra-bold-gray-20px"
+                data-id="209:990"
+              >
+                Новиков Дмитрий Евгеньевич
+              </div>
+            </div>
+            <div class="frame-14-3QOBMD frame-14" data-id="209:991">
+              <div
+                class="x5-bDxhZ8 x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:992"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-9-3QOBMD frame-9" data-id="209:993"></div>
+            <div class="frame-15-3QOBMD frame-15" data-id="209:995"></div>
+            <div class="frame-10-3QOBMD frame-10" data-id="209:996"></div>
+            <div class="frame-16-3QOBMD frame-16" data-id="209:998">
+              <div
+                class="x4-tRv0R1 x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:997"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-11-3QOBMD frame-11" data-id="209:999"></div>
+            <div class="frame-17-3QOBMD frame-17" data-id="209:1000"></div>
+          </div>
+          <div class="leeson-11-U0insf" data-id="209:1001">
+            <div class="frame-18-5vIdYV frame-18" data-id="209:1002">
+              <div
+                class="x11-x9SAqI x11 montserrat-extra-bold-gray-20px"
+                data-id="209:1003"
+              >
+                11
+              </div>
+            </div>
+            <div class="frame-12-5vIdYV frame-12" data-id="209:1004">
+              <div
+                class="text_label-lHRVxg text_label montserrat-extra-bold-gray-20px"
+                data-id="209:1005"
+              >
+                Афанасьева Виктория Михайловна
+              </div>
+            </div>
+            <div class="frame-14-5vIdYV frame-14" data-id="209:1006">
+              <div
+                class="x2-HvgB8k x2 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1007"
+              >
+                2
+              </div>
+            </div>
+            <div class="frame-9-5vIdYV frame-9" data-id="209:1008"></div>
+            <div class="frame-15-5vIdYV frame-15" data-id="209:1009">
+              <div
+                class="x5-ZU3LKt x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1010"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-10-5vIdYV frame-10" data-id="209:1011">
+              <div
+                class="x4-6l50aF x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1027"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-16-5vIdYV frame-16" data-id="209:1012"></div>
+            <div class="frame-11-5vIdYV frame-11" data-id="209:1014"></div>
+            <div class="frame-17-5vIdYV frame-17" data-id="209:1015"></div>
+          </div>
+          <div class="leeson-12-U0insf" data-id="209:1016">
+            <div class="frame-18-o2DuMo frame-18" data-id="209:1017">
+              <div
+                class="x12-StghFk montserrat-extra-bold-gray-20px"
+                data-id="209:1018"
+              >
+                12
+              </div>
+            </div>
+            <div class="frame-12-o2DuMo frame-12" data-id="209:1019">
+              <div
+                class="text_label-LCsl87 text_label montserrat-extra-bold-gray-20px"
+                data-id="209:1020"
+              >
+                Петров Кирилл Александрович
+              </div>
+            </div>
+            <div class="frame-14-o2DuMo frame-14" data-id="209:1021"></div>
+            <div class="frame-9-o2DuMo frame-9" data-id="209:1023">
+              <div
+                class="x4-ZZgOK8 x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1024"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-15-o2DuMo frame-15" data-id="209:1025"></div>
+            <div class="frame-10-o2DuMo frame-10" data-id="209:1026"></div>
+            <div class="frame-16-o2DuMo frame-16" data-id="209:1028"></div>
+            <div class="frame-11-o2DuMo frame-11" data-id="209:1029"></div>
+            <div class="frame-17-o2DuMo frame-17" data-id="209:1030"></div>
+          </div>
+          <div class="leeson-13-U0insf" data-id="209:1031">
+            <div class="frame-18-mgd1lz frame-18" data-id="209:1032">
+              <div
+                class="x13-BRcyIF montserrat-extra-bold-gray-20px"
+                data-id="209:1033"
+              >
+                13
+              </div>
+            </div>
+            <div class="frame-12-mgd1lz frame-12" data-id="209:1034">
+              <div
+                class="text_label-M92g2D text_label montserrat-extra-bold-gray-20px"
+                data-id="209:1035"
+              >
+                Смирнова Дарья Денисовна
+              </div>
+            </div>
+            <div class="frame-14-mgd1lz frame-14" data-id="209:1036"></div>
+            <div class="frame-9-mgd1lz frame-9" data-id="209:1038"></div>
+            <div class="frame-15-mgd1lz frame-15" data-id="209:1039">
+              <div
+                class="x4-NNO6xj x4 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1040"
+              >
+                4
+              </div>
+            </div>
+            <div class="frame-10-mgd1lz frame-10" data-id="209:1041"></div>
+            <div class="frame-16-mgd1lz frame-16" data-id="209:1042">
+              <div
+                class="x5-uiDO5A x5 montserrat-semi-bold-granite-gray-18px"
+                data-id="209:1052"
+              >
+                5
+              </div>
+            </div>
+            <div class="frame-11-mgd1lz frame-11" data-id="209:1044"></div>
+            <div class="frame-17-mgd1lz frame-17" data-id="209:1045"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="launchpad-js/launchpad-banner.js" async></script>
+    <script
+      defer
+      src="https://animaapp.s3.amazonaws.com/static/restart-btn.min.js"
+    ></script>
+  </body>
+</html>
